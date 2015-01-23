@@ -26,6 +26,9 @@ essential for the Adobe Flash Player to understand the response therefore.
 @since: 0.1
 """
 
+from six import iteritems, text_type
+from six.moves import xrange
+
 import pyamf
 from pyamf import util
 
@@ -353,7 +356,7 @@ class BaseFault(object):
         Raises an exception based on the fault object. There is no traceback
         available.
         """
-        raise get_exception_from_fault(self), self.description, None
+        raise get_exception_from_fault(self)(self.description)
 
 
 class ErrorFault(BaseFault):
@@ -468,7 +471,7 @@ def _read_body(stream, decoder, strict=False, logger=None):
     status = STATUS_OK
     is_request = True
 
-    for code, s in STATUS_CODES.iteritems():
+    for code, s in iteritems(STATUS_CODES):
         if not target.endswith(s):
             continue
 
@@ -528,7 +531,7 @@ def _write_body(name, message, stream, encoder, strict=False):
     target = None
 
     if isinstance(message, Request):
-        target = unicode(message.target)
+        target = text_type(message.target)
     else:
         target = u"%s%s" % (name, _get_status(message.status))
 
@@ -593,8 +596,8 @@ def get_fault(data):
 
     e = {}
 
-    for x, y in data.iteritems():
-        if isinstance(x, unicode):
+    for x, y in iteritems(data):
+        if isinstance(x, text_type):
             e[str(x)] = y
         else:
             e[x] = y
@@ -706,7 +709,7 @@ def encode(msg, strict=False, logger=None, timezone_offset=None, **kwargs):
     stream.write_ushort(msg.amfVersion)
     stream.write_ushort(len(msg.headers))
 
-    for name, header in msg.headers.iteritems():
+    for name, header in iteritems(msg.headers):
         _write_header(
             name,
             header,
@@ -718,7 +721,7 @@ def encode(msg, strict=False, logger=None, timezone_offset=None, **kwargs):
 
     stream.write_short(len(msg))
 
-    for name, message in msg.iteritems():
+    for name, message in iteritems(msg):
         encoder.context.clear()
 
         _write_body(name, message, stream, encoder, strict)

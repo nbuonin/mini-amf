@@ -11,6 +11,8 @@ C{django.db.models} adapter module.
 import datetime
 import sys
 
+from six import iteritems
+
 from django.db.models.base import Model
 from django.db.models import fields
 from django.db.models.fields import files
@@ -185,7 +187,7 @@ class DjangoClassAlias(pyamf.ClassAlias):
         if not attrs:
             attrs = {}
 
-        for name, prop in self.fields.iteritems():
+        for name, prop in iteritems(self.fields):
             if name not in attrs.keys():
                 continue
 
@@ -197,7 +199,7 @@ class DjangoClassAlias(pyamf.ClassAlias):
             if key.startswith('_'):
                 del attrs[key]
 
-        for name, relation in self.relations.iteritems():
+        for name, relation in iteritems(self.relations):
             if '_%s_cache' % name in obj.__dict__:
                 attrs[name] = getattr(obj, name)
 
@@ -249,8 +251,8 @@ class DjangoClassAlias(pyamf.ClassAlias):
                     pass
 
         if not getattr(obj, pk_attr):
-            for name, relation in self.relations.iteritems():
-                if isinstance(relation, models.ManyToManyField):
+            for name, relation in iteritems(self.relations):
+                if isinstance(relation, related.ManyToManyField):
                     try:
                         if len(attrs[name]) == 0:
                             del attrs[name]

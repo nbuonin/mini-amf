@@ -11,6 +11,7 @@ Tests for AMF3 Implementation.
 
 import unittest
 import datetime
+from six.moves import xrange
 
 import pyamf
 from pyamf import amf3, util, xml, python
@@ -1656,7 +1657,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase, EncoderMixIn):
     def test_exception(self):
         try:
             raise Exception('foo bar')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
@@ -1671,7 +1672,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         try:
             raise FooBar('foo bar')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
@@ -1688,7 +1689,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         try:
             raise XYZ('blarg')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
