@@ -94,6 +94,8 @@ class UndefinedType(object):
     def __nonzero__(self):
         return False
 
+    __bool__ = __nonzero__
+
 
 #: Represents the C{undefined} value in the Adobe Flash Player client.
 Undefined = UndefinedType()
