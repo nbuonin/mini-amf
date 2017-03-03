@@ -8,8 +8,6 @@ Tests for the adapters.util module.
 """
 
 import unittest
-from six.moves import builtins
-
 from pyamf.adapters import util
 
 

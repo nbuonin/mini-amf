@@ -761,6 +761,7 @@ class RecordSet(object):
 
         return ret
 
+
 pyamf.register_class(RecordSet)
 
 

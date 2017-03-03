@@ -9,7 +9,7 @@ C{django.utils.translation} adapter module.
 """
 
 from django.utils.translation import ugettext_lazy
-from six import text_type
+from six import text_type, raise_from
 import pyamf
 
 
@@ -17,7 +17,9 @@ def convert_lazy(l, encoder=None):
     try:
         return text_type(l)
     except Exception as e:
-        raise ValueError(
-            'Don\'t know how to convert lazy value ' +repr(l)) from e
+        raise_from(
+            ValueError('Don\'t know how to convert lazy value ' + repr(l)),
+            e)
+
 
 pyamf.add_type(type(ugettext_lazy('foo')), convert_lazy)

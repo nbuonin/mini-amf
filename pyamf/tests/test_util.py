@@ -525,13 +525,15 @@ class DataTypeMixInTestCase(unittest.TestCase):
             x, x.write_24bit_int, (128,), (b'\x00\x00\x80', b'\x80\x00\x00')
         )
         self._write_endian(
-            x, x.write_24bit_int, (8388607,), (b'\x7f\xff\xff', b'\xff\xff\x7f')
+            x, x.write_24bit_int, (8388607,),
+            (b'\x7f\xff\xff', b'\xff\xff\x7f')
         )
         self._write_endian(
             x, x.write_24bit_int, (-1,), (b'\xff\xff\xff', b'\xff\xff\xff')
         )
         self._write_endian(
-            x, x.write_24bit_int, (-8388608,), (b'\x80\x00\x00', b'\x00\x00\x80')
+            x, x.write_24bit_int, (-8388608,),
+            (b'\x80\x00\x00', b'\x00\x00\x80')
         )
 
         self.assertRaises(OverflowError, x.write_24bit_int, 8388608)
@@ -575,13 +577,15 @@ class DataTypeMixInTestCase(unittest.TestCase):
             x,
             x.write_double,
             (0.2,),
-            (b'?\xc9\x99\x99\x99\x99\x99\x9a', b'\x9a\x99\x99\x99\x99\x99\xc9?')
+            (b'?\xc9\x99\x99\x99\x99\x99\x9a',
+             b'\x9a\x99\x99\x99\x99\x99\xc9?')
         )
         self.assertRaises(TypeError, x.write_double, 'foo')
 
     def test_read_double(self):
         self._read_endian(
-            [b'?\xc9\x99\x99\x99\x99\x99\x9a', b'\x9a\x99\x99\x99\x99\x99\xc9?'],
+            [b'?\xc9\x99\x99\x99\x99\x99\x9a',
+             b'\x9a\x99\x99\x99\x99\x99\xc9?'],
             'read_double',
             (),
             0.2

@@ -159,4 +159,5 @@ def is_class_sa_mapped(klass):
 
     return True
 
+
 pyamf.register_alias_type(SaMappedClassAlias, is_class_sa_mapped)

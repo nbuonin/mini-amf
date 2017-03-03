@@ -73,6 +73,7 @@ class RemotingCallFailed(RemotingError):
     Raised if B{Server.Call.Failed} received.
     """
 
+
 pyamf.add_error_class(RemotingCallFailed, ERROR_CODES[ERROR_CALL_FAILED])
 
 

@@ -9,6 +9,7 @@ Useful helpers for adapters.
 
 from six import text_type, binary_type
 
+
 def to_list(obj, encoder):
     """
     Converts an arbitrary object C{obj} to a C{list}.

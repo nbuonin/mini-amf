@@ -13,6 +13,7 @@ in Google App Engine.
 """
 
 import logging
+from six import iteritems
 
 from google.appengine.ext import db
 from google.appengine.ext.db import polymodel

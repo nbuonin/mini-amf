@@ -297,9 +297,9 @@ class EncoderTestCase(unittest.TestCase):
         self.assertEqual(
             remoting.encode(msg).getvalue(),
             b'\x00\x00\x00\x00'
-            b'\x00\x01\x00\x0b/1/onResult\x00\x04null\x00\x00\x00\x00\n\x00\x00'
-            b'\x00\x03\x00?\xf0\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00\x00'
-            b'\x00\x00\x00\x00@\x08\x00\x00\x00\x00\x00\x00'
+            b'\x00\x01\x00\x0b/1/onResult\x00\x04null\x00\x00\x00\x00\n\x00'
+            b'\x00\x00\x03\x00?\xf0\x00\x00\x00\x00\x00\x00\x00@\x00\x00\x00'
+            b'\x00\x00\x00\x00\x00@\x08\x00\x00\x00\x00\x00\x00'
         )
 
     def test_message_order(self):
@@ -443,8 +443,8 @@ class ReprTestCase(unittest.TestCase):
 
         self.assertIn(
             repr(r), (
-                "<Request target=u'\\u20ac\\xb1'>[u'\\xe5\\u222b\\xe7']</Reques"
-                "t>",
+                "<Request target=u'\\u20ac\\xb1'>[u'\\xe5\\u222b\\xe7']"
+                "</Request>",
                 "<Request target='\u20ac\xb1'>['\xe5\u222b\xe7']</Request>",
             )
         )

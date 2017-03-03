@@ -10,7 +10,6 @@ AMF Utilities.
 import calendar
 import datetime
 import inspect
-import math
 from six import iteritems
 
 import pyamf

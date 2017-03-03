@@ -11,7 +11,6 @@ is compatible with the Adobe U{Flash Player
 @status: Production/Stable
 """
 
-import types
 import inspect
 from six import iteritems
 

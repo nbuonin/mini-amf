@@ -23,7 +23,7 @@ L{ByteArray} and L{ArrayCollection}.
 
 import datetime
 import zlib
-from six import binary_type, iteritems, text_type
+from six import binary_type, text_type
 from six.moves import xrange
 
 import pyamf
@@ -1488,10 +1488,12 @@ class Encoder(codec.Encoder):
         attrs = alias.getEncodableAttributes(obj, codec=self)
 
         if alias.static_attrs:
+            sattrs = sorted(alias.static_attrs)
             if not class_ref:
-                [self.serialiseString(attr) for attr in sorted(alias.static_attrs)]
+                for attr in sattrs:
+                    self.serializeString(attr)
 
-            for attr in sorted(alias.static_attrs):
+            for attr in sattrs:
                 value = attrs.pop(attr)
 
                 self.writeElement(value)
@@ -1501,17 +1503,19 @@ class Encoder(codec.Encoder):
 
         if definition.encoding == ObjectEncoding.DYNAMIC:
             if attrs:
-                e = pyamf.EncodeError('Unable to encode %r (type %r)' % (obj, type(obj)))
+                def e(o):
+                    pyamf.EncodeError('Unable to encode %r (type %r)'
+                                      % (o, type(o)))
                 try:
                     keys = sorted(attrs)
                 except TypeError:
-                    raise e
+                    raise e(obj)
                 for key in keys:
                     value = attrs[key]
                     if isinstance(key, python.int_types):
                         key = str(key)
                     elif not isinstance(key, python.str_types):
-                        raise e
+                        raise e(obj)
 
                     self.serialiseString(key)
                     self.writeElement(value)

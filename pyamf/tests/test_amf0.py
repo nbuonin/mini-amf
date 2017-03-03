@@ -105,7 +105,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.assertEncoded(s, b'\x0c\x00\x01\x00\x01' + s)
 
     def test_dict(self):
-        self.assertEncoded({'a': b'a'}, b'\x03\x00\x01a\x02\x00\x01a\x00\x00\t')
+        self.assertEncoded({'a': b'a'},
+                           b'\x03\x00\x01a\x02\x00\x01a\x00\x00\t')
 
         self.assertEncoded({12: True, 42: "Testing"}, b'\x03', (
             b'\x00\x0242\x02\x00\x07Testing',
@@ -202,8 +203,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         self.assertEncoded(
             [[x, x]],
-            b'\n\x00\x00\x00\x01\n\x00\x00\x00\x02\x03\x00\x01a\x02\x00\x04spam'
-            b'\x00\x01b\x02\x00\x04eggs\x00\x00\t\x07\x00\x02'
+            b'\n\x00\x00\x00\x01\n\x00\x00\x00\x02\x03\x00\x01a\x02\x00'
+            b'\x04spam\x00\x01b\x02\x00\x04eggs\x00\x00\t\x07\x00\x02'
         )
 
     def test_amf3(self):
@@ -223,7 +224,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.assertEncoded(
             x,
             b'\x03',
-            (b'\x00\x05hello\x02\x00\x05world', b'\x00\x04spam\x02\x00\x04eggs'),
+            (b'\x00\x05hello\x02\x00\x05world',
+             b'\x00\x04spam\x02\x00\x04eggs'),
             b'\x00\x00\t'
         )
 
@@ -494,9 +496,9 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         self.assertEncoded(
             foo(),
-            b'\n\x00\x00\x00\x03\x00?\xf0\x00\x00\x00\x00\x00\x00\x00@\x00\x00'
-            b'\x00\x00\x00\x00\x00\x00@\x08\x00\x00\x00\x00\x00\x00\x02\x00\x01'
-            b'\xff\x06'
+            b'\n\x00\x00\x00\x03\x00?\xf0\x00\x00\x00\x00\x00\x00\x00'
+            b'@\x00\x00\x00\x00\x00\x00\x00\x00@\x08\x00\x00\x00\x00'
+            b'\x00\x00\x02\x00\x01\xff\x06'
         )
 
     def test_iterate(self):
@@ -518,7 +520,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.assertIdentical(iter(self.encoder), self.encoder)
         self.assertEqual(
             self.buf.getvalue(),
-            b'\x02\x00\x00\x02\x00\x05hello\x02\x00\x06\xc6\x92\xc3\xb8\xc3\xb8'
+            b'\x02\x00\x00\x02\x00\x05hello'
+            b'\x02\x00\x06\xc6\x92\xc3\xb8\xc3\xb8'
         )
 
     def test_subclassed_tuple(self):
@@ -723,7 +726,8 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         self.assertDecoded(
             [[{'a': u'spam', 'b': u'eggs'}, {'a': u'spam', 'b': u'eggs'}]],
             b'\n\x00\x00\x00\x01\n\x00\x00\x00\x02\x08\x00\x00\x00\x00\x00\x01'
-            b'a\x02\x00\x04spam\x00\x01b\x02\x00\x04eggs\x00\x00\t\x07\x00\x02')
+            b'a\x02\x00\x04spam\x00\x01b\x02\x00\x04eggs\x00\x00\t\x07\x00\x02'
+        )
         self.assertDecoded(
             [[1.0]],
             b'\x0A\x00\x00\x00\x01\x0A\x00\x00\x00\x01\x00\x3F\xF0\x00\x00\x00'
@@ -749,8 +753,8 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
         self.assertDecoded(
             x,
-            b'\x10\x00\x01x\x00\x03foo\x02\x00\x03bar\x00\x05hello\x02\x00\x05w'
-            b'orld\x00\x00\t'
+            b'\x10\x00\x01x\x00\x03foo\x02\x00\x03bar\x00\x05hello'
+            b'\x02\x00\x05world\x00\x00\t'
         )
 
     def test_classic_class(self):
@@ -1189,8 +1193,8 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase):
 
         self.assertEqual(
             self.buffer.getvalue(),
-            b'\x03\x00\x07message\x02\x00\x07foo bar\x00\x04name\x02\x00\x06Foo'
-            b'Bar\x00\x00\t'
+            b'\x03\x00\x07message\x02\x00\x07foo bar\x00\x04name\x02\x00'
+            b'\x06FooBar\x00\x00\t'
         )
 
     def test_typed(self):
@@ -1217,20 +1221,21 @@ class AMF0ContextTestCase(unittest.TestCase):
 
     bytes = (
         b'\x00\x03\x00\x02\x00\x0eServiceLicense\x00\x00\x00\x00O\x11\n\x0b'
-        b'\x01-serviceConfigurationId\x06\t1234\x15licenseKey\x06Axxxxxxxxxxxxx'
-        b'xxxxxxxxxxxxxxxxxxx\x01\x00\tSessionId\x00\x00\x00\x00\xb2\x11\n\x0b'
-        b'\x01\x0bToken\x06\x82Iyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-        b'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-        b'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\x01\x00\x01\x00\x0cR'
-        b'egisterUser\x00\x02/3\x00\x00\x01k\n\x00\x00\x00\x07\x11\n#\x01\rform'
-        b'at\x0bvalue\x069urn:TribalDDB:identity:email\x06!tester@trial.com\x11'
-        b'\n#\x01\x02\ttype\x06\x0fpasswrd\x06Kurn:TribalDDB:authentication:pas'
-        b'sword\x11\nS\x01\x19EmailAddress\x15PostalCode\x17DateOfBirth\x11Last'
-        b'Name\x13FirstName\x06\x06\x06\x0b12345\n3\x12\x0bmonth\x07day\tyear'
-        b'\x04\x04\x04\x0f\x04\x8fF\x06\rewrwer\x06\x07wer\x11\n3\x1fSectionTra'
-        b'cking\tCsId\x11TrtmntId\x13LocalCsId\x04\x00\x04\x86\x94z\x04\x00\x11'
-        b'\n\x13\x11Tracking\x07CTC\x06\x07555\x11\t\x03\x01\n#\x13UserOptIn'
-        b'\x1dliveModeEnable\x05id\x02\x04\x884\x02\x00\x10wwwwwwwwwwwwwwww'
+        b'\x01-serviceConfigurationId\x06\t1234\x15licenseKey\x06Axxxxxxxxxxxx'
+        b'xxxxxxxxxxxxxxxxxxxx\x01\x00\tSessionId\x00\x00\x00\x00\xb2\x11\n'
+        b'\x0b\x01\x0bToken\x06\x82Iyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
+        b'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
+        b'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\x01\x00\x01'
+        b'\x00\x0cRegisterUser\x00\x02/3\x00\x00\x01k\n\x00\x00\x00\x07\x11\n#'
+        b'\x01\rformat\x0bvalue\x069urn:TribalDDB:identity:email\x06!tester@tr'
+        b'ial.com\x11\n#\x01\x02\ttype\x06\x0fpasswrd\x06Kurn:TribalDDB:authen'
+        b'tication:password\x11\nS\x01\x19EmailAddress\x15PostalCode\x17DateOf'
+        b'Birth\x11LastName\x13FirstName\x06\x06\x06\x0b12345\n3\x12\x0bmonth'
+        b'\x07day\tyear\x04\x04\x04\x0f\x04\x8fF\x06\rewrwer\x06\x07wer\x11\n3'
+        b'\x1fSectionTracking\tCsId\x11TrtmntId\x13LocalCsId\x04\x00\x04\x86'
+        b'\x94z\x04\x00\x11\n\x13\x11Tracking\x07CTC\x06\x07555\x11\t\x03\x01'
+        b'\n#\x13UserOptIn\x1dliveModeEnable\x05id\x02\x04\x884\x02\x00\x10www'
+        b'wwwwwwwwwwwww'
     )
 
     def test_decode(self):

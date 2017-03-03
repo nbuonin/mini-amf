@@ -26,8 +26,8 @@ warnings.simplefilter('ignore', RuntimeWarning)
 class DecoderTestCase(unittest.TestCase):
     def test_header(self):
         bytes = (
-            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
 
         try:
@@ -37,22 +37,22 @@ class DecoderTestCase(unittest.TestCase):
 
     def test_invalid_header(self):
         bytes = (
-            b'\x00\x00\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x00\x00'
+            b'\x00\x00\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
         self.assertRaises(pyamf.DecodeError, sol.decode, bytes)
 
     def test_invalid_header_length(self):
         bytes = (
-            b'\x00\xbf\x00\x00\x00\x05TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x05TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
         self.assertRaises(pyamf.DecodeError, sol.decode, bytes)
 
     def test_strict_header_length(self):
         bytes = (
-            b'\x00\xbf\x00\x00\x00\x00TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x00TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
 
         try:
@@ -62,29 +62,29 @@ class DecoderTestCase(unittest.TestCase):
 
     def test_invalid_signature(self):
         bytes = (
-            b'\x00\xbf\x00\x00\x00\x15ABCD\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15ABCD\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
         self.assertRaises(pyamf.DecodeError, sol.decode, bytes)
 
     def test_invalid_header_name_length(self):
         bytes = (
-            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x01hello'
-            b'\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x01hello\x00\x00\x00\x00'
         )
         self.assertRaises(pyamf.DecodeError, sol.decode, bytes)
 
     def test_invalid_header_padding(self):
         bytes = (
-            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x01\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x01\x00'
         )
         self.assertRaises(pyamf.DecodeError, sol.decode, bytes)
 
     def test_unknown_encoding(self):
         bytes = (
-            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x00\x01'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x01'
         )
         self.assertRaises(ValueError, sol.decode, bytes)
 
@@ -112,8 +112,8 @@ class EncoderTestCase(unittest.TestCase):
 
         self.assertEqual(
             stream.getvalue(),
-            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            b'\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
 
     def test_multiple_values(self):

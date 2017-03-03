@@ -10,6 +10,7 @@ C{django.db.models} adapter module.
 
 import datetime
 import sys
+import pyamf
 
 from six import iteritems
 
@@ -28,8 +29,6 @@ except ImportError:
     from django.db.models.fields import related
 
     ForeignObjectRel = related.ForeignObjectRel
-
-import pyamf
 
 
 class DjangoReferenceCollection(dict):

@@ -89,7 +89,8 @@ class ArrayCollectionTestCase(unittest.TestCase, EncoderMixIn):
 
     def test_decode_amf0(self):
         stream = util.BufferedByteStream(
-            b'\x11\n\x07Cflex.messaging.io.ArrayCollection\t\x03\x01\x06\teggs')
+            b'\x11\n\x07Cflex.messaging.io.ArrayCollection'
+            b'\t\x03\x01\x06\teggs')
         decoder = amf0.Decoder(stream)
         x = decoder.readElement()
 

@@ -395,8 +395,10 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         u.family_name = 'Doe'
         u.given_name = 'Jane'
 
-        self.assertEncoded(u, b'\n\x0b!spam.eggs.Person', (
-            b'\x17family_name\x06\x07Doe', b'\x15given_name\x06\tJane'), b'\x01')
+        self.assertEncoded(u, b'\n\x0b!spam.eggs.Person',
+                           (b'\x17family_name\x06\x07Doe',
+                            b'\x15given_name\x06\tJane'),
+                           b'\x01')
 
     def test_slots(self):
         class Person(object):
@@ -425,8 +427,9 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         u.family_name = 'Doe'
         u.given_name = 'Jane'
 
-        self.assertEncoded(u, b'\n\x0b!spam.eggs.Person', (
-            b'\x17family_name\x06\x07Doe', b'\x15given_name\x06\tJane'), b'\x01')
+        self.assertEncoded(u, b'\n\x0b!spam.eggs.Person',
+                           (b'\x17family_name\x06\x07Doe',
+                            b'\x15given_name\x06\tJane'), b'\x01')
 
     def test_elementtree_tag(self):
         class NotAnElement(object):
@@ -564,7 +567,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         self.assertEqual(self.encoder.next(), b'\x06\x01')
         self.assertEqual(self.encoder.next(), b'\x06\x0bhello')
-        self.assertEqual(self.encoder.next(), b'\x06\r\xc6\x92\xc3\xb8\xc3\xb8')
+        self.assertEqual(self.encoder.next(),
+                         b'\x06\r\xc6\x92\xc3\xb8\xc3\xb8')
 
         self.assertRaises(StopIteration, self.encoder.next)
 

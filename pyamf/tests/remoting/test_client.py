@@ -482,9 +482,9 @@ class RemotingServiceTestCase(BaseServiceTestCase):
 
         self.assertEqual(
             r.data,
-            b'\x00\x00\x00\x00\x00\x02\x00\x07baz.gak\x00\x02/1\x00\x00\x00\x00'
-            b'\n\x00\x00\x00\x00\x00\tspam.eggs\x00\x02/2\x00\x00\x00\x00\n\x00'
-            b'\x00\x00\x00'
+            b'\x00\x00\x00\x00\x00\x02\x00\x07baz.gak\x00\x02/1\x00\x00\x00'
+            b'\x00\n\x00\x00\x00\x00\x00\tspam.eggs\x00\x02/2\x00\x00\x00'
+            b'\x00\n\x00\x00\x00\x00'
         )
 
     def test_get_response(self):
@@ -536,8 +536,8 @@ class RemotingServiceTestCase(BaseServiceTestCase):
     def test_replace_url_header(self):
         self.setResponse(
             200,
-            b'\x00\x00\x00\x01\x00\x11ReplaceGatewayUrl\x01\x00\x00\x00\x00\x02'
-            b'\x00\x10http://spam.eggs\x00\x00\x00\x00',
+            b'\x00\x00\x00\x01\x00\x11ReplaceGatewayUrl\x01\x00\x00\x00\x00'
+            b'\x02\x00\x10http://spam.eggs\x00\x00\x00\x00',
             {'Content-Type': 'application/x-amf'}
         )
 
@@ -575,8 +575,8 @@ class RemotingServiceTestCase(BaseServiceTestCase):
 
         self.setResponse(
             200,
-            b'\x00\x00\x00\x01\x00\x11ReplaceGatewayUrl\x01\x00\x00\x00\x00\x02'
-            b'\x00\x10http://spam.eggs\x00\x00\x00\x00'
+            b'\x00\x00\x00\x01\x00\x11ReplaceGatewayUrl\x01\x00\x00\x00\x00'
+            b'\x02\x00\x10http://spam.eggs\x00\x00\x00\x00'
         )
 
         self.gw.execute()
@@ -588,8 +588,8 @@ class RemotingServiceTestCase(BaseServiceTestCase):
     def test_empty_content_length(self):
         self.setResponse(
             200,
-            b'\x00\x00\x00\x01\x00\x11ReplaceGatewayUrl\x01\x00\x00\x00\x00\x02'
-            b'\x00\x10http://spam.eggs\x00\x00\x00\x00',
+            b'\x00\x00\x00\x01\x00\x11ReplaceGatewayUrl\x01\x00\x00\x00\x00'
+            b'\x02\x00\x10http://spam.eggs\x00\x00\x00\x00',
             {
                 'Content-Type': 'application/x-amf',
                 'Content-Length': ''

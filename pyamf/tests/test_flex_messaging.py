@@ -51,10 +51,10 @@ class EncodingTestCase(unittest.TestCase):
 
         self.assertEqual(
             pyamf.encode(m).getvalue(),
-            b'\n\x81\x1bMflex.messaging.messages.CommandMessage\tbody\x11client'
-            b'Id\x1bcorrelationId\x17destination\x0fheaders\x13messageId\x13ope'
-            b'ration\x15timeToLive\x13timestamp\x01\x01\x01\x01\n\x0b\x01\x01'
-            b'\x01\x06\x0ffoo.bar\x01\x01\x01'
+            b'\n\x81\x1bMflex.messaging.messages.CommandMessage\tbody'
+            b'\x11clientId\x1bcorrelationId\x17destination\x0fheaders'
+            b'\x13messageId\x13operation\x15timeToLive\x13timestamp'
+            b'\x01\x01\x01\x01\n\x0b\x01\x01\x01\x06\x0ffoo.bar\x01\x01\x01'
         )
 
     def test_ErrorMessage(self):
@@ -64,9 +64,10 @@ class EncodingTestCase(unittest.TestCase):
             pyamf.encode(m).getvalue(),
             b'\n\x81[Iflex.messaging.messages.ErrorMessage\tbody\x11clientId'
             b'\x1bcorrelationId\x17destination\x19extendedData\x13faultCode'
-            b'\x17faultDetail\x17faultString\x0fheaders\x13messageId\x13rootCau'
-            b'se\x15timeToLive\x13timestamp\x01\x01\x01\x01\n\x0b\x01\x01\x01'
-            b'\x01\x06\x15ValueError\n\x05\x01\x01\n\x05\x01\x01\x01\x01'
+            b'\x17faultDetail\x17faultString\x0fheaders\x13messageId'
+            b'\x13rootCause\x15timeToLive\x13timestamp\x01\x01\x01\x01\n\x0b'
+            b'\x01\x01\x01\x01\x06\x15ValueError\n\x05\x01\x01\n\x05\x01\x01'
+            b'\x01\x01'
         )
 
     def test_RemotingMessage(self):
@@ -74,10 +75,10 @@ class EncodingTestCase(unittest.TestCase):
 
         self.assertEqual(
             pyamf.encode(m).getvalue(),
-            b'\n\x81\x1bOflex.messaging.messages.RemotingMessage\tbody\x11clien'
-            b'tId\x17destination\x0fheaders\x13messageId\x13operation\rsource'
-            b'\x15timeToLive\x13timestamp\x01\x01\x01\n\x0b\x01\x01\x01\x01\x06'
-            b'\x0ffoo.bar\x01\x01\x01'
+            b'\n\x81\x1bOflex.messaging.messages.RemotingMessage\tbody'
+            b'\x11clientId\x17destination\x0fheaders\x13messageId'
+            b'\x13operation\rsource\x15timeToLive\x13timestamp\x01\x01\x01'
+            b'\n\x0b\x01\x01\x01\x01\x06\x0ffoo.bar\x01\x01\x01'
         )
 
 
@@ -92,11 +93,12 @@ class SmallMessageTestCase(unittest.TestCase):
 
     def test_acknowledge(self):
         bytes = (
-            b'\n\x07\x07DSK\xa8\x03\n\x0b\x01\tDSId\x06IEE0D161D-C11D-25CB-8DBE'
-            b'-3B77B54B55D9%DSMessagingVersion\x05?\xf0\x00\x00\x00\x00\x00\x00'
-            b'\x01\x05Br3&m\x85\x10\x00\x0c!\xee\r\x16\x1d\xc1(&[\xc9\x80RK\x9b'
-            b'E\xc6\xc4\x0c!\xee\r\x16\x1d\xc1=\x8e\xa3\xe0\x10\xef\xad;\xe5'
-            b'\xc5j\x02\x0c!S\x84\x83\xdb\xa9\xc8\xcaM`\x952f\xdbQ\xc9<\x00'
+            b'\n\x07\x07DSK\xa8\x03\n\x0b\x01\tDSId\x06IEE0D161D-C11D-25CB-'
+            b'8DBE-3B77B54B55D9%DSMessagingVersion\x05?\xf0\x00\x00\x00\x00'
+            b'\x00\x00\x01\x05Br3&m\x85\x10\x00\x0c!\xee\r\x16\x1d\xc1(&['
+            b'\xc9\x80RK\x9bE\xc6\xc4\x0c!\xee\r\x16\x1d\xc1=\x8e\xa3\xe0'
+            b'\x10\xef\xad;\xe5\xc5j\x02\x0c!S\x84\x83\xdb\xa9\xc8\xcaM`'
+            b'\x952f\xdbQ\xc9<\x00'
         )
         self.buffer.write(bytes)
         self.buffer.seek(0)
