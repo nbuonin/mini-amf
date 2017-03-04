@@ -1491,7 +1491,7 @@ class Encoder(codec.Encoder):
             sattrs = sorted(alias.static_attrs)
             if not class_ref:
                 for attr in sattrs:
-                    self.serializeString(attr)
+                    self.serialiseString(attr)
 
             for attr in sattrs:
                 value = attrs.pop(attr)
@@ -1504,8 +1504,8 @@ class Encoder(codec.Encoder):
         if definition.encoding == ObjectEncoding.DYNAMIC:
             if attrs:
                 def e(o):
-                    pyamf.EncodeError('Unable to encode %r (type %r)'
-                                      % (o, type(o)))
+                    return pyamf.EncodeError('Unable to encode %r (type %r)'
+                                             % (o, type(o)))
                 try:
                     keys = sorted(attrs)
                 except TypeError:
