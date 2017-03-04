@@ -111,7 +111,6 @@ class TestCommand(test.test):
 
 def get_extras_require():
     return {
-        'wsgi': ['wsgiref'],
     }
 
 
