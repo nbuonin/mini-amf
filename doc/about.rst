@@ -7,4 +7,4 @@ These documents are generated from `reStructuredText
 <http://sphinx.pocoo.org>`_, a document processor
 specifically written for the official Python documentation.
 
-See :ref:`reporting-bugs` for how to report bugs in PyAMF.
+See :ref:`reporting-bugs` for how to report bugs in Mini-AMF.

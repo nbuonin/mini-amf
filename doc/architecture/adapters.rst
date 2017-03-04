@@ -4,7 +4,7 @@
 
 .. topic:: Introduction
 
-   The Adapter Framework allows PyAMF to integrate nicely with other Python
+   The Adapter Framework allows Mini-AMF to integrate nicely with other Python
    libraries. This includes setting up type conversions, class mappings, etc.
 
 
@@ -26,21 +26,21 @@ Extended types are converted to basic data types that AMF can serialize.  An
 How It Works
 ============
 
-The adapter framework hooks into Python's module loader, so you do not need to
-explicitly load adapter modules.  When you import both ``pyamf`` and a library
-that PyAMF provides adapters for, the adapters will be activated.  You can do
-this in either order:
+The adapter framework hooks into Python's module loader, so you do not need
+to explicitly load adapter modules.  When you import both ``miniamf`` and a
+library that Mini-AMF provides adapters for, the adapters will be
+activated.  You can do this in either order:
 
 .. code-block:: python
 
    import array
-   import pyamf
+   import miniamf
 
 or
 
 .. code-block:: python
 
-   import pyamf
+   import miniamf
    import array
 
 

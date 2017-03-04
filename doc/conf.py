@@ -79,9 +79,9 @@ readme = rst2html('../README.rst', 'html/intro.html')
 readme = copyfile('../CHANGES.txt', 'changelog.rst')
 
 # General substitutions.
-project = 'PyAMF'
-url = 'http://pyamf.org'
-description = 'AMF for Python'
+project = 'Mini-AMF'
+url = 'http://miniamf.github.io'
+description = 'AMF Encoding and Decoding for Python'
 
 if on_rtd == False:
     copyright = "Copyright &#169; 2007-%s The <a href='%s'>%s</a> Project. All rights reserved." % (
@@ -89,12 +89,12 @@ if on_rtd == False:
 else:
     copyright = "2007-%s The %s Project" % (time.strftime('%Y'), project)
 
-# We look for the __init__.py file in the current PyAMF source tree
+# We look for the __init__.py file in the current Mini-AMF source tree
 # and replace the values accordingly.
-import pyamf
+import miniamf
 
 # The full version, including alpha/beta/rc tags.
-version = str(pyamf.version)
+version = str(miniamf.version)
 
 # The short X.Y version.
 release = version[:3]

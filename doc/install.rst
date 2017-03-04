@@ -4,15 +4,15 @@
 
 .. contents::
 
-Mini-PyAMF requires Python_ 2.7 or 3.4+, and DefusedXML_.
+Mini-AMF requires Python_ 2.7 or 3.4+, and DefusedXML_.
 
 
 Easy Installation
 =================
 
-The easiest way to install Mini-PyAMF is with ``pip``::
+The easiest way to install Mini-AMF is with ``pip``::
 
-    pip install mini-pyamf
+    pip install mini-amf
 
 
 Manual Installation
@@ -22,10 +22,10 @@ First install DefusedXML_.  If you wish to build the C accelerator
 module, you will also need a C compiler and the libraries for
 compiling Python extensions.
 
-:doc:`community/download` and unpack the PyAMF archive of your choice::
+:doc:`community/download` and unpack the Mini-AMF archive of your choice::
 
-    tar zxfv Mini-PyAMF-<version>.tar.gz
-    cd Mini-PyAMF-<version>
+    tar zxfv Mini-AMF-<version>.tar.gz
+    cd Mini-AMF-<version>
 
 Then install using the ``setup.py`` script::
 
@@ -64,7 +64,7 @@ To build the main documentation you need:
 - Sphinx_ 1.0 or newer
 - Epydoc_ 3.0 or newer
 - `sphinxcontrib.epydoc`_ 0.4 or newer
-- a :doc:`copy <community/download>` of the PyAMF source distribution
+- a :doc:`copy <community/download>` of the Mini-AMF source distribution
 
 Then, from the ``doc`` subdirectory of the source distribution, run
 this command::
@@ -72,29 +72,14 @@ this command::
     sphinx-build -b html . build
 
 This will generate HTML documentation in the ``doc/build/html``
-folder. This documentation is identical to the content on the main PyAMF
+folder. This documentation is identical to the content on the main Mini-AMF
 website_.
 
-.. _Python: 			http://www.python.org
+.. _Python: 			https://www.python.org/
 .. _DefusedXML:                 https://pypi.python.org/pypi/defusedxml
-.. _Sphinx:     		http://sphinx.pocoo.org
-.. _Epydoc:			http://epydoc.sourceforge.net
-.. _sphinxcontrib.epydoc:       http://packages.python.org/sphinxcontrib-epydoc
-.. _ElementTree:		http://effbot.org/zone/element-index.htm
-.. _website:    		https://github.com/hydralabs/pyamf
-
-.. _lxml:			http://lxml.de
-.. _uuid:			http://pypi.python.org/pypi/uuid
-.. _wsgiref:			http://pypi.python.org/pypi/wsgiref
-.. _cElementTree: 		http://effbot.org/zone/celementtree.htm
-.. _SQLAlchemy:			http://www.sqlalchemy.org
-.. _Twisted:			http://twistedmatrix.com
-.. _Django:			http://www.djangoproject.com
-.. _Google App Engine: 		http://code.google.com/appengine
-.. _`python-pyamf`: http://packages.debian.org/python-pyamf
-.. _Elixir:			http://elixir.ematia.de
-.. _unittest2:			http://pypi.python.org/pypi/unittest2
-.. _nose:			http://somethingaboutorange.com/mrl/projects/nose
-.. _Trial:			http://twistedmatrix.com/trac/wiki/TwistedTrial
 .. _Cython:			http://cython.org
-.. _Installing Python Modules: 	http://docs.python.org/install/index.html
+.. _Sphinx:     		http://www.sphinx-doc.org/
+.. _Epydoc:			http://epydoc.sourceforge.net/
+.. _sphinxcontrib.epydoc:       http://packages.python.org/sphinxcontrib-epydoc
+.. _website:    		https://github.com/hydralabs/miniamf
+

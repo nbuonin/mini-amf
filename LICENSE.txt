@@ -1,14 +1,7 @@
-PyAMF is available under the terms of the MIT license.  The full text of the
-MIT license is included below.
+Copyright © 2007-2015 The PyAMF Project.
+Copyright © 2017 Zack Weinberg.
 
-MIT License
-===========
-
-Copyright (c) 2007-2010 The PyAMF Project. All rights reserved.
-
-- Arnar Birgisson
-- Thijs Triemstra
-- Nick Joyce
+Mini-AMF is available under the terms of the MIT license:
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

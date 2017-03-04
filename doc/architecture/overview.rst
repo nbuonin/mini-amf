@@ -1,13 +1,13 @@
-============
-  Features
-============
+========
+Features
+========
 
-Here's a brief description of the features in PyAMF. The
+Here's a brief description of the features in Mini-AMF. The
 :doc:`CHANGES <../changelog>` document contains a more detailed
 summary of all new features.
 
-- :mod:`AMF0 <pyamf.amf0>` encoder/decoder for legacy Adobe Flash Players (version 6-8)
-- :mod:`AMF3 <pyamf.amf3>` encoder/decoder for the new AMF format in Adobe Flash Player 9
+- :mod:`AMF0 <miniamf.amf0>` encoder/decoder for legacy Adobe Flash Players (version 6-8)
+- :mod:`AMF3 <miniamf.amf3>` encoder/decoder for the new AMF format in Adobe Flash Player 9
   and newer
 - Optional C-extension for maximum performance, created using `Cython`_
 - Remoting gateway for any compatible WSGI_ framework

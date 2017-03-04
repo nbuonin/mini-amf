@@ -6,10 +6,10 @@ Mini-AMF provides Action Message Format (AMF_) serialization and
 deserialization support for Python_, compatible with the `Adobe Flash
 Player`_.  It supports Python 2.7 and 3.4+.
 
-.. image:: https://travis-ci.org/hydralabs/pyamf.svg?branch=master
-    :target: https://travis-ci.org/hydralabs/pyamf
-.. image:: https://coveralls.io/repos/hydralabs/pyamf/badge.svg
-   :target: https://coveralls.io/r/hydralabs/pyamf
+.. image:: https://travis-ci.org/zackw/mini-amf.svg?branch=master
+    :target: https://travis-ci.org/zackw/mini-amf
+.. image:: https://coveralls.io/repos/zackw/mini-amf/badge.svg
+   :target: https://coveralls.io/r/zackw/mini-amf
 
 Mini-AMF is a trimmed-down version of the `original PyAMF`_, which (as
 far as I can tell) is no longer being maintained.  It provides only

@@ -1,10 +1,10 @@
 .. _reporting-bugs:
 
-****************************
-Reporting Bugs in Mini-PyAMF
-****************************
+**************************
+Reporting Bugs in Mini-AMF
+**************************
 
-Bug reports should be submitted to the `Github issue tracker <https://github.com/zackw/mini-pyamf/issues>`_.
+Bug reports should be submitted to the `Github issue tracker <https://github.com/zackw/mini-amf/issues>`_.
 
 .. seealso::
 
