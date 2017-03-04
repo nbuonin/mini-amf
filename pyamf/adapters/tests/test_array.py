@@ -7,11 +7,7 @@ Tests for the L{array} L{pyamf.adapters._array} module.
 @since: 0.5
 """
 
-try:
-    import array
-except ImportError:
-    array = None
-
+import array
 import unittest
 
 import pyamf
@@ -22,9 +18,6 @@ class ArrayTestCase(unittest.TestCase):
     """
 
     def setUp(self):
-        if not array:
-            self.skipTest("'array' not available")
-
         self.orig = ['f', 'o', 'o']
 
         self.obj = array.array('c')

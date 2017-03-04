@@ -229,20 +229,6 @@ def get_fqcn(klass):
     return '%s.%s' % (klass.__module__, klass.__name__)
 
 
-def expectedFailureIfAppengine(func):
-    try:
-        from google import appengine  # noqa
-    except ImportError:
-        return func
-    else:
-        import os
-
-        if os.environ.get('SERVER_SOFTWARE', None) is None:
-            return func
-
-        return unittest.expectedFailure(func)
-
-
 def _join(parts):
     ret = ''
 

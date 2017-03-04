@@ -31,5 +31,4 @@ def convert_Decimal(x, encoder):
     )
 
 
-if hasattr(decimal, 'Decimal'):
-    pyamf.add_type(decimal.Decimal, convert_Decimal)
+pyamf.add_type(decimal.Decimal, convert_Decimal)

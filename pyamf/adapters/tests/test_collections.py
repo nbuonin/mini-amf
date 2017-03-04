@@ -7,11 +7,7 @@ Tests for the L{collections} L{pyamf.adapters._collections} module.
 @since: 0.5
 """
 
-try:
-    import collections
-except ImportError:
-    collections = None
-
+import collections
 import unittest
 
 import pyamf
@@ -20,10 +16,6 @@ import pyamf
 class CollectionsTestCase(unittest.TestCase):
     """
     """
-
-    def setUp(self):
-        if not collections:
-            self.skipTest("'collections' not available")
 
     def encdec(self, encoding):
         return pyamf.decode(
@@ -57,9 +49,6 @@ class DefaultDictTestCase(CollectionsTestCase):
     def setUp(self):
         CollectionsTestCase.setUp(self)
 
-        if not hasattr(collections, 'defaultdict'):
-            self.skipTest("'collections.defaultdict' not available")
-
         s = 'mississippi'
         self.obj = collections.defaultdict(int)
 
@@ -83,9 +72,6 @@ class OrderedDictTestCase(CollectionsTestCase):
     def setUp(self):
         CollectionsTestCase.setUp(self)
 
-        if not hasattr(collections, 'OrderedDict'):
-            self.skipTest("'collections.OrderedDict' not available")
-
         self.obj = collections.OrderedDict(
             [('apple', 4), ('banana', 3), ('orange', 2), ('pear', 1)]
         )
@@ -106,9 +92,6 @@ class CounterTestCase(CollectionsTestCase):
     def setUp(self):
         CollectionsTestCase.setUp(self)
 
-        if not hasattr(collections, 'Counter'):
-            self.skipTest("'collections.Counter' not available")
-
         self.obj = collections.Counter({'blue': 3, 'red': 2, 'green': 1})
 
         self.orig = dict(self.obj)
@@ -127,9 +110,6 @@ class NamedTupleTestCase(CollectionsTestCase):
 
     def setUp(self):
         CollectionsTestCase.setUp(self)
-
-        if not hasattr(collections, 'namedtuple'):
-            self.skipTest("'collections.namedtuple' not available")
 
         user_vo = collections.namedtuple('user_vo', 'id name age')
 

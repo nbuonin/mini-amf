@@ -15,6 +15,4 @@ import array
 import pyamf
 from pyamf.adapters import util
 
-
-if hasattr(array, 'ArrayType'):
-    pyamf.add_type(array.ArrayType, util.to_list)
+pyamf.add_type(array.ArrayType, util.to_list)

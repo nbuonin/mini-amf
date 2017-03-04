@@ -35,16 +35,18 @@ class PackageImporter(object):
 
 
 def register_adapters():
+    """
+    Register all adapters provided by submodules.  Submodules that
+    fail to load are silently ignored, in case they depend on
+    third-party packages that are not installed.
+    """
     global adapters_registered
 
     if adapters_registered is True:
         return
 
-    try:
-        import pkg_resources
-        packageDir = pkg_resources.resource_filename('pyamf', 'adapters')
-    except:
-        packageDir = os.path.dirname(__file__)
+    import pkg_resources
+    packageDir = pkg_resources.resource_filename('pyamf', 'adapters')
 
     for f in glob.glob(os.path.join(packageDir, '*.py')):
         mod = os.path.basename(f).split(os.path.extsep, 1)[0]
@@ -87,7 +89,7 @@ def get_adapter(mod):
     Return the PyAMF adapter for the supplied module.
 
     Usage::
-        adapter = pyamf.get_adapter('django.contrib.auth.models')
+        adapter = pyamf.get_adapter('collections')
     """
     base_name = '_' + mod.replace('.', '_')
 

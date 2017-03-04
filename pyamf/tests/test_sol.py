@@ -18,7 +18,7 @@ from StringIO import StringIO
 
 import pyamf
 from pyamf import sol
-from pyamf.tests.util import check_buffer, expectedFailureIfAppengine
+from pyamf.tests.util import check_buffer
 
 warnings.simplefilter('ignore', RuntimeWarning)
 
@@ -158,16 +158,7 @@ class HelperTestCase(unittest.TestCase):
         '\x04spam\x02\x00\x04eggs\x00')
 
     def setUp(self):
-        try:
-            self.fp, self.file_name = tempfile.mkstemp()
-        except NotImplementedError:
-            try:
-                import google.appengine  # noqa
-            except ImportError:
-                raise
-            else:
-                self.skipTest('Not available on AppEngine')
-
+        self.fp, self.file_name = tempfile.mkstemp()
         os.close(self.fp)
 
     def tearDown(self):
@@ -236,7 +227,6 @@ class SOLTestCase(unittest.TestCase):
         self.assertEqual(s, {})
         self.assertEqual(s.name, 'eggs')
 
-    @expectedFailureIfAppengine
     def test_save(self):
         s = sol.SOL('hello')
         s.update({'name': 'value', 'spam': 'eggs'})

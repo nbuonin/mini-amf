@@ -12,9 +12,8 @@ import sets
 import pyamf
 from pyamf.adapters import util
 
+pyamf.add_type(frozenset, util.to_tuple)
+pyamf.add_type(set, util.to_tuple)
 
-if hasattr(sets, 'ImmutableSet'):
-    pyamf.add_type(sets.ImmutableSet, util.to_tuple)
-
-if hasattr(sets, 'Set'):
-    pyamf.add_type(sets.Set, util.to_tuple)
+pyamf.add_type(sets.ImmutableSet, util.to_tuple)
+pyamf.add_type(sets.Set, util.to_tuple)

@@ -747,8 +747,6 @@ def register_alias_type(klass, *args):
 
     @since: 0.4
     @see:
-     - L{pyamf.adapters._google_appengine_ext_db.DataStoreClassAlias} for a
-       good example.
      - L{unregister_alias_type}
     @raise RuntimeError: alias is already registered
     @raise TypeError: Value supplied to C{klass} is not a class

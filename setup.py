@@ -7,21 +7,17 @@
 import setupinfo
 from setuptools import setup, find_packages
 
+from pyamf._version import version
 
-version = (0, 8, 0)
-
-name = "PyAMF"
-description = "AMF support for Python"
+name = "Mini-PyAMF"
+description = "AMF serialization and deserialization support for Python"
 long_description = setupinfo.read('README.rst')
-url = "http://pyamf.org"
-author = "The PyAMF Project"
-author_email = "users@pyamf.org"
+url = "https://github.com/zackw/minipyamf"
+author = "Zack Weinberg, The PyAMF Project"
+author_email = "zackw@panix.com"
 license = "MIT License"
 
 classifiers = """
-Framework :: Django
-Framework :: Pylons
-Framework :: Twisted
 Intended Audience :: Developers
 Intended Audience :: Information Technology
 License :: OSI Approved :: MIT License
@@ -30,12 +26,10 @@ Operating System :: OS Independent
 Programming Language :: C
 Programming Language :: Python
 Programming Language :: Cython
-Programming Language :: Python :: 2.4
-Programming Language :: Python :: 2.5
-Programming Language :: Python :: 2.6
 Programming Language :: Python :: 2.7
 Topic :: Internet :: WWW/HTTP :: WSGI :: Application
 Topic :: Software Development :: Libraries :: Python Modules
+Development Status :: 5 - Production/Stable
 """
 
 keywords = """
@@ -46,13 +40,10 @@ remoteobject twisted pylons django sharedobject lso sol
 
 
 def setup_package():
-    setupinfo.set_version(version)
-
-    setupinfo.write_version_py()
 
     setup(
         name=name,
-        version=setupinfo.get_version(),
+        version=str(version),
         description=description,
         long_description=long_description,
         url=url,
@@ -63,14 +54,12 @@ def setup_package():
         packages=find_packages(),
         ext_modules=setupinfo.get_extensions(),
         install_requires=setupinfo.get_install_requirements(),
-        tests_require=setupinfo.get_test_requirements(),
         test_suite="pyamf.tests.get_suite",
         zip_safe=False,
         extras_require=setupinfo.get_extras_require(),
-        classifiers=(
-            [_f for _f in classifiers.strip().split('\n') if _f] +
-            setupinfo.get_trove_classifiers()
-        ),
+        classifiers=[
+            l for l in (ll.strip() for ll in classifiers.splitlines()) if l
+        ],
         **setupinfo.extra_setup_args())
 
 
