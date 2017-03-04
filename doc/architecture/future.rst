@@ -2,11 +2,21 @@
 Future Development
 ==================
 
-Mini-PyAMF provides complete support for encoding and decoding AMF
-versions 0 and 3.  What with the general deprecation of Flash on the
-Web, I do not expect that there will be newer versions of AMF to
-support.
+This software is essentially finished.  Mini-AMF provides complete
+support for encoding and decoding AMF versions 0 and 3.  What with the
+general deprecation of Flash on the Web, I do not expect that there
+will be newer versions of AMF to support.
 
-Restoration of support for compatibility with various web frameworks
-(Django, Twisted, etc.) would be welcome but I have no plans to do so
-myself.
+The older PyAMF_ software also supported types peculiar to
+`Adobe Flex`_, had direct support for AMF-based RPC ("remoting"),
+and contained adapter classes for integration with several ORMs and
+web frameworks.  All of that has been removed, primarily in the name of
+making it easier to support Python 3, and secondarily because the
+adapter classes were all broken when used with the current versions of
+their frameworks.  I have no plans to add any of that back; I think
+server integration is properly a separate package, or perhaps several
+packages, one per framework.
+
+
+.. _PyAMF: https://github.com/hydralabs/pyamf
+.. _Adobe Flex: https://en.wikipedia.org/wiki/Apache_Flex
