@@ -135,7 +135,7 @@ def get_version():
 def get_extras_require():
     return {
         'wsgi': ['wsgiref'],
-        'twisted': ['Twisted>=2.5.0'],
+        'twisted': ['Twisted>=2.5.0', 'service_identity'],
         'django': ['Django>=0.96'],
         'sqlalchemy': ['SQLAlchemy>=0.4'],
         'elixir': ['Elixir>=0.7.1'],
