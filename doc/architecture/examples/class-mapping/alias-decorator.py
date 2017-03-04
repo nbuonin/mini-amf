@@ -13,4 +13,3 @@ class RemoteClass(object):
     def __call__(self, klass):
         pyamf.register_class(klass, self.alias)
         return klass
-

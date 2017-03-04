@@ -1,11 +1,12 @@
-======================
-  Future Development
-======================
+==================
+Future Development
+==================
 
-This is a list of stuff we want to get done before a 1.0
-release.
+Mini-PyAMF provides complete support for encoding and decoding AMF
+versions 0 and 3.  What with the general deprecation of Flash on the
+Web, I do not expect that there will be newer versions of AMF to
+support.
 
-
-- `Flex Migration <http://dev.pyamf.org/milestone/1.0>`_
-- `Python 3.0 compatibility <http://dev.pyamf.org/milestone/0.7>`_
-- `Jython support <http://dev.pyamf.org/ticket/269>`_
+Restoration of support for compatibility with various web frameworks
+(Django, Twisted, etc.) would be welcome but I have no plans to do so
+myself.

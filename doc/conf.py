@@ -34,7 +34,7 @@ on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 def rst2html(input, output):
     """
     Create html file from rst file.
-    
+
     :param input: Path to rst source file
     :type: `str`
     :param output: Path to html output file
@@ -48,7 +48,7 @@ def rst2html(input, output):
     tmp = open(output, 'w')
     tmp.write(body)
     tmp.close()
-    
+
     return body
 
 # -- General configuration -----------------------------------------------------
@@ -58,7 +58,7 @@ needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-# 
+#
 # Make sure to install the following Sphinx extension module as well:
 # - http://packages.python.org/sphinxcontrib-epydoc
 extensions = ['sphinx.ext.intersphinx', 'sphinx.ext.extlinks',
@@ -75,7 +75,7 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # create content template for the homepage
-readme = rst2html('../README.txt', 'html/intro.html')
+readme = rst2html('../README.rst', 'html/intro.html')
 readme = copyfile('../CHANGES.txt', 'changelog.rst')
 
 # General substitutions.
@@ -251,4 +251,3 @@ trac_url = 'http://dev.pyamf.org'
 
 # Trac url mapping
 extlinks = {'ticket': (trac_url + '/ticket/%s', '#')}
-

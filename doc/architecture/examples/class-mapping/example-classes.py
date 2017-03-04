@@ -1,7 +1,7 @@
 class User(object):
-    def __init__(self, name, pass):
+    def __init__(self, name, password):
         self.name = name
-        self.pass = pass
+        self.password = password
 
 class Permission(object):
     def __init__(self, type):

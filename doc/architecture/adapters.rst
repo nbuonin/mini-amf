@@ -11,45 +11,37 @@
 Adapters Overview
 =================
 
-We currently have adapters for the following libraries:
+We currently have adapters for some of Python's extended data structure types:
 
-- :doc:`../tutorials/gateways/django`
-- :doc:`../tutorials/gateways/appengine`
-- :doc:`../tutorials/gateways/sqlalchemy`
-- Elixir_
-- :py:mod:`sets` module
-- :py:mod:`decimal` module
+- :py:mod:`array`
+- :py:mod:`collections`
+- :py:mod:`decimal`
+- :py:mod:`sets`
+- :py:mod:`weakref`
+
+Extended types are converted to basic data types that AMF can serialize.  An
+``array.array``, for instance, will arrive on the far end as a ``list``.
 
 
 How It Works
 ============
 
-The adapter framework works silently in the background. This means that the user
-does not need to specifically import the Django adapter module within PyAMF, it
-is all handled in the background. It works by adding a module loader and finder
-to :py:data:`sys.meta_path` so it can intercept import calls and) to fire a
-callback when, for example the ``django`` module is imported and accessed.
-
-It is important to note that PyAMF does not load all the modules when
-registering its adapters and therefore it doesn't load modules that you
-don't use in your program.
-
-So, code like this works:
+The adapter framework hooks into Python's module loader, so you do not need to
+explicitly load adapter modules.  When you import both ``pyamf`` and a library
+that PyAMF provides adapters for, the adapters will be activated.  You can do
+this in either order:
 
 .. code-block:: python
 
-   from django import http
+   import array
    import pyamf
 
-As well as:
+or
 
 .. code-block:: python
-   
-   import pyamf
-   from django import http
 
-The adapter framework makes it easy to add other packages to the list, as PyAMF
-matures.
+   import pyamf
+   import array
 
 
 Building Your Own Adapter
@@ -64,14 +56,3 @@ Glue code:
 
 .. literalinclude:: examples/adapters/myadapter.py
    :linenos:
-
-And you're done!
-
-
-What next?
-==========
-
-:doc:`Contributions</bugs>` (including unit tests) are always welcome!
-
-.. _Elixir: 		http://www.elixir.ematia.de
-.. _Contributions: 	http://pyamf.org/newticket
