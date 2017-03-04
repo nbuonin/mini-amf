@@ -114,13 +114,13 @@ class EncodingModelTestCase(BaseTestCase):
     def test_amf3(self):
         bytes = (
             '\n\x0b\x01', (
-                '\tname\x06\x0fJessica',
                 '\t_key%s' % (self.encodeKey(self.jessica, pyamf.AMF3)),
                 '\x13birthdate\x08\x01B^\xc4\xae\xaa\x00\x00\x00',
-                '!weight_in_pounds\x04\x05',
+                '\tname\x06\x0fJessica',
+                '%spayed_or_neutered\x02'
                 '\ttype\x06\x07cat',
-                '%spayed_or_neutered\x02\x01'
-            ))
+                '!weight_in_pounds\x04\x05',
+            ), '\x01')
 
         self.assertEncodes(self.jessica, bytes, encoding=pyamf.AMF3)
 
@@ -143,13 +143,14 @@ class EncodingModelTestCase(BaseTestCase):
 
         bytes = (
             '\n\x0b\x01', (
-                '\tname\x06\x0fJessica',
                 '\t_key%s' % self.encodeKey(self.jessica, pyamf.AMF3),
                 '\x13birthdate\x08\x01B^\xc4\xae\xaa\x00\x00\x00',
-                '!weight_in_pounds\x04\x05',
+                '\tname\x06\x0fJessica',
+                '%spayed_or_neutered\x02',
                 '\ttype\x06\x07cat',
-                '%spayed_or_neutered\x02\x01'
-            ))
+                '!weight_in_pounds\x04\x05',
+            ), '\x01'
+        )
 
         self.assertEncodes(self.jessica, bytes, encoding=pyamf.AMF3)
 
@@ -175,14 +176,15 @@ class EncodingModelTestCase(BaseTestCase):
 
         bytes = (
             '\n\x0b\x07Pet', (
-                '\tname\x06\x0fJessica',
                 '\t_key%s' % self.encodeKey(self.jessica, pyamf.AMF3),
                 '\x13birthdate\x08\x01B^\xc4\xae\xaa\x00\x00\x00',
-                '!weight_in_pounds\x04\x05',
                 '\x07foo\x06\x07bar',
+                '\tname\x06\x0fJessica',
+                '%spayed_or_neutered\x02',
                 '\ttype\x06\x07cat',
-                '%spayed_or_neutered\x02\x01'
-            ))
+                '!weight_in_pounds\x04\x05',
+            ), '\x01'
+        )
 
         self.assertEncodes(self.jessica, bytes, encoding=pyamf.AMF3)
 
@@ -204,11 +206,11 @@ class EncodingExpandoTestCase(BaseTestCase):
             '\x03', (
                 '\x00\x04_key%s' % self.encodeKey(self.jessica, pyamf.AMF0),
                 '\x00\tbirthdate\x0bB^\xc4\xae\xaa\x00\x00\x00\x00\x00',
+                '\x00\x03foo\x02\x00\x03bar'
                 '\x00\x04name\x02\x00\x07Jessica',
                 '\x00\x12spayed_or_neutered\x01\x00',
                 '\x00\x04type\x02\x00\x03cat',
                 '\x00\x10weight_in_pounds\x00@\x14\x00\x00\x00\x00\x00\x00',
-                '\x00\x03foo\x02\x00\x03bar'
             ),
             '\x00\x00\t'
         )
@@ -218,14 +220,15 @@ class EncodingExpandoTestCase(BaseTestCase):
     def test_amf3(self):
         bytes = (
             '\n\x0b\x01', (
-                '\tname\x06\x0fJessica',
                 '\t_key%s' % self.encodeKey(self.jessica, pyamf.AMF3),
                 '\x13birthdate\x08\x01B^\xc4\xae\xaa\x00\x00\x00',
-                '!weight_in_pounds\x04\x05',
                 '\x07foo\x06\x07bar',
+                '\tname\x06\x0fJessica',
+                '%spayed_or_neutered\x02',
                 '\ttype\x06\x07cat',
-                '%spayed_or_neutered\x02\x01'
-            ))
+                '!weight_in_pounds\x04\x05',
+            ), '\x01'
+        )
 
         self.assertEncodes(self.jessica, bytes, encoding=pyamf.AMF3)
 
@@ -237,26 +240,27 @@ class EncodingExpandoTestCase(BaseTestCase):
         self.assertBuffer(bytes, ('\x03', (
             '\x00\x04_key%s' % self.encodeKey(self.jessica, pyamf.AMF0),
             '\x00\tbirthdate\x0bB^\xc4\xae\xaa\x00\x00\x00\x00\x00',
+            '\x00\x03foo\x02\x00\x03bar',
             '\x00\x04name\x02\x00\x07Jessica',
             '\x00\x12spayed_or_neutered\x01\x00',
             '\x00\x04type\x02\x00\x03cat',
             '\x00\x10weight_in_pounds\x00@\x14\x00\x00\x00\x00\x00\x00',
-            '\x00\x03foo\x02\x00\x03bar'),
-            '\x00\x00\t'))
+        ), '\x00\x00\t'
+        ))
 
     def test_save_amf3(self):
         self.jessica.put()
 
         bytes = (
             '\n\x0b\x01', (
-                '\tname\x06\x0fJessica',
                 '\t_key%s' % self.encodeKey(self.jessica, pyamf.AMF3),
                 '\x13birthdate\x08\x01B^\xc4\xae\xaa\x00\x00\x00',
-                '!weight_in_pounds\x04\x05',
                 '\x07foo\x06\x07bar',
+                '\tname\x06\x0fJessica',
+                '%spayed_or_neutered\x02'
                 '\ttype\x06\x07cat',
-                '%spayed_or_neutered\x02\x01'
-            ))
+                '!weight_in_pounds\x04\x05',
+            ), '\x01')
 
         self.assertEncodes(self.jessica, bytes, encoding=pyamf.AMF3)
 
@@ -279,14 +283,14 @@ class EncodingExpandoTestCase(BaseTestCase):
 
         bytes = (
             '\n\x0b\x07Pet', (
-                '\tname\x06\x0fJessica',
                 '\t_key%s' % self.encodeKey(self.jessica, pyamf.AMF3),
                 '\x13birthdate\x08\x01B^\xc4\xae\xaa\x00\x00\x00',
-                '!weight_in_pounds\x04\x05',
                 '\x07foo\x06\x07bar',
+                '\tname\x06\x0fJessica',
+                '%spayed_or_neutered\x02',
                 '\ttype\x06\x07cat',
-                '%spayed_or_neutered\x02\x01'
-            ))
+                '!weight_in_pounds\x04\x05',
+            ), '\x01')
 
         self.assertEncodes(self.jessica, bytes, encoding=pyamf.AMF3)
 
@@ -311,12 +315,12 @@ class EncodingReferencesTestCase(BaseTestCase):
 
         bytes = (
             '\x03', (
-                '\x00\x05title\x02\x00\x15Sense and Sensibility',
                 '\x00\x04_key' + amf0_k,
                 '\x00\x06author\x03', (
+                    '\x00\x04_key\x05',
                     '\x00\x04name\x02\x00\x0bJane Austen',
-                    '\x00\x04_key\x05'
                 ),
+                '\x00\x05title\x02\x00\x15Sense and Sensibility',
                 '\x00\x00\t'
             ),
             '\x00\x00\t')
@@ -324,14 +328,14 @@ class EncodingReferencesTestCase(BaseTestCase):
         self.assertEncodes(b, bytes, encoding=pyamf.AMF0)
 
         bytes = (
-            '\n\x0b\x01', ((
+            '\n\x0b\x01', (
+                '\t_key\x01',
                 '\rauthor\n\x0b\x01', (
-                    '\t_key' + amf3_k,
-                    '\tname\x06\x17Jane Austen'
-                ), '\x01\x06\x01'),
-                '\x0btitle\x06+Sense and Sensibility'
-            ),
-            '\x01')
+                    '\x00' + amf3_k,
+                    '\tname\x06\x17Jane Austen',
+                    '\x01'),
+                '\x0btitle\x06+Sense and Sensibility',
+                '\x01'))
 
         self.assertEncodes(b, bytes, encoding=pyamf.AMF3)
 
@@ -354,14 +358,14 @@ class EncodingReferencesTestCase(BaseTestCase):
         self.assertEncodes(b, bytes, encoding=pyamf.AMF0)
 
         bytes = (
-            '\n\x0b\x0bNovel', ((
+            '\n\x0b\x0bNovel', (
+                '\t_key\x01',
                 '\rauthor\n\x0b\rAuthor', (
-                    '\t_key' + amf3_k,
+                    '\x02' + amf3_k,
                     '\tname\x06\x17Jane Austen'
-                ), '\x01\n\x01'),
-                '\x0btitle\x06+Sense and Sensibility'
-            ),
-            '\x01')
+                    '\x01'),
+                '\x0btitle\x06+Sense and Sensibility',
+                '\x01'))
 
         self.assertEncodes(b, bytes, encoding=pyamf.AMF3)
 
@@ -400,8 +404,9 @@ class EncodingReferencesTestCase(BaseTestCase):
 
         bytes = (
             '\n\x0b\x01', ((
+                '\t_key\x01',
                 '\rauthor\n\x0b\x01', (
-                    '\t_key\x06' + amf3_k,
+                    '\x00\x06' + amf3_k,
                     '\tname\x06\x17Jane Austen\x01'
                 ), '\x02\x01'),
                 '\x0btitle\x06+Sense and Sensibility'
@@ -430,8 +435,9 @@ class EncodingReferencesTestCase(BaseTestCase):
 
         bytes = (
             '\n\x0b\x0bNovel', ((
+                '\t_key\x01',
                 '\rauthor\n\x0b\rAuthor', (
-                    '\t_key\x06' + amf3_k,
+                    '\x02\x06' + amf3_k,
                     '\tname\x06\x17Jane Austen\x01'
                 ), '\x06\x01'),
                 '\x0btitle\x06+Sense and Sensibility'

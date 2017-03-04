@@ -442,11 +442,22 @@ class LocalStructuredPropertyTestCase(google.BaseTestCase):
         guido.put()
 
         bytes = (
-            b'\n\x0b\x15LSPContact\t_key\x06eagx0ZXN0YmVkLXRlc3RyFQsSCkxTUENv'
-            b'bnRhY3QiBWd1aWRvDA\x13addresses\t\x05\x01\n\x0b\x13SPAddress\tc'
-            b'ity\x06\x13Amsterdam\x02\x01\rstreet\x01\ttype\x06\thome\x01\n'
-            b'\x05\n\x06\x05SF\x02\x01\x0e\x06\x11Spear St\x10\x06\twork\x01\t'
-            b'name\x06\x0bGuido\x01'
+            b'\n\x0b\x15LSPContact'
+            b'\t_key\x06eagx0ZXN0YmVkLXRlc3RyFQsSCkxTUENvbnRhY3QiBWd1aWRvDA'
+            b'\x13addresses\t\x05\x01'
+            b'\n\x0b\x13SPAddress'
+            b'\x02\x01'
+            b'\tcity\x06\x13Amsterdam'
+            b'\rstreet\x01'
+            b'\ttype\x06\thome'
+            b'\x01'
+            b'\n\x05'
+            b'\x02\x01'
+            b'\n\x06\x05SF'
+            b'\x0e\x06\x11Spear St'
+            b'\x10\x06\twork'
+            b'\x01'
+            b'\tname\x06\x0bGuido\x01'
         )
 
         self.assertEncodes(guido, bytes)

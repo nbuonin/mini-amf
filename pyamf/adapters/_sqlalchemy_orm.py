@@ -76,6 +76,9 @@ class SaMappedClassAlias(pyamf.ClassAlias):
 
             for attr in self.properties:
                 if attr not in obj.__dict__:
+                    # SQLAlchemy may use unicode strings for property
+                    # names even when running on Python 2.  Recheck.
+                    
                     lazy_attrs.append(attr)
 
             attrs[self.LAZY_ATTR] = lazy_attrs

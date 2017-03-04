@@ -12,6 +12,7 @@ import datetime
 import sys
 import pyamf
 
+from itertools import chain
 from six import iteritems
 
 from django.db.models.base import Model
@@ -29,6 +30,19 @@ except ImportError:
     from django.db.models.fields import related
 
     ForeignObjectRel = related.ForeignObjectRel
+
+
+# Model._meta.get_all_field_names was removed in django 1.10.
+def _get_all_field_names(meta):
+    try:
+        return meta.get_all_field_names()
+    except AttributeError:
+        return list(set(chain.from_iterable(
+            (f.name, f.attname) if hasattr(f, 'attname') else (f.name,)
+            for f in meta.get_fields()
+            if not (f.many_to_one and f.related_model is None)
+        )))
+
 
 
 class DjangoReferenceCollection(dict):
@@ -82,15 +96,13 @@ class DjangoClassAlias(pyamf.ClassAlias):
 
         self.meta = self.klass._meta
 
-        for name in self.meta.get_all_field_names():
-            x = self.meta.get_field_by_name(name)[0]
+        for name in _get_all_field_names(self.meta):
+            x = self.meta.get_field(name)
+            if x.auto_created or isinstance(x, ForeignObjectRel):
+                continue
 
             if isinstance(x, files.FileField):
                 self.readonly_attrs.update([name])
-
-            if isinstance(x, ForeignObjectRel):
-                continue
-
             if isinstance(x, models.ManyToManyField):
                 self.relations[name] = x
             elif not isinstance(x, models.ForeignKey):
