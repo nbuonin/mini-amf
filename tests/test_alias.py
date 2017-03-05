@@ -446,7 +446,7 @@ class ApplyAttributesTestCase(unittest.TestCase):
         self.assertEqual(self.obj.__dict__, {'foo': 'spam', 'bar': 'eggs'})
 
 
-class SimpleCompliationTestCase(unittest.TestCase):
+class SimpleCompilationTestCase(unittest.TestCase):
     """
     Tests for L{ClassAlias} property compliation for no inheritance.
     """
