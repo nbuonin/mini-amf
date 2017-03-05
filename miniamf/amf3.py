@@ -25,7 +25,7 @@ import datetime
 import zlib
 
 import miniamf
-from miniamf import codec, util, xml, python
+from miniamf import codec, util, xml
 
 
 __all__ = [
@@ -1065,7 +1065,7 @@ class Encoder(codec.Encoder):
         """
         t = type(data)
 
-        if t in python.int_types:
+        if t in (int, long):
             return self.writeInteger
         elif t is ByteArray:
             return self.writeByteArray
@@ -1275,9 +1275,9 @@ class Encoder(codec.Encoder):
         str_keys = []
 
         for x in keys:
-            if isinstance(x, python.int_types):
+            if isinstance(x, (int, long)):
                 int_keys.append(x)
-            elif isinstance(x, python.str_types):
+            elif isinstance(x, str):
                 str_keys.append(x)
             else:
                 raise ValueError("Non int/str key value found in dict")
@@ -1393,7 +1393,7 @@ class Encoder(codec.Encoder):
         if definition.encoding == ObjectEncoding.DYNAMIC:
             if attrs:
                 for attr, value in attrs.iteritems():
-                    if type(attr) in python.int_types:
+                    if isinstance(attr, (int, long)):
                         attr = str(attr)
 
                     self.serialiseString(attr)

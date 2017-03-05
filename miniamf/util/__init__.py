@@ -10,9 +10,9 @@ AMF Utilities.
 import calendar
 import datetime
 import inspect
+import types
 
 import miniamf
-from miniamf import python
 
 try:
     from cminiamf.util import BufferedByteStream
@@ -151,7 +151,7 @@ def get_class_meta(klass):
     @rtype: C{dict}
     @since: 0.5
     """
-    if not isinstance(klass, python.class_types) or klass is object:
+    if not isinstance(klass, (type, types.ClassType)) or klass is object:
         raise TypeError('klass must be a class object, got %r' % type(klass))
 
     meta = {

@@ -13,9 +13,10 @@ from __future__ import absolute_import
 
 import unittest
 import datetime
+import math
 
 import miniamf
-from miniamf import amf0, util, xml, python
+from miniamf import amf0, util, xml
 from .util import (
     EncoderMixIn, DecoderMixIn, ClassCacheClearingTestCase, Spam, ClassicSpam)
 
@@ -590,19 +591,19 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         self.buf.write('\x00\xff\xf8\x00\x00\x00\x00\x00\x00')
         self.buf.seek(0)
         x = self.decoder.readElement()
-        self.assertTrue(python.isNaN(x))
+        self.assertTrue(math.isnan(x))
 
         self.buf.truncate()
         self.buf.write('\x00\xff\xf0\x00\x00\x00\x00\x00\x00')
         self.buf.seek(0)
         x = self.decoder.readElement()
-        self.assertTrue(python.isNegInf(x))
+        self.assertTrue(math.isinf(x) and x < 0)
 
         self.buf.truncate()
         self.buf.write('\x00\x7f\xf0\x00\x00\x00\x00\x00\x00')
         self.buf.seek(0)
         x = self.decoder.readElement()
-        self.assertTrue(python.isPosInf(x))
+        self.assertTrue(math.isinf(x) and x > 0)
 
     def test_boolean(self):
         self.assertDecoded(True, '\x01\x01')

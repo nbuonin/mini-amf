@@ -8,10 +8,10 @@ Class alias base functionality.
 """
 
 import inspect
+import types
 
 import miniamf
-from miniamf import python, util
-
+from miniamf import util
 
 class UnknownClassAlias(Exception):
     """
@@ -29,7 +29,7 @@ class ClassAlias(object):
     """
 
     def __init__(self, klass, alias=None, **kwargs):
-        if not isinstance(klass, python.class_types):
+        if not isinstance(klass, (type, types.ClassType)):
             raise TypeError('klass must be a class type, got %r' % type(klass))
 
         self.checkClass(klass)
@@ -311,7 +311,7 @@ class ClassAlias(object):
             return self.alias == other
         elif isinstance(other, self.__class__):
             return self.klass == other.klass
-        elif isinstance(other, python.class_types):
+        elif isinstance(other, (type, types.ClassType)):
             return self.klass == other
         else:
             return False

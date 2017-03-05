@@ -9,7 +9,7 @@ import types
 import datetime
 
 import miniamf
-from miniamf import util, python, xml
+from miniamf import util, xml
 
 __all__ = [
     'IndexedCollection',
@@ -18,12 +18,10 @@ __all__ = [
     'Encoder'
 ]
 
-try:
-    unicode
-except NameError:
-    # py3k support
-    unicode = str
-    str = bytes
+FUNC_TYPES = (
+    types.BuiltinFunctionType, types.BuiltinMethodType, types.CodeType,
+    types.FunctionType, types.GeneratorType, types.LambdaType, types.MethodType
+)
 
 
 class IndexedCollection(object):
@@ -229,7 +227,7 @@ class Context(object):
         try:
             alias = self._class_aliases[klass] = miniamf.get_class_alias(klass)
         except miniamf.UnknownClassAlias:
-            if isinstance(klass, python.str_types):
+            if isinstance(klass, (str, unicode)):
                 raise
 
             # no alias has been found yet .. check subclasses
@@ -522,7 +520,7 @@ class Encoder(_Codec):
             return self.writeBoolean
         elif t is float:
             return self.writeNumber
-        elif t in python.int_types:
+        elif t in (int, long):
             return self.writeNumber
         elif t in (list, tuple):
             return self.writeList
@@ -541,17 +539,17 @@ class Encoder(_Codec):
                 if isinstance(data, type_):
                     return _CustomTypeFunc(self, func)
             except TypeError:
-                if python.callable(type_) and type_(data):
+                if callable(type_) and type_(data):
                     return _CustomTypeFunc(self, func)
 
         if isinstance(data, (list, tuple)):
             return self.writeSequence
 
         # now try some types that won't encode
-        if t in python.class_types:
+        if t in (type, types.ClassType):
             # can't encode classes
             return None
-        elif isinstance(data, python.func_types):
+        elif isinstance(data, FUNC_TYPES):
             # can't encode code objects
             return None
         elif isinstance(t, types.ModuleType):

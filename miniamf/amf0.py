@@ -19,7 +19,7 @@ LocalConnection, SharedObjects and other classes in the Adobe Flash Player.
 import datetime
 
 import miniamf
-from miniamf import util, codec, xml, python
+from miniamf import util, codec, xml
 
 
 #: Represented as 9 bytes: 1 byte for C{0x00} and 8 bytes a double
@@ -546,7 +546,7 @@ class Encoder(codec.Encoder):
         @param o: The C{dict} data to be encoded to the AMF0 data stream.
         """
         for key, val in o.iteritems():
-            if type(key) in python.int_types:
+            if isinstance(key, (int, long)):
                 key = str(key)
 
             self.serialiseString(key)

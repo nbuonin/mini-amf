@@ -16,7 +16,6 @@ import inspect
 
 from miniamf import util, _version
 from miniamf.adapters import register_adapters, get_adapter
-from miniamf import python
 from miniamf.alias import ClassAlias, UnknownClassAlias
 
 
@@ -42,7 +41,7 @@ CLASS_CACHE = {}
 #: Class loaders. An iterable of callables that are handed a string alias and
 #: return a class object or C{None} it not handled.
 #: @see: L{register_class_loader} and L{unregister_class_loader}
-CLASS_LOADERS = set()
+CLASS_LOADERS = []
 
 #: Custom type map.
 #: @see: L{get_type}, L{add_type}, and L{remove_type}
@@ -301,15 +300,11 @@ def get_class_alias(klass_or_alias):
 
     @raise UnknownClassAlias: Unknown alias
     """
-    if isinstance(klass_or_alias, python.str_types):
-        try:
-            return CLASS_CACHE[klass_or_alias]
-        except KeyError:
-            return load_class(klass_or_alias)
-
     try:
         return CLASS_CACHE[klass_or_alias]
     except KeyError:
+        if isinstance(klass_or_alias, str):
+            return load_class(klass_or_alias)
         raise UnknownClassAlias('Unknown alias for %r' % (klass_or_alias,))
 
 
@@ -340,10 +335,11 @@ def register_class_loader(loader):
     @raise TypeError: C{loader} must be callable
     @see: L{unregister_class_loader}
     """
-    if not hasattr(loader, '__call__'):
+    if not callable(loader):
         raise TypeError("loader must be callable")
 
-    CLASS_LOADERS.update([loader])
+    if loader not in CLASS_LOADERS:
+        CLASS_LOADERS.insert(0, loader)
 
 
 def unregister_class_loader(loader):
@@ -356,9 +352,28 @@ def unregister_class_loader(loader):
     """
     try:
         CLASS_LOADERS.remove(loader)
-    except KeyError:
-        raise LookupError("loader not found")
+    except ValueError:
+        raise LookupError("loader not registered")
 
+def _load_class_from_module(alias):
+    """
+    Load a class by guessing the name of a module that might define it.
+    This is always the final entry in CLASS_LOADERS.
+    """
+    mod_class = alias.split('.')
+
+    if not mod_class:
+        return None
+
+    module = '.'.join(mod_class[:-1])
+    klass = mod_class[-1]
+
+    try:
+        module = util.get_module(module)
+    except (ImportError, AttributeError):
+        return None
+
+    return getattr(module, klass)
 
 def load_class(alias):
     """
@@ -389,40 +404,16 @@ def load_class(alias):
         if klass is None:
             continue
 
-        if isinstance(klass, python.class_types):
+        if isinstance(klass, (type, types.ClassType)):
             return register_class(klass, alias)
-        elif isinstance(klass, ClassAlias):
+
+        if isinstance(klass, ClassAlias):
             CLASS_CACHE[klass.alias] = klass
             CLASS_CACHE[klass.klass] = klass
+            return klass.klass
 
-            return klass
-
-        raise TypeError("Expecting class object or ClassAlias from loader")
-
-    mod_class = alias.split('.')
-
-    if mod_class:
-        module = '.'.join(mod_class[:-1])
-        klass = mod_class[-1]
-
-        try:
-            module = util.get_module(module)
-        except (ImportError, AttributeError):
-            pass
-        else:
-            klass = getattr(module, klass)
-
-            if isinstance(klass, python.class_types):
-                return register_class(klass, alias)
-            elif isinstance(klass, ClassAlias):
-                CLASS_CACHE[klass.alias] = klass
-                CLASS_CACHE[klass.klass] = klass
-
-                return klass.klass
-            else:
-                raise TypeError(
-                    "Expecting class type or ClassAlias from loader"
-                )
+        raise TypeError("Expecting class object, not %r, from loader"
+                        % klass)
 
     # All available methods for finding the class have been exhausted
     raise UnknownClassAlias("Unknown alias for %r" % (alias,))
@@ -554,8 +545,8 @@ def add_type(type_, func=None):
     @see: L{get_type} and L{remove_type}
     """
     def _check_type(type_):
-        if not (isinstance(type_, python.class_types) or
-                hasattr(type_, '__call__')):
+        if not (isinstance(type_, (type, types.ClassType)) or
+                callable(type_)):
             raise TypeError(
                 'Unable to add %r as a custom type (expected a class or '
                 'callable)' % (type_,)
@@ -636,10 +627,8 @@ def add_error_class(klass, code):
         class.
     @raise ValueError: C{code} is already registered to an error class.
     """
-    if not isinstance(code, python.str_types):
-        code = code.decode('utf-8')
 
-    if not isinstance(klass, python.class_types):
+    if not isinstance(klass, (type, types.ClassType)):
         raise TypeError("klass must be a class type")
 
     mro = inspect.getmro(klass)
@@ -671,19 +660,22 @@ def remove_error_class(klass):
     @raise ValueError: Cannot find registered class.
     @raise TypeError: C{klass} is invalid type.
     """
-    if isinstance(klass, python.str_types):
-        if klass not in ERROR_CLASS_MAP:
-            raise ValueError('Code %s is not registered' % (klass,))
-    elif isinstance(klass, python.class_types):
-        classes = ERROR_CLASS_MAP.values()
-        if klass not in classes:
+
+    if isinstance(klass, (type, types.ClassType)):
+        for k, v in ERROR_CLASS_MAP.iteritems():
+            if v is klass:
+                klass = k
+                break
+        else:
             raise ValueError('Class %s is not registered' % (klass,))
 
-        klass = ERROR_CLASS_MAP.keys()[classes.index(klass)]
-    else:
-        raise TypeError("Invalid type, expected class or string")
+    if not isinstance(klass, (str, unicode)):
+        raise TypeError("Expected class or string, not %r" % klass)
 
-    del ERROR_CLASS_MAP[klass]
+    try:
+        del ERROR_CLASS_MAP[klass]
+    except KeyError:
+        raise ValueError('Class %s is not registered' % (klass,))
 
 
 def register_alias_type(klass, *args):
@@ -715,7 +707,7 @@ def register_alias_type(klass, *args):
                     raise RuntimeError('%r is already registered under %r' % (
                         arg, k))
 
-    if not isinstance(klass, python.class_types):
+    if not isinstance(klass, (type, types.ClassType)):
         raise TypeError('klass must be class')
 
     if not issubclass(klass, ClassAlias):
@@ -730,7 +722,7 @@ def register_alias_type(klass, *args):
         check_type_registered(c)
     else:
         for arg in args:
-            if not isinstance(arg, python.class_types):
+            if not isinstance(arg, (type, types.ClassType)):
                 raise TypeError('%r must be class' % (arg,))
 
             check_type_registered(arg)
@@ -791,7 +783,7 @@ def register_package(module=None, package=None, separator='.', ignore=None,
     """
     ignore = ignore or []
 
-    if isinstance(module, python.str_types):
+    if isinstance(module, (str, unicode)):
         if module == '':
             raise TypeError('Cannot get list of classes from %r' % (module,))
 
@@ -840,7 +832,7 @@ def register_package(module=None, package=None, separator='.', ignore=None,
         raise TypeError('Cannot get list of classes from %r' % (module,))
 
     def check_attr(attr):
-        if not isinstance(attr, python.class_types):
+        if not isinstance(attr, (type, types.ClassType)):
             return False
 
         if attr.__name__ in ignore:
@@ -854,12 +846,11 @@ def register_package(module=None, package=None, separator='.', ignore=None,
 
         return True
 
-    # gotta love python
-    classes = filter(check_attr, [get(x) for x in keys])
-
     registered = {}
-
-    for klass in classes:
+    for k in keys:
+        klass = get(k)
+        if not check_attr(klass):
+            continue
         alias = '%s%s%s' % (package, separator, klass.__name__)
 
         registered[klass] = register_class(klass, alias)
@@ -893,13 +884,14 @@ def add_post_decode_processor(func):
     @see: L{miniamf.codec.Decoder.finalise}
     @since: 0.7.0
     """
-    if not python.callable(func):
+    if not callable(func):
         raise TypeError('%r must be callable' % (func,))
 
     POST_DECODE_PROCESSORS.append(func)
 
 
 # setup some some standard class registrations and class loaders.
+register_class_loader(_load_class_from_module)
 register_class(ASObject)
 register_alias_type(TypedObjectClassAlias, TypedObject)
 register_alias_type(ErrorAlias, Exception)

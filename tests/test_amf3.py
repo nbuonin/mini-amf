@@ -13,9 +13,10 @@ from __future__ import absolute_import
 
 import unittest
 import datetime
+import math
 
 import miniamf
-from miniamf import amf3, util, xml, python
+from miniamf import amf3, util, xml
 from .util import (
     Spam, EncoderMixIn, DecoderMixIn, ClassCacheClearingTestCase)
 
@@ -605,13 +606,13 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
     def test_infinites(self):
         x = self.decode('\x05\xff\xf8\x00\x00\x00\x00\x00\x00')
-        self.assertTrue(python.isNaN(x))
+        self.assertTrue(math.isnan(x))
 
         x = self.decode('\x05\xff\xf0\x00\x00\x00\x00\x00\x00')
-        self.assertTrue(python.isNegInf(x))
+        self.assertTrue(math.isinf(x) and x < 0)
 
         x = self.decode('\x05\x7f\xf0\x00\x00\x00\x00\x00\x00')
-        self.assertTrue(python.isPosInf(x))
+        self.assertTrue(math.isinf(x) and x > 0)
 
     def test_boolean(self):
         self.assertDecoded(True, '\x03')

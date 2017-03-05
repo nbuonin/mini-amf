@@ -13,12 +13,7 @@ Do not reference directly, use L{miniamf.util.BufferedByteStream} instead.
 
 import struct
 
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
-
-from miniamf import python
+from cStringIO import StringIO
 
 # worked out a little further down
 SYSTEM_ENDIAN = None
@@ -40,7 +35,7 @@ class StringIOProxy(object):
         """
         self._buffer = StringIO()
 
-        if isinstance(buf, python.str_types):
+        if isinstance(buf, str):
             self._buffer.write(buf)
         elif hasattr(buf, 'getvalue'):
             self._buffer.write(buf.getvalue())
@@ -233,7 +228,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{c}.
         @raise OverflowError: Not in range.
         """
-        if type(c) not in python.int_types:
+        if not isinstance(c, (int, long)):
             raise TypeError('expected an int (got:%r)' % type(c))
 
         if not 0 <= c <= 255:
@@ -256,7 +251,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{c}.
         @raise OverflowError: Not in range.
         """
-        if type(c) not in python.int_types:
+        if not isinstance(c, (int, long)):
             raise TypeError('expected an int (got:%r)' % type(c))
 
         if not -128 <= c <= 127:
@@ -279,7 +274,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{s}.
         @raise OverflowError: Not in range.
         """
-        if type(s) not in python.int_types:
+        if not isinstance(s, (int, long)):
             raise TypeError('expected an int (got:%r)' % (type(s),))
 
         if not 0 <= s <= 65535:
@@ -302,7 +297,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{s}.
         @raise OverflowError: Not in range.
         """
-        if type(s) not in python.int_types:
+        if not isinstance(s, (int, long)):
             raise TypeError('expected an int (got:%r)' % (type(s),))
 
         if not -32768 <= s <= 32767:
@@ -325,7 +320,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{l}.
         @raise OverflowError: Not in range.
         """
-        if type(l) not in python.int_types:
+        if not isinstance(l, (int, long)):
             raise TypeError('expected an int (got:%r)' % (type(l),))
 
         if not 0 <= l <= 4294967295:
@@ -348,7 +343,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{l}.
         @raise OverflowError: Not in range.
         """
-        if type(l) not in python.int_types:
+        if not isinstance(l, (int, long)):
             raise TypeError('expected an int (got:%r)' % (type(l),))
 
         if not -2147483648 <= l <= 2147483647:
@@ -386,7 +381,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{n}.
         @raise OverflowError: Not in range.
         """
-        if type(n) not in python.int_types:
+        if not isinstance(n, (int, long)):
             raise TypeError('expected an int (got:%r)' % (type(n),))
 
         if not 0 <= n <= 0xffffff:
@@ -426,7 +421,7 @@ class DataTypeMixIn(object):
         @raise TypeError: Unexpected type for int C{n}.
         @raise OverflowError: Not in range.
         """
-        if type(n) not in python.int_types:
+        if not isinstance(n, (int, long)):
             raise TypeError('expected an int (got:%r)' % (type(n),))
 
         if not -8388608 <= n <= 8388607:
@@ -503,8 +498,8 @@ class DataTypeMixIn(object):
         @param u: unicode object
         @raise TypeError: Unexpected type for str C{u}.
         """
-        if not isinstance(u, python.str_types):
-            raise TypeError('Expected %r, got %r' % (python.str_types, u))
+        if not isinstance(u, (str, unicode)):
+            raise TypeError('Expected %r, got %r' % ((str, unicode), u))
 
         bytes = u
 
@@ -630,6 +625,10 @@ class BufferedByteStream(StringIOProxy, DataTypeMixIn):
 
         return new
 
+PosInf = 1e300000
+NegInf = -1e300000
+# we do this instead of float('nan') because windows throws a wobbler.
+NaN = PosInf / PosInf
 
 def is_float_broken():
     """
@@ -641,38 +640,47 @@ def is_float_broken():
     @rtype: C{bool}
     @return: Boolean indicating whether floats are broken on this platform.
     """
-    return str(python.NaN) != str(
+    return str(NaN) != str(
         struct.unpack("!d", '\xff\xf8\x00\x00\x00\x00\x00\x00')[0])
 
 
 # init the module from here ..
 
 if is_float_broken():
+    def isNaN(val):
+        return str(float(val)) == str(NaN)
+
+    def isPosInf(val):
+        return str(float(val)) == str(PosInf)
+
+    def isNegInf(val):
+        return str(float(val)) == str(NegInf)
+
     def read_double_workaround(self):
         """
         Override the L{DataTypeMixIn.read_double} method to fix problems
-        with doubles by using the third-party C{fpconst} library.
+        with doubles.
         """
         bytes = self.read(8)
 
         if self._is_big_endian():
             if bytes == '\xff\xf8\x00\x00\x00\x00\x00\x00':
-                return python.NaN
+                return NaN
 
             if bytes == '\xff\xf0\x00\x00\x00\x00\x00\x00':
-                return python.NegInf
+                return NegInf
 
             if bytes == '\x7f\xf0\x00\x00\x00\x00\x00\x00':
-                return python.PosInf
+                return PosInf
         else:
             if bytes == '\x00\x00\x00\x00\x00\x00\xf8\xff':
-                return python.NaN
+                return NaN
 
             if bytes == '\x00\x00\x00\x00\x00\x00\xf0\xff':
-                return python.NegInf
+                return NegInf
 
             if bytes == '\x00\x00\x00\x00\x00\x00\xf0\x7f':
-                return python.PosInf
+                return PosInf
 
         return struct.unpack("%sd" % self.endian, bytes)[0]
 
@@ -681,24 +689,24 @@ if is_float_broken():
     def write_double_workaround(self, d):
         """
         Override the L{DataTypeMixIn.write_double} method to fix problems
-        with doubles by using the third-party C{fpconst} library.
+        with doubles.
 
         @raise TypeError: Unexpected type for float C{d}.
         """
         if type(d) is not float:
             raise TypeError('expected a float (got:%r)' % (type(d),))
 
-        if python.isNaN(d):
+        if isNaN(d):
             if self._is_big_endian():
                 self.write('\xff\xf8\x00\x00\x00\x00\x00\x00')
             else:
                 self.write('\x00\x00\x00\x00\x00\x00\xf8\xff')
-        elif python.isNegInf(d):
+        elif isNegInf(d):
             if self._is_big_endian():
                 self.write('\xff\xf0\x00\x00\x00\x00\x00\x00')
             else:
                 self.write('\x00\x00\x00\x00\x00\x00\xf0\xff')
-        elif python.isPosInf(d):
+        elif isPosInf(d):
             if self._is_big_endian():
                 self.write('\x7f\xf0\x00\x00\x00\x00\x00\x00')
             else:

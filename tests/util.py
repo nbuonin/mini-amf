@@ -11,7 +11,6 @@ import unittest
 import copy
 
 import miniamf
-from miniamf import python
 
 
 class ClassicSpam:
@@ -153,7 +152,7 @@ class ClassCacheClearingTestCase(unittest.TestCase):
         if not raw and len(ret) == 1:
             ret = ret[0]
 
-        if python.callable(cb):
+        if callable(cb):
             cb(ret)
         else:
             self.assertEqual(ret, cb)
