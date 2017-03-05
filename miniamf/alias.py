@@ -35,7 +35,7 @@ class ClassAlias(object):
         if not isinstance(klass, six.class_types):
             raise TypeError("klass must be a class type, got %r" % klass)
 
-        # In Python 2, both byte and unicode string types have .decode
+        # In Python 2, both byte and Unicode string types have .decode
         # methods.  In Python 3, only byte strings do.
         if alias is None or isinstance(alias, six.text_type):
             pass

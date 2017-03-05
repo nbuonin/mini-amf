@@ -520,7 +520,7 @@ class Encoder(codec.Encoder):
 
     def writeString(self, u):
         """
-        Write a unicode to the data stream.
+        Write a Unicode string to the data stream.
         """
         s = self.context.getBytesForString(u)
 

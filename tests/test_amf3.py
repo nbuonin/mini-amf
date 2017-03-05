@@ -880,12 +880,12 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
     def test_kwargs(self):
         """
-        Python <= 3 demand that kwargs keys be bytes instead of unicode/string.
+        Python 2 only accepts byte strings in kwargs.
         """
         def f(**kwargs):
-            self.assertEqual(kwargs, {'spam': 'eggs'})
+            self.assertEqual(kwargs, {"spam": "eggs"})
 
-        kwargs = self.decode('\n\x0b\x01\tspam\x06\teggs\x01')
+        kwargs = self.decode(b'\n\x0b\x01\tspam\x06\teggs\x01')
 
         f(**kwargs)
 

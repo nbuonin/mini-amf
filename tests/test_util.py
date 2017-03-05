@@ -846,7 +846,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
     def test_append_unicode(self):
         """
-        Test L{util.BufferedByteStream.append} with unicode strings.
+        Test L{util.BufferedByteStream.append} with Unicode strings.
         """
         # test empty
         a = util.BufferedByteStream()

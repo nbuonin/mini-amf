@@ -42,7 +42,7 @@ def to_string(obj, encoder):
     """
     Converts an arbitrary object C{obj} to a string.
 
-    Change in 0.7: This now returns a unicode object for Python 2
+    Change in 0.7: This now returns a Unicode object for Python 2
 
     @since: 0.5
     """

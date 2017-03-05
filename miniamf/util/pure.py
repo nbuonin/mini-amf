@@ -548,7 +548,7 @@ class BufferedByteStream(object):
         """
         Reads a UTF-8 string from the stream.
 
-        @rtype: C{unicode}
+        @rtype: Unicode string
         """
         return self.read(length).decode('utf-8')
 

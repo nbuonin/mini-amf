@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 # Copyright (c) The PyAMF Project.
 # See LICENSE.txt for details.
 
@@ -479,7 +480,7 @@ class PackageTestCase(ClassCacheClearingTestCase):
         self.module.b = b'str'
         self.module.i = 12323
         self.module.f = 345.234
-        self.module.u = u"unicode"
+        self.module.u = u"Unicöde"
         self.module.l = ["list", "of", "junk"]
         self.module.d = {"foo": "bar", "baz": "gak"}
         self.module.obj = object()

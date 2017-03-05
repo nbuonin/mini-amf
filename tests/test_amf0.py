@@ -73,7 +73,7 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
     def test_string(self):
         self.assertEncoded('', '\x02\x00\x00')
         self.assertEncoded('hello', '\x02\x00\x05hello')
-        # unicode taken from http://www.columbia.edu/kermit/utf8.html
+        # Unicode taken from http://www.columbia.edu/kermit/utf8.html
         self.assertEncoded(
             u'ᚠᛇᚻ', '\x02\x00\t\xe1\x9a\xa0\xe1\x9b\x87\xe1\x9a\xbb'
         )
@@ -889,12 +889,12 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
     def test_kwargs(self):
         """
-        Python <= 3 demand that kwargs keys be bytes instead of unicode/string.
+        Python 2 only accepts byte strings in kwargs.
         """
         def f(**kwargs):
-            self.assertEqual(kwargs, {'a': 'a'})
+            self.assertEqual(kwargs, {"a": "a"})
 
-        kwargs = self.decode('\x03\x00\x01a\x02\x00\x01a\x00\x00\t')
+        kwargs = self.decode(b'\x03\x00\x01a\x02\x00\x01a\x00\x00\t')
 
         f(**kwargs)
 

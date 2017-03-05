@@ -259,7 +259,7 @@ class Context(object):
 
     def getBytesForString(self, u):
         """
-        Returns the corresponding utf-8 encoded string for a given unicode
+        Returns the corresponding utf-8 encoded string for a given Unicode
         object. If there is no string, one is encoded.
 
         @since: 0.6
