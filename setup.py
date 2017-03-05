@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import
 from __future__ import print_function
-import sys
+
 import os.path
 import fnmatch
 
@@ -194,7 +194,7 @@ def setup_package():
         license=license,
         packages=["miniamf"],
         ext_modules=get_extensions(),
-        install_requires=["defusedxml"],
+        install_requires=["six", "defusedxml"],
         test_suite="tests",
         zip_safe=False,
         extras_require={},
