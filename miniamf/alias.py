@@ -33,15 +33,19 @@ class ClassAlias(object):
 
     def __init__(self, klass, alias=None, **kwargs):
         if not isinstance(klass, six.class_types):
-            raise TypeError('klass must be a class type, got %r' % type(klass))
+            raise TypeError("klass must be a class type, got %r" % klass)
+
+        # In Python 2, both byte and unicode string types have .decode
+        # methods.  In Python 3, only byte strings do.
+        if alias is None or isinstance(alias, six.text_type):
+            pass
+        elif hasattr(alias, "decode"):
+            alias = alias.decode("utf-8")
 
         self.checkClass(klass)
 
         self.klass = klass
         self.alias = alias
-
-        if hasattr(self.alias, 'decode'):
-            self.alias = self.alias.decode('utf-8')
 
         self.static_attrs = kwargs.pop('static_attrs', None)
         self.exclude_attrs = kwargs.pop('exclude_attrs', None)

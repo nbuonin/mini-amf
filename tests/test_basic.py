@@ -472,25 +472,25 @@ class PackageTestCase(ClassCacheClearingTestCase):
     def setUp(self):
         ClassCacheClearingTestCase.setUp(self)
 
-        self.module = new.module('foo')
+        self.module = new.module("foo")
 
         self.module.Classic = self.ClassicType
         self.module.New = self.NewType
-        self.module.s = 'str'
+        self.module.b = b'str'
         self.module.i = 12323
         self.module.f = 345.234
-        self.module.u = u'unicode'
-        self.module.l = ['list', 'of', 'junk']
-        self.module.d = {'foo': 'bar', 'baz': 'gak'}
+        self.module.u = u"unicode"
+        self.module.l = ["list", "of", "junk"]
+        self.module.d = {"foo": "bar", "baz": "gak"}
         self.module.obj = object()
         self.module.mod = self.module
         self.module.lam = lambda _: None
 
-        self.NewType.__module__ = 'foo'
-        self.ClassicType.__module__ = 'foo'
+        self.NewType.__module__ = "foo"
+        self.ClassicType.__module__ = "foo"
 
         self.spam_module = Spam.__module__
-        Spam.__module__ = 'foo'
+        Spam.__module__ = "foo"
 
         self.names = (self.module.__name__,)
 
@@ -568,8 +568,8 @@ class PackageTestCase(ClassCacheClearingTestCase):
         self.assertRaises(TypeError, miniamf.register_package, 1.2)
         self.assertRaises(TypeError, miniamf.register_package, 23897492834)
         self.assertRaises(TypeError, miniamf.register_package, [])
-        self.assertRaises(TypeError, miniamf.register_package, '')
-        self.assertRaises(TypeError, miniamf.register_package, u'')
+        self.assertRaises(TypeError, miniamf.register_package, b'')
+        self.assertRaises(TypeError, miniamf.register_package, u"")
 
     def test_strict(self):
         self.module.Spam = Spam

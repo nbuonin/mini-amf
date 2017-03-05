@@ -250,12 +250,12 @@ class ContextTestCase(unittest.TestCase):
         self.assertFalse(u is i)
 
     def test_bytes(self):
-        s = 'foo'.decode('ascii')
+        s = u"foo"
 
         b = self.context.getBytesForString(s)
 
-        self.assertTrue(type(b) is str)
-        self.assertEqual(b, s.encode('ascii'))
+        self.assertTrue(isinstance(b, six.binary_type))
+        self.assertEqual(b, s.encode("ascii"))
 
         i = self.context.getBytesForString(s)
 

@@ -55,4 +55,4 @@ def to_bytes(obj, encoder):
 
     @since: 0.7
     """
-    return str(obj)
+    return six.binary_type(obj)

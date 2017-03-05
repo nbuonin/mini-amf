@@ -235,9 +235,9 @@ class DataOutput(object):
         Writes a multibyte string to the datastream using the
         specified character set.
 
-        @type value: C{str}
+        @type value: string
         @param value: The string value to be written.
-        @type charset: C{str}
+        @type charset: string
         @param charset: The string denoting the character set to use. Possible
             character set strings include C{shift-jis}, C{cn-gb},
             C{iso-8859-1} and others.
@@ -293,32 +293,28 @@ class DataOutput(object):
         as a 16-bit integer, followed by the bytes representing the
         characters of the string.
 
-        @type value: C{str}
+        @type value: string
         @param value: The string value to be written.
         """
-        buf = util.BufferedByteStream()
-        buf.write_utf8_string(value)
-        bytes = buf.getvalue()
+        if not isinstance(value, six.binary_type):
+            value = value.encode("utf-8")
 
-        self.stream.write_ushort(len(bytes))
-        self.stream.write(bytes)
+        self.stream.write_ushort(len(value))
+        self.stream.write(value)
+
 
     def writeUTFBytes(self, value):
         """
         Writes a UTF-8 string. Similar to L{writeUTF}, but does
         not prefix the string with a 16-bit length word.
 
-        @type value: C{str}
+        @type value: string
         @param value: The string value to be written.
         """
-        val = None
+        if not isinstance(value, six.binary_type):
+            value = value.encode("utf-8")
 
-        if isinstance(value, six.text_type):
-            val = value
-        else:
-            val = six.text_type(value, 'utf8')
-
-        self.stream.write_utf8_string(val)
+        self.stream.write(value)
 
 
 class DataInput(object):
@@ -403,16 +399,15 @@ class DataInput(object):
 
         @type length: C{int}
         @param length: The number of bytes from the data stream to read.
-        @type charset: C{str}
+        @type charset: string
         @param charset: The string denoting the character set to use.
 
-        @rtype: C{str}
-        @return: UTF-8 encoded string.
+        @rtype: string
+        @return: Unicode string
         """
         # FIXME nick: how to work out the code point byte size (on the fly)?
         bytes = self.stream.read(length)
-
-        return six.text_type(bytes, charset)
+        return bytes.decode(charset)
 
     def readObject(self):
         """
@@ -465,9 +460,7 @@ class DataInput(object):
         The string is assumed to be prefixed with an unsigned
         short indicating the length in bytes.
 
-        @rtype: C{str}
-        @return: A UTF-8 string produced by the byte
-        representation of characters.
+        @rtype: Unicode string
         """
         length = self.stream.read_ushort()
         return self.stream.read_utf8_string(length)
@@ -479,11 +472,9 @@ class DataInput(object):
 
         @type length: C{int}
         @param length: The number of bytes from the data stream to read.
-        @rtype: C{str}
-        @return: A UTF-8 string produced by the byte representation of
-        characters of specified C{length}.
+        @rtype: Unicode string
         """
-        return self.readMultiByte(length, 'utf-8')
+        return self.readMultiByte(length, "utf-8")
 
 
 class ByteArray(util.BufferedByteStream, DataInput, DataOutput):
@@ -628,9 +619,9 @@ class Context(codec.Context):
         Gets a string based on a reference C{ref}.
 
         @param ref: The reference index.
-        @type ref: C{str}
+        @type ref: string
 
-        @rtype: C{str} or C{None}
+        @rtype: string or C{None}
         @return: The referenced string.
         """
         return self.strings.getByReference(ref)
@@ -639,7 +630,7 @@ class Context(codec.Context):
         """
         Return string reference.
 
-        @type s: C{str}
+        @type s: string
         @param s: The referenced string.
         @return: The reference index to the string.
         @rtype: C{int} or C{None}
@@ -651,7 +642,7 @@ class Context(codec.Context):
         Creates a reference to C{s}. If the reference already exists, that
         reference is returned.
 
-        @type s: C{str}
+        @type s: string
         @param s: The string to be referenced.
         @rtype: C{int}
         @return: The reference index.
@@ -1161,10 +1152,10 @@ class Encoder(codec.Encoder):
         """
         Writes a raw string to the stream.
 
-        @type   s: C{str}
+        @type   s: string
         @param  s: The string data to be encoded to the AMF3 data stream.
         """
-        if type(s) is six.text_type:
+        if not isinstance(s, six.binary_type):
             s = self.context.getBytesForString(s)
 
         self.serialiseBytes(s)
@@ -1254,7 +1245,7 @@ class Encoder(codec.Encoder):
 
         @type n: C{__builtin__.dict}
         @param n: The C{dict} data to be encoded to the AMF3 data stream.
-        @raise ValueError: Non C{int}/C{str} key value found in the C{dict}
+        @raise ValueError: Non int/string key value found in the C{dict}
         @raise EncodeError: C{dict} contains empty string keys.
         """
         # Design bug in AMF3 that cannot read/write empty key strings
@@ -1273,17 +1264,17 @@ class Encoder(codec.Encoder):
 
         self.context.addObject(n)
 
-        # The AMF3 spec demands that all str based indicies be listed first
+        # The AMF3 spec demands that all string indices be listed first
         int_keys = []
         str_keys = []
 
         for x in n.keys():
             if isinstance(x, six.integer_types):
                 int_keys.append(x)
-            elif isinstance(x, str):
+            elif isinstance(x, six.string_types):
                 str_keys.append(x)
             else:
-                raise ValueError("Non int/str key value found in dict")
+                raise ValueError("Non integer/string key value found in dict")
 
         # Make sure the integer keys are within range
         l = len(int_keys)
@@ -1299,7 +1290,7 @@ class Encoder(codec.Encoder):
         # If integer keys don't start at 0, they will be treated as strings
         if len(int_keys) > 0 and int_keys[0] != 0:
             for x in int_keys:
-                str_keys.append(str(x))
+                str_keys.append(six.text_type(x))
                 del int_keys[int_keys.index(x)]
 
         self._writeInteger(len(int_keys) << 1 | REFERENCE_BIT)
@@ -1397,7 +1388,7 @@ class Encoder(codec.Encoder):
             if attrs:
                 for attr, value in six.iteritems(attrs):
                     if isinstance(attr, six.integer_types):
-                        attr = str(attr)
+                        attr = six.text_type(attr)
 
                     self.serialiseString(attr)
                     self.writeElement(value)
@@ -1422,7 +1413,7 @@ class Encoder(codec.Encoder):
 
         self.context.addObject(n)
 
-        buf = str(n)
+        buf = six.binary_type(n)
         l = len(buf)
         self._writeInteger(l << 1 | REFERENCE_BIT)
         self.stream.write(buf)
@@ -1454,7 +1445,6 @@ def encode_int(n):
 
     @param n: The integer to be encoded
     @return: The encoded string
-    @rtype: C{str}
     @raise OverflowError: C{c} is out of range.
     """
     global ENCODED_INT_CACHE
@@ -1470,31 +1460,32 @@ def encode_int(n):
     if n < 0:
         n += 0x20000000
 
-    bytes = ''
+    bseq = bytearray()
     real_value = None
 
     if n > 0x1fffff:
         real_value = n
         n >>= 1
-        bytes += chr(0x80 | ((n >> 21) & 0xff))
+        bseq.append(0x80 | ((n >> 21) & 0xff))
 
     if n > 0x3fff:
-        bytes += chr(0x80 | ((n >> 14) & 0xff))
+        bseq.append(0x80 | ((n >> 14) & 0xff))
 
     if n > 0x7f:
-        bytes += chr(0x80 | ((n >> 7) & 0xff))
+        bseq.append(0x80 | ((n >> 7) & 0xff))
 
     if real_value is not None:
         n = real_value
 
     if n > 0x1fffff:
-        bytes += chr(n & 0xff)
+        bseq.append(n & 0xff)
     else:
-        bytes += chr(n & 0x7f)
+        bseq.append(n & 0x7f)
 
-    ENCODED_INT_CACHE[n] = bytes
+    bytes_ = bytes(bseq)
+    ENCODED_INT_CACHE[n] = bytes_
 
-    return bytes
+    return bytes_
 
 
 def decode_int(stream, signed=False):

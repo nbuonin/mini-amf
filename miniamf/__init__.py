@@ -307,7 +307,7 @@ def get_class_alias(klass_or_alias):
     try:
         return CLASS_CACHE[klass_or_alias]
     except KeyError:
-        if isinstance(klass_or_alias, str):
+        if isinstance(klass_or_alias, six.string_types):
             return load_class(klass_or_alias)
         raise UnknownClassAlias('Unknown alias for %r' % (klass_or_alias,))
 
@@ -616,7 +616,7 @@ def add_error_class(klass, code):
 
     @param klass: Exception class
     @param code: Exception code
-    @type code: C{str}
+    @type code: string
     @see: L{remove_error_class}
     @raise TypeError: C{klass} must be of class type.
     @raise TypeError: Error classes must subclass the C{__builtin__.Exception}
@@ -651,7 +651,7 @@ def remove_error_class(klass):
        >>> miniamf.add_error_class(AuthenticationError, 'Auth.Failed')
        >>> miniamf.remove_error_class(AuthenticationError)
 
-    @type klass: C{str} or class
+    @type klass: string or class
     @see: L{add_error_class}
     @raise ValueError: Cannot find registered class.
     @raise TypeError: C{klass} is invalid type.
@@ -665,7 +665,7 @@ def remove_error_class(klass):
         else:
             raise ValueError('Class %s is not registered' % (klass,))
 
-    if not isinstance(klass, (str, six.text_type)):
+    if not isinstance(klass, six.string_types):
         raise TypeError("Expected class or string, not %r" % klass)
 
     try:
@@ -779,8 +779,8 @@ def register_package(module=None, package=None, separator='.', ignore=None,
     """
     ignore = ignore or []
 
-    if isinstance(module, (str, six.text_type)):
-        if module == '':
+    if isinstance(module, six.string_types):
+        if not module:
             raise TypeError('Cannot get list of classes from %r' % (module,))
 
         package = module

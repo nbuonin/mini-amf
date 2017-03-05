@@ -426,7 +426,7 @@ class Encoder(codec.Encoder):
         """
         Writes the type to the stream.
 
-        @type   t: C{str}
+        @type   t: byte string
         @param  t: ActionScript type.
         """
         self.stream.write(t)
@@ -550,7 +550,7 @@ class Encoder(codec.Encoder):
         """
         for key, val in six.iteritems(o):
             if isinstance(key, six.integer_types):
-                key = str(key)
+                key = six.text_type(key).encode("utf-8")
 
             self.serialiseString(key)
             self.writeElement(val)
@@ -690,7 +690,7 @@ class RecordSet(object):
     @ivar service: Service linked to the C{RecordSet}.
     @type service:
     @ivar id: The id of the C{RecordSet}.
-    @type id: C{str}
+    @type id: string
 
     @see: U{RecordSet on OSFlash (external)
         <http://osflash.org/documentation/amf/recordset>}
@@ -717,10 +717,10 @@ class RecordSet(object):
         )
 
         if self.service is not None:
-            ret.update({'serviceName': str(self.service['name'])})
+            ret.update({'serviceName': six.text_type(self.service['name'])})
 
         if self.id is not None:
-            ret.update({'id': str(self.id)})
+            ret.update({'id': six.text_type(self.id)})
 
         return ret
 

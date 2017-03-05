@@ -81,7 +81,7 @@ class BufferedByteStream(object):
 
     @ivar endian: Byte ordering used to represent the data. Default byte order
         is L{ENDIAN_NETWORK}.
-    @type endian: C{str}
+    @type endian: ENDIAN_* code
     """
 
     def __init__(self, buf=None, endian=ENDIAN_NETWORK):
@@ -94,7 +94,7 @@ class BufferedByteStream(object):
         self._len = 0
 
         if buf is not None:
-            if not isinstance(buf, (str, buffer)):
+            if not isinstance(buf, (six.binary_type, buffer)):
                 if hasattr(buf, 'getvalue'):
                     buf = buf.getvalue()
                 elif (hasattr(buf, 'read') and
@@ -236,8 +236,8 @@ class BufferedByteStream(object):
         this operation is successful.
 
         @param data: The data to append to the stream.
-        @type data: C{str} or C{unicode}
-        @raise TypeError: data is not C{str} or C{unicode}
+        @type data: string
+        @raise TypeError: data is not a string
         """
         t = self.tell()
 
@@ -554,13 +554,15 @@ class BufferedByteStream(object):
 
     def write_utf8_string(self, u):
         """
-        Writes a unicode object to the stream in UTF-8.
+        Writes a string to the stream.  If it is a Unicode object,
+        it will be encoded in UTF-8; if it is a byte string, it will
+        be written out as-is.
 
-        @param u: unicode object
-        @raise TypeError: Unexpected type for str C{u}.
+        @param u: string
+        @raise TypeError: Unexpected type for C{u}
         """
         if isinstance(u, six.text_type):
             u = u.encode('utf-8')
-        if not isinstance(u, str):
-            raise TypeError('Expected %r, got %r' % ((str, six.text_type), u))
+        if not isinstance(u, six.binary_type):
+            raise TypeError('Expected a string, not %r' % (u,))
         self.write(u)

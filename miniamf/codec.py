@@ -229,7 +229,7 @@ class Context(object):
         try:
             alias = self._class_aliases[klass] = miniamf.get_class_alias(klass)
         except miniamf.UnknownClassAlias:
-            if isinstance(klass, (str, six.text_type)):
+            if isinstance(klass, six.string_types):
                 raise
 
             # no alias has been found yet .. check subclasses

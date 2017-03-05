@@ -1,3 +1,4 @@
+# -*- encoding: utf-8 -*-
 # Copyright (c) The PyAMF Project.
 # See LICENSE.txt for details.
 
@@ -13,6 +14,7 @@ makes sense to have them in one file.
 from __future__ import absolute_import
 
 import unittest
+import six
 
 import miniamf
 from miniamf import ClassAlias
@@ -112,13 +114,21 @@ class ClassAliasTestCase(ClassCacheClearingTestCase):
 
         self.assertTrue(isinstance(y, Spam))
 
-    def test_str(self):
+    def test_binary_alias(self):
         class Eggs(object):
             pass
 
-        x = ClassAlias(Eggs, 'org.example.eggs.Eggs')
+        x = ClassAlias(Eggs, b'org.example.eggs.Eggs')
 
-        self.assertEqual(str(x), 'org.example.eggs.Eggs')
+        self.assertEqual(six.binary_type(x), b'org.example.eggs.Eggs')
+
+    def test_unicode_alias(self):
+        class Ham(object):
+            pass
+
+        x = ClassAlias(Ham, u"org.example.jamón.Jamón")
+
+        self.assertEqual(six.text_type(x), u"org.example.jamón.Jamón")
 
     def test_eq(self):
         class A(object):

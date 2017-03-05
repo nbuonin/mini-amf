@@ -11,6 +11,7 @@ Tests for AMF utilities.
 
 from __future__ import absolute_import
 
+import math
 import unittest
 
 from datetime import datetime
@@ -19,6 +20,7 @@ from StringIO import StringIO
 import miniamf
 from miniamf import util
 from .util import replace_dict
+import six
 from six.moves import range
 
 PosInf = 1e300000
@@ -27,15 +29,15 @@ NaN = PosInf / PosInf
 
 
 def isNaN(val):
-    return str(float(val)) == str(NaN)
+    return math.isnan(val)
 
 
 def isPosInf(val):
-    return str(float(val)) == str(PosInf)
+    return math.isinf(val) and val > 0
 
 
 def isNegInf(val):
-    return str(float(val)) == str(NegInf)
+    return math.isinf(val) and val < 0
 
 
 class TimestampTestCase(unittest.TestCase):
@@ -764,142 +766,142 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
     def test_append_string(self):
         """
-        Test L{util.BufferedByteStream.append} with C{str} objects.
+        Test L{util.BufferedByteStream.append} with bytestring objects.
         """
         # test empty
         a = util.BufferedByteStream()
 
-        self.assertEqual(a.getvalue(), '')
+        self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 0)
 
         a.append('foo')
 
-        self.assertEqual(a.getvalue(), 'foo')
+        self.assertEqual(a.getvalue(), b'foo')
         self.assertEqual(a.tell(), 0)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 3)
 
         # test pointer beginning, some data
 
-        a = util.BufferedByteStream('bar')
+        a = util.BufferedByteStream(b'bar')
 
-        self.assertEqual(a.getvalue(), 'bar')
+        self.assertEqual(a.getvalue(), b'bar')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 3)
 
         a.append('gak')
 
-        self.assertEqual(a.getvalue(), 'bargak')
+        self.assertEqual(a.getvalue(), b'bargak')
         self.assertEqual(a.tell(), 0)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 6)
 
         # test pointer middle, some data
 
-        a = util.BufferedByteStream('bar')
+        a = util.BufferedByteStream(b'bar')
         a.seek(2)
 
-        self.assertEqual(a.getvalue(), 'bar')
+        self.assertEqual(a.getvalue(), b'bar')
         self.assertEqual(a.tell(), 2)
         self.assertEqual(len(a), 3)
 
         a.append('gak')
 
-        self.assertEqual(a.getvalue(), 'bargak')
+        self.assertEqual(a.getvalue(), b'bargak')
         self.assertEqual(a.tell(), 2)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 6)
 
         # test pointer end, some data
 
-        a = util.BufferedByteStream('bar')
+        a = util.BufferedByteStream(b'bar')
         a.seek(0, 2)
 
-        self.assertEqual(a.getvalue(), 'bar')
+        self.assertEqual(a.getvalue(), b'bar')
         self.assertEqual(a.tell(), 3)
         self.assertEqual(len(a), 3)
 
         a.append('gak')
 
-        self.assertEqual(a.getvalue(), 'bargak')
+        self.assertEqual(a.getvalue(), b'bargak')
         self.assertEqual(a.tell(), 3)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 6)
 
         class Foo(object):
             def getvalue(self):
-                return 'foo'
+                return b'foo'
 
             def __str__(self):
                 raise AttributeError()
 
         a = util.BufferedByteStream()
 
-        self.assertEqual(a.getvalue(), '')
+        self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 0)
 
         a.append(Foo())
 
-        self.assertEqual(a.getvalue(), 'foo')
+        self.assertEqual(a.getvalue(), b'foo')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 3)
 
     def test_append_unicode(self):
         """
-        Test L{util.BufferedByteStream.append} with C{unicode} objects.
+        Test L{util.BufferedByteStream.append} with unicode strings.
         """
         # test empty
         a = util.BufferedByteStream()
 
-        self.assertEqual(a.getvalue(), '')
+        self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 0)
 
         a.append(u'foo')
 
-        self.assertEqual(a.getvalue(), 'foo')
+        self.assertEqual(a.getvalue(), b'foo')
         self.assertEqual(a.tell(), 0)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 3)
 
         # test pointer beginning, some data
 
-        a = util.BufferedByteStream('bar')
+        a = util.BufferedByteStream(b'bar')
 
-        self.assertEqual(a.getvalue(), 'bar')
+        self.assertEqual(a.getvalue(), b'bar')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 3)
 
-        a.append(u'gak')
+        a.append(u"gak")
 
-        self.assertEqual(a.getvalue(), 'bargak')
+        self.assertEqual(a.getvalue(), b'bargak')
         self.assertEqual(a.tell(), 0)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 6)
 
         # test pointer middle, some data
 
-        a = util.BufferedByteStream('bar')
+        a = util.BufferedByteStream(b'bar')
         a.seek(2)
 
-        self.assertEqual(a.getvalue(), 'bar')
+        self.assertEqual(a.getvalue(), b'bar')
         self.assertEqual(a.tell(), 2)
         self.assertEqual(len(a), 3)
 
-        a.append(u'gak')
+        a.append(u"gak")
 
-        self.assertEqual(a.getvalue(), 'bargak')
+        self.assertEqual(a.getvalue(), b'bargak')
         self.assertEqual(a.tell(), 2)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 6)
 
         # test pointer end, some data
 
-        a = util.BufferedByteStream('bar')
+        a = util.BufferedByteStream(b'bar')
         a.seek(0, 2)
 
         self.assertEqual(a.getvalue(), 'bar')
         self.assertEqual(a.tell(), 3)
         self.assertEqual(len(a), 3)
 
-        a.append(u'gak')
+        a.append(u"gak")
 
-        self.assertEqual(a.getvalue(), 'bargak')
+        self.assertEqual(a.getvalue(), b'bargak')
         self.assertEqual(a.tell(), 3)  # <-- pointer hasn't moved
         self.assertEqual(len(a), 6)
 
@@ -912,13 +914,13 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
         a = util.BufferedByteStream()
 
-        self.assertEqual(a.getvalue(), '')
+        self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 0)
 
         a.append(Foo())
 
-        self.assertEqual(a.getvalue(), 'foo')
+        self.assertEqual(a.getvalue(), b'foo')
         self.assertEqual(a.tell(), 0)
         self.assertEqual(len(a), 3)
 

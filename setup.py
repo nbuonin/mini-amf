@@ -67,7 +67,7 @@ class MyDistribution(Distribution):
         Distribution.finalize_options(self)
 
         # The default is not to build extensions, because right
-        # now they're broken.
+        # now they are broken.
         self.disable_ext = True
 
         # If --enable/--disable-ext are given more than once, the last
