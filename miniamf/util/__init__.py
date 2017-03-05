@@ -32,12 +32,6 @@ __all__ = [
     'get_module',
 ]
 
-
-#: On some Python versions retrieving a negative timestamp, like
-#: C{datetime.datetime.utcfromtimestamp(-31536000.0)} is broken.
-negative_timestamp_broken = False
-
-
 def get_timestamp(d):
     """
     Returns a UTC timestamp for a C{datetime.datetime} object.
@@ -51,24 +45,24 @@ def get_timestamp(d):
     if isinstance(d, datetime.date) and not isinstance(d, datetime.datetime):
         d = datetime.datetime.combine(d, datetime.time(0, 0, 0, 0))
 
-    msec = str(d.microsecond).rjust(6).replace(' ', '0')
-
-    return float('%s.%s' % (calendar.timegm(d.utctimetuple()), msec))
+    return calendar.timegm(d.utctimetuple()) + d.microsecond * 1e-6
 
 
 def get_datetime(secs):
     """
     Return a UTC date from a timestamp.
 
-    @type secs: C{long}
+    @type secs: C{long} or C{float}
     @param secs: Seconds since 1970.
     @return: UTC timestamp.
     @rtype: C{datetime.datetime}
     """
-    if negative_timestamp_broken and secs < 0:
-        return datetime.datetime(1970, 1, 1) + datetime.timedelta(seconds=secs)
-
-    return datetime.datetime.utcfromtimestamp(secs)
+    # Note: we don't use utcfromtimestamp(secs) here, because on some platforms
+    # the underlying C gmtime() cannot handle values outside the range
+    # 1970-01-01T00:00:00Z through 2038-01-19T03:14:07Z.  Also, this way
+    # fractional seconds are handled seamlessly (secs can be a float).
+    return (datetime.datetime.utcfromtimestamp(0)
+            + datetime.timedelta(seconds=secs))
 
 
 def get_properties(obj):
@@ -207,9 +201,3 @@ def get_module(mod_name):
         mod = getattr(mod, comp)
 
     return mod
-
-
-try:
-    datetime.datetime.utcfromtimestamp(-31536000.0)
-except ValueError:
-    negative_timestamp_broken = True
