@@ -22,11 +22,14 @@ only in ActionScript 3.0, such as L{ByteArray} and L{ArrayCollection}.
 
 """
 
+from __future__ import absolute_import
 import datetime
 import zlib
 
 import miniamf
 from miniamf import codec, util, xml
+import six
+from six.moves import range
 
 
 __all__ = [
@@ -241,7 +244,7 @@ class DataOutput(object):
         @see: U{Supported character sets on Adobe Help (external)
             <http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/charset-codes.html>}
         """
-        if type(value) is unicode:
+        if type(value) is six.text_type:
             value = value.encode(charset)
 
         self.stream.write(value)
@@ -310,10 +313,10 @@ class DataOutput(object):
         """
         val = None
 
-        if isinstance(value, unicode):
+        if isinstance(value, six.text_type):
             val = value
         else:
-            val = unicode(value, 'utf8')
+            val = six.text_type(value, 'utf8')
 
         self.stream.write_utf8_string(val)
 
@@ -409,7 +412,7 @@ class DataInput(object):
         # FIXME nick: how to work out the code point byte size (on the fly)?
         bytes = self.stream.read(length)
 
-        return unicode(bytes, charset)
+        return six.text_type(bytes, charset)
 
     def readObject(self):
         """
@@ -655,7 +658,7 @@ class Context(codec.Context):
 
         @raise TypeError: The parameter C{s} is not of C{basestring} type.
         """
-        if not isinstance(s, basestring):
+        if not isinstance(s, six.string_types):
             raise TypeError
 
         if len(s) == 0:
@@ -868,7 +871,7 @@ class Decoder(codec.Decoder):
             result = []
             self.context.addObject(result)
 
-            for i in xrange(size):
+            for i in range(size):
                 result.append(self.readElement())
 
             return result
@@ -880,7 +883,7 @@ class Decoder(codec.Decoder):
             result[key] = self.readElement()
             key = self.readBytes()
 
-        for i in xrange(size):
+        for i in range(size):
             el = self.readElement()
             result[i] = el
 
@@ -919,7 +922,7 @@ class Decoder(codec.Decoder):
         class_def.static_properties = []
 
         if class_def.attr_len > 0:
-            for i in xrange(class_def.attr_len):
+            for i in range(class_def.attr_len):
                 key = self.readBytes()
 
                 class_def.static_properties.append(key)
@@ -1066,7 +1069,7 @@ class Encoder(codec.Encoder):
         """
         t = type(data)
 
-        if t in (int, long):
+        if t in six.integer_types:
             return self.writeInteger
         elif t is ByteArray:
             return self.writeByteArray
@@ -1161,7 +1164,7 @@ class Encoder(codec.Encoder):
         @type   s: C{str}
         @param  s: The string data to be encoded to the AMF3 data stream.
         """
-        if type(s) is unicode:
+        if type(s) is six.text_type:
             s = self.context.getBytesForString(s)
 
         self.serialiseBytes(s)
@@ -1271,12 +1274,11 @@ class Encoder(codec.Encoder):
         self.context.addObject(n)
 
         # The AMF3 spec demands that all str based indicies be listed first
-        keys = n.keys()
         int_keys = []
         str_keys = []
 
-        for x in keys:
-            if isinstance(x, (int, long)):
+        for x in n.keys():
+            if isinstance(x, six.integer_types):
                 int_keys.append(x)
             elif isinstance(x, str):
                 str_keys.append(x)
@@ -1393,8 +1395,8 @@ class Encoder(codec.Encoder):
 
         if definition.encoding == ObjectEncoding.DYNAMIC:
             if attrs:
-                for attr, value in attrs.iteritems():
-                    if isinstance(attr, (int, long)):
+                for attr, value in six.iteritems(attrs):
+                    if isinstance(attr, six.integer_types):
                         attr = str(attr)
 
                     self.serialiseString(attr)

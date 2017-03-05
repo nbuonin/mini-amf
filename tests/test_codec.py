@@ -7,10 +7,13 @@ Tests for AMF utilities.
 @since: 0.1.0
 """
 
+from __future__ import absolute_import
 import unittest
 
 import miniamf
 from miniamf import codec
+import six
+from six.moves import range
 
 
 class TestObject(object):
@@ -233,7 +236,7 @@ class ContextTestCase(unittest.TestCase):
         s = 'foo'.encode('ascii')
         u = self.context.getStringForBytes(s)
 
-        self.assertTrue(type(u) is unicode)
+        self.assertTrue(type(u) is six.text_type)
         self.assertEqual(u, s.decode('ascii'))
 
         i = self.context.getStringForBytes(s)

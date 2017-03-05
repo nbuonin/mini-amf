@@ -8,6 +8,7 @@ packages. This includes registering classes, setting up type maps etc.
 @since: 0.1.0
 """
 
+from __future__ import absolute_import
 import os.path
 import glob
 

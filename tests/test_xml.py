@@ -9,12 +9,14 @@ Tests for XML library integration
 @since: 0.4
 """
 
+from __future__ import absolute_import
 import unittest
 
 import miniamf.xml
 from miniamf import util
 
 import defusedxml
+import six
 
 
 class _BaseTestCase(unittest.TestCase):
@@ -84,13 +86,13 @@ class ElementTreeTestCase(_BaseTestCase):
         bytes = miniamf.encode(element, encoding=miniamf.AMF0).getvalue()
         self.check_amf0(bytes, xml)
 
-        new_element = miniamf.decode(bytes, encoding=miniamf.AMF0).next()
+        new_element = next(miniamf.decode(bytes, encoding=miniamf.AMF0))
         self.assertIdentical(type(element), type(new_element))
 
         bytes = miniamf.encode(element, encoding=miniamf.AMF3).getvalue()
         self.check_amf3(bytes, xml)
 
-        new_element = miniamf.decode(bytes, encoding=miniamf.AMF3).next()
+        new_element = next(miniamf.decode(bytes, encoding=miniamf.AMF3))
         self.assertIdentical(type(element), type(new_element))
 
 
@@ -145,7 +147,7 @@ cases that have a python xml lib module attached to them. This allows the test
 writer to write the test once and ensure that it works for all the supported
 xml modules.
 """
-for name, value in globals().copy().iteritems():
+for name, value in six.iteritems(globals().copy()):
     try:
         is_subclass = issubclass(value, _BaseTestCase)
     except TypeError:

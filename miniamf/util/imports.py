@@ -7,6 +7,7 @@ Tools for doing dynamic imports.
 @since: 0.3
 """
 
+from __future__ import absolute_import
 import sys
 
 

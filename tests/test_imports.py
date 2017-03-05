@@ -7,11 +7,13 @@ Tests miniamf.util.imports
 @since: 0.3.1
 """
 
+from __future__ import absolute_import
 import unittest
 import sys
 import os.path
 
 from miniamf.util import imports
+import six
 
 
 class InstalledTestCase(unittest.TestCase):
@@ -43,7 +45,7 @@ class ImportsTestCase(unittest.TestCase):
 
     def _clearModules(self, *args):
         for mod in args:
-            for k, v in sys.modules.copy().iteritems():
+            for k, v in six.iteritems(sys.modules.copy()):
                 if k.startswith(mod) or k == 'tests.%s' % (mod,):
                     del sys.modules[k]
 
@@ -95,7 +97,7 @@ class WhenImportedTestCase(ImportsTestCase):
 
         try:
             import spam  # noqa
-        except Exception, e:
+        except Exception as e:
             pass
         else:
             self.fail('expected exception')

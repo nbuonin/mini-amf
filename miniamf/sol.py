@@ -14,15 +14,17 @@ a per-domain basis.
 @since: 0.1
 """
 
+from __future__ import absolute_import
 import miniamf
 from miniamf import util
+import six
 
 #: Magic Number - 2 bytes
-HEADER_VERSION = '\x00\xbf'
+HEADER_VERSION = b'\x00\xbf'
 #: Marker - 10 bytes
-HEADER_SIGNATURE = 'TCSO\x00\x04\x00\x00\x00\x00'
+HEADER_SIGNATURE = b'TCSO\x00\x04\x00\x00\x00\x00'
 #: Padding - 4 bytes
-PADDING_BYTE = '\x00'
+PADDING_BYTE = b'\x00'
 
 
 def decode(stream, strict=True):
@@ -40,26 +42,26 @@ def decode(stream, strict=True):
     version = stream.read(2)
 
     if version != HEADER_VERSION:
-        raise miniamf.DecodeError('Unknown SOL version in header')
+        raise miniamf.DecodeError("Unknown SOL version in header")
 
     # read the length
     length = stream.read_ulong()
 
     if strict and stream.remaining() != length:
-        raise miniamf.DecodeError('Inconsistent stream header length')
+        raise miniamf.DecodeError("Inconsistent stream header length")
 
     # read the signature
     signature = stream.read(10)
 
     if signature != HEADER_SIGNATURE:
-        raise miniamf.DecodeError('Invalid signature')
+        raise miniamf.DecodeError("Invalid signature")
 
     length = stream.read_ushort()
     root_name = stream.read_utf8_string(length)
 
     # read padding
     if stream.read(3) != PADDING_BYTE * 3:
-        raise miniamf.DecodeError('Invalid padding read')
+        raise miniamf.DecodeError("Invalid padding read")
 
     decoder = miniamf.get_decoder(stream.read_uchar())
     decoder.stream = stream
@@ -75,7 +77,7 @@ def decode(stream, strict=True):
 
         # read the padding
         if stream.read(1) != PADDING_BYTE:
-            raise miniamf.DecodeError('Missing padding byte')
+            raise miniamf.DecodeError("Missing padding byte")
 
         values[name] = value
 
@@ -109,7 +111,7 @@ def encode(name, values, strict=True, encoding=miniamf.AMF0):
     stream.write(HEADER_SIGNATURE)
 
     # write the root name
-    name = name.encode('utf-8')
+    name = name.encode("utf-8")
 
     stream.write_ushort(len(name))
     stream.write(name)
@@ -118,7 +120,7 @@ def encode(name, values, strict=True, encoding=miniamf.AMF0):
     stream.write(PADDING_BYTE * 3)
     stream.write_uchar(encoding)
 
-    for n, v in values.iteritems():
+    for n, v in six.iteritems(values):
         encoder.serialiseString(n)
         encoder.writeElement(v)
 
@@ -144,16 +146,16 @@ def load(name_or_file):
     f = name_or_file
     opened = False
 
-    if isinstance(name_or_file, basestring):
-        f = open(name_or_file, 'rb')
+    if isinstance(name_or_file, six.string_types):
+        f = open(name_or_file, "rb")
         opened = True
-    elif not hasattr(f, 'read'):
-        raise ValueError('Readable stream expected')
+    elif not hasattr(f, "read"):
+        raise ValueError("Readable stream expected")
 
     name, values = decode(f.read())
     s = SOL(name)
 
-    for n, v in values.iteritems():
+    for n, v in six.iteritems(values):
         s[n] = v
 
     if opened is True:
@@ -172,11 +174,11 @@ def save(sol, name_or_file, encoding=miniamf.AMF0):
     f = name_or_file
     opened = False
 
-    if isinstance(name_or_file, basestring):
-        f = open(name_or_file, 'wb+')
+    if isinstance(name_or_file, six.string_types):
+        f = open(name_or_file, "wb+")
         opened = True
-    elif not hasattr(f, 'write'):
-        raise ValueError('Writable stream expected')
+    elif not hasattr(f, "write"):
+        raise ValueError("Writable stream expected")
 
     f.write(encode(sol.name, sol, encoding=encoding).getvalue())
 
@@ -196,7 +198,7 @@ class SOL(dict):
         save(self, name_or_file, encoding)
 
     def __repr__(self):
-        return '<%s %s %s at 0x%x>' % (
+        return "<%s %s %s at 0x%x>" % (
             self.__class__.__name__,
             self.name,
             dict.__repr__(self),

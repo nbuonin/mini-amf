@@ -5,6 +5,7 @@
 Tests for the C{decimal} module integration.
 """
 
+from __future__ import absolute_import
 import unittest
 import decimal
 

@@ -7,6 +7,7 @@ Tests for the L{array} L{miniamf.adapters._array} module.
 @since: 0.5
 """
 
+from __future__ import absolute_import
 import array
 import unittest
 
@@ -27,9 +28,9 @@ class ArrayTestCase(unittest.TestCase):
         self.obj.append('o')
 
     def encdec(self, encoding):
-        return miniamf.decode(
+        return next(miniamf.decode(
             miniamf.encode(self.obj, encoding=encoding),
-            encoding=encoding).next()
+            encoding=encoding))
 
     def test_amf0(self):
         self.assertEqual(self.encdec(miniamf.AMF0), self.orig)

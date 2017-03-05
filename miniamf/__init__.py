@@ -11,6 +11,7 @@ is compatible with the Adobe U{Flash Player
 @status: Production/Stable
 """
 
+from __future__ import absolute_import
 import types
 import inspect
 from importlib import import_module
@@ -18,6 +19,8 @@ from importlib import import_module
 from miniamf import util, _version
 from miniamf.adapters import register_adapters, get_adapter
 from miniamf.alias import ClassAlias, UnknownClassAlias
+import six
+from six.moves import range
 
 
 __all__ = [
@@ -239,7 +242,7 @@ class ErrorAlias(ClassAlias):
     def getEncodableAttributes(self, obj, **kwargs):
         attrs = ClassAlias.getEncodableAttributes(self, obj, **kwargs)
 
-        attrs['message'] = unicode(obj)
+        attrs['message'] = six.text_type(obj)
         attrs['name'] = obj.__class__.__name__
 
         return attrs
@@ -407,7 +410,7 @@ def load_class(alias):
         if klass is None:
             continue
 
-        if isinstance(klass, (type, types.ClassType)):
+        if isinstance(klass, six.class_types):
             return register_class(klass, alias)
 
         if isinstance(klass, ClassAlias):
@@ -538,7 +541,7 @@ def add_type(type_, func=None):
     @see: L{get_type} and L{remove_type}
     """
     def _check_type(type_):
-        if not (isinstance(type_, (type, types.ClassType)) or
+        if not (isinstance(type_, six.class_types) or
                 callable(type_)):
             raise TypeError(
                 'Unable to add %r as a custom type (expected a class or '
@@ -551,7 +554,7 @@ def add_type(type_, func=None):
     if type_ in TYPE_MAP:
         raise KeyError('Type %r already exists' % (type_,))
 
-    if isinstance(type_, types.TupleType):
+    if isinstance(type_, tuple):
         for x in type_:
             _check_type(x)
     else:
@@ -570,7 +573,7 @@ def get_type(type_):
     if isinstance(type_, list):
         type_ = tuple(type_)
 
-    for k, v in TYPE_MAP.iteritems():
+    for k, v in six.iteritems(TYPE_MAP):
         if k == type_:
             return v
 
@@ -621,7 +624,7 @@ def add_error_class(klass, code):
     @raise ValueError: C{code} is already registered to an error class.
     """
 
-    if not isinstance(klass, (type, types.ClassType)):
+    if not isinstance(klass, six.class_types):
         raise TypeError("klass must be a class type")
 
     mro = inspect.getmro(klass)
@@ -654,15 +657,15 @@ def remove_error_class(klass):
     @raise TypeError: C{klass} is invalid type.
     """
 
-    if isinstance(klass, (type, types.ClassType)):
-        for k, v in ERROR_CLASS_MAP.iteritems():
+    if isinstance(klass, six.class_types):
+        for k, v in six.iteritems(ERROR_CLASS_MAP):
             if v is klass:
                 klass = k
                 break
         else:
             raise ValueError('Class %s is not registered' % (klass,))
 
-    if not isinstance(klass, (str, unicode)):
+    if not isinstance(klass, (str, six.text_type)):
         raise TypeError("Expected class or string, not %r" % klass)
 
     try:
@@ -694,13 +697,13 @@ def register_alias_type(klass, *args):
      - At least one type must be supplied
     """
     def check_type_registered(arg):
-        for k, v in ALIAS_TYPES.iteritems():
+        for k, v in six.iteritems(ALIAS_TYPES):
             for kl in v:
                 if arg is kl:
                     raise RuntimeError('%r is already registered under %r' % (
                         arg, k))
 
-    if not isinstance(klass, (type, types.ClassType)):
+    if not isinstance(klass, six.class_types):
         raise TypeError('klass must be class')
 
     if not issubclass(klass, ClassAlias):
@@ -715,14 +718,14 @@ def register_alias_type(klass, *args):
         check_type_registered(c)
     else:
         for arg in args:
-            if not isinstance(arg, (type, types.ClassType)):
+            if not isinstance(arg, six.class_types):
                 raise TypeError('%r must be class' % (arg,))
 
             check_type_registered(arg)
 
     ALIAS_TYPES[klass] = args
 
-    for k, v in CLASS_CACHE.copy().iteritems():
+    for k, v in six.iteritems(CLASS_CACHE.copy()):
         new_alias = util.get_class_alias(v.klass)
 
         if new_alias is klass:
@@ -776,7 +779,7 @@ def register_package(module=None, package=None, separator='.', ignore=None,
     """
     ignore = ignore or []
 
-    if isinstance(module, (str, unicode)):
+    if isinstance(module, (str, six.text_type)):
         if module == '':
             raise TypeError('Cannot get list of classes from %r' % (module,))
 
@@ -816,16 +819,16 @@ def register_package(module=None, package=None, separator='.', ignore=None,
     if has('__all__'):
         keys = get('__all__')
     elif hasattr(module, '__dict__'):
-        keys = module.__dict__.keys()
+        keys = list(module.__dict__.keys())
     elif hasattr(module, 'keys'):
-        keys = module.keys()
+        keys = list(module.keys())
     elif isinstance(module, list):
-        keys = range(len(module))
+        keys = list(range(len(module)))
     else:
         raise TypeError('Cannot get list of classes from %r' % (module,))
 
     def check_attr(attr):
-        if not isinstance(attr, (type, types.ClassType)):
+        if not isinstance(attr, six.class_types):
             return False
 
         if attr.__name__ in ignore:

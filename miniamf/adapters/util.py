@@ -8,6 +8,8 @@ Useful helpers for adapters.
 """
 
 
+from __future__ import absolute_import
+import six
 def to_list(obj, encoder):
     """
     Converts an arbitrary object C{obj} to a C{list}.
@@ -44,7 +46,7 @@ def to_string(obj, encoder):
 
     @since: 0.5
     """
-    return unicode(obj)
+    return six.text_type(obj)
 
 
 def to_bytes(obj, encoder):

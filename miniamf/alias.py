@@ -7,11 +7,13 @@ Class alias base functionality.
 @since: 0.6
 """
 
+from __future__ import absolute_import
 import inspect
 import types
 
 import miniamf
 from miniamf import util
+import six
 
 
 class UnknownClassAlias(Exception):
@@ -30,7 +32,7 @@ class ClassAlias(object):
     """
 
     def __init__(self, klass, alias=None, **kwargs):
-        if not isinstance(klass, (type, types.ClassType)):
+        if not isinstance(klass, six.class_types):
             raise TypeError('klass must be a class type, got %r' % type(klass))
 
         self.checkClass(klass)
@@ -122,7 +124,7 @@ class ClassAlias(object):
             self.decodable_properties.update(self.klass.__slots__)
             self.encodable_properties.update(self.klass.__slots__)
 
-        for k, v in self.klass.__dict__.iteritems():
+        for k, v in six.iteritems(self.klass.__dict__):
             if not isinstance(v, property):
                 continue
 
@@ -308,11 +310,11 @@ class ClassAlias(object):
         )
 
     def __eq__(self, other):
-        if isinstance(other, basestring):
+        if isinstance(other, six.string_types):
             return self.alias == other
         elif isinstance(other, self.__class__):
             return self.klass == other.klass
-        elif isinstance(other, (type, types.ClassType)):
+        elif isinstance(other, six.class_types):
             return self.klass == other
         else:
             return False
@@ -341,18 +343,18 @@ class ClassAlias(object):
         ):
             return
 
-        klass_func = klass.__init__.im_func
+        klass_func = klass.__init__.__func__
 
         if not hasattr(klass_func, 'func_code'):
             # Can't examine it, assume it's OK.
             return
 
-        if klass_func.func_defaults:
-            available_arguments = len(klass_func.func_defaults) + 1
+        if klass_func.__defaults__:
+            available_arguments = len(klass_func.__defaults__) + 1
         else:
             available_arguments = 1
 
-        needed_arguments = klass_func.func_code.co_argcount
+        needed_arguments = klass_func.__code__.co_argcount
 
         if available_arguments >= needed_arguments:
             # Looks good to me.
@@ -429,7 +431,7 @@ class ClassAlias(object):
         if self.synonym_attrs:
             missing = object()
 
-            for k, v in self.synonym_attrs.iteritems():
+            for k, v in six.iteritems(self.synonym_attrs):
                 value = attrs.pop(k, missing)
 
                 if value is missing:
@@ -500,7 +502,7 @@ class ClassAlias(object):
         if self.synonym_attrs:
             missing = object()
 
-            for k, v in self.synonym_attrs.iteritems():
+            for k, v in six.iteritems(self.synonym_attrs):
                 value = attrs.pop(v, missing)
 
                 if value is missing:

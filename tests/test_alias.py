@@ -1072,7 +1072,7 @@ class RegisterClassTestCase(ClassCacheClearingTestCase):
             del Spam.__amf__
 
     def test_meta(self):
-        self.assertFalse('spam.eggs' in miniamf.CLASS_CACHE.keys())
+        self.assertFalse('spam.eggs' in miniamf.CLASS_CACHE)
 
         Spam.__amf__ = {
             'alias': 'spam.eggs'
@@ -1080,7 +1080,7 @@ class RegisterClassTestCase(ClassCacheClearingTestCase):
 
         alias = miniamf.register_class(Spam)
 
-        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE)
         self.assertEqual(miniamf.CLASS_CACHE['spam.eggs'], alias)
 
         self.assertTrue(isinstance(alias, miniamf.ClassAlias))
@@ -1090,11 +1090,11 @@ class RegisterClassTestCase(ClassCacheClearingTestCase):
         self.assertFalse(alias._compiled)
 
     def test_kwarg(self):
-        self.assertFalse('spam.eggs' in miniamf.CLASS_CACHE.keys())
+        self.assertFalse('spam.eggs' in miniamf.CLASS_CACHE)
 
         alias = miniamf.register_class(Spam, 'spam.eggs')
 
-        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE)
         self.assertEqual(miniamf.CLASS_CACHE['spam.eggs'], alias)
 
         self.assertTrue(isinstance(alias, miniamf.ClassAlias))

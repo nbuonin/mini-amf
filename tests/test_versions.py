@@ -5,6 +5,7 @@
 Tests for L{miniamf.version}
 """
 
+from __future__ import absolute_import
 import unittest
 
 from miniamf import versions

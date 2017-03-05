@@ -7,6 +7,7 @@ Tests for the L{collections} L{miniamf.adapters._collections} module.
 @since: 0.5
 """
 
+from __future__ import absolute_import
 import collections
 import unittest
 
@@ -18,9 +19,9 @@ class CollectionsTestCase(unittest.TestCase):
     """
 
     def encdec(self, encoding):
-        return miniamf.decode(
+        return next(miniamf.decode(
             miniamf.encode(self.obj, encoding=encoding),
-            encoding=encoding).next()
+            encoding=encoding))
 
 
 class DequeTestCase(CollectionsTestCase):

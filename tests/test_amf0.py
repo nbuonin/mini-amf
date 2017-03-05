@@ -512,10 +512,10 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.encoder.send('hello')
         self.encoder.send(u'ƒøø')
 
-        self.assertEqual(self.encoder.next(), '\x02\x00\x00')
-        self.assertEqual(self.encoder.next(), '\x02\x00\x05hello')
+        self.assertEqual(next(self.encoder), '\x02\x00\x00')
+        self.assertEqual(next(self.encoder), '\x02\x00\x05hello')
         self.assertEqual(
-            self.encoder.next(),
+            next(self.encoder),
             '\x02\x00\x06\xc6\x92\xc3\xb8\xc3\xb8'
         )
 
@@ -541,7 +541,7 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.encoder.send(x)
 
         self.assertEqual(
-            self.encoder.next(),
+            next(self.encoder),
             '\n\x00\x00\x00\x02\x00?\xf0\x00\x00\x00\x00\x00\x00\x00@\x00\x00'
             '\x00\x00\x00\x00\x00'
         )
@@ -876,9 +876,9 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         self.decoder.send('\x02\x00\x05hello')
         self.decoder.send('\x02\x00\t\xe1\x9a\xa0\xe1\x9b\x87\xe1\x9a\xbb')
 
-        self.assertEqual(self.decoder.next(), '')
-        self.assertEqual(self.decoder.next(), 'hello')
-        self.assertEqual(self.decoder.next(), u'\u16a0\u16c7\u16bb')
+        self.assertEqual(next(self.decoder), '')
+        self.assertEqual(next(self.decoder), 'hello')
+        self.assertEqual(next(self.decoder), u'\u16a0\u16c7\u16bb')
 
         self.assertRaises(StopIteration, self.decoder.next)
 
@@ -941,7 +941,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         bytes = miniamf.encode(u'foo', encoding=miniamf.AMF0).getvalue()
 
         self.decoder.send(bytes)
-        ret = self.decoder.next()
+        ret = next(self.decoder)
 
         self.assertTrue(self.executed)
         self.assertEqual(ret, u'foo')
@@ -1176,7 +1176,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase):
     def test_exception(self):
         try:
             raise Exception('foo bar')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
@@ -1191,7 +1191,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase):
 
         try:
             raise FooBar('foo bar')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
@@ -1208,7 +1208,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase):
 
         try:
             raise XYZ('blarg')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(

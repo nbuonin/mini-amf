@@ -10,6 +10,7 @@ type information is lost (but degrades nicely).
 @since: 0.5
 """
 
+from __future__ import absolute_import
 import array
 
 import miniamf

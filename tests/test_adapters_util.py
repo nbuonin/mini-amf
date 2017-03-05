@@ -7,6 +7,7 @@ Tests for the adapters.util module.
 @since: 0.4
 """
 
+from __future__ import absolute_import
 import unittest
 
 from miniamf.adapters import util

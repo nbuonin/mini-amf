@@ -16,10 +16,13 @@ LocalConnection, SharedObjects and other classes in the Adobe Flash Player.
     <http://osflash.org/documentation/amf>}
 """
 
+from __future__ import absolute_import
 import datetime
 
 import miniamf
 from miniamf import util, codec, xml
+import six
+from six.moves import range
 
 
 #: Represented as 9 bytes: 1 byte for C{0x00} and 8 bytes a double
@@ -243,7 +246,7 @@ class Decoder(codec.Decoder):
 
         attrs = self.readObjectAttributes(obj)
 
-        for key, value in attrs.iteritems():
+        for key, value in six.iteritems(attrs):
             try:
                 key = int(key)
             except ValueError:
@@ -261,7 +264,7 @@ class Decoder(codec.Decoder):
         self.context.addObject(obj)
         l = self.stream.read_ulong()
 
-        for i in xrange(l):
+        for i in range(l):
             obj.append(self.readElement())
 
         return obj
@@ -485,7 +488,7 @@ class Encoder(codec.Encoder):
         """
         Similar to L{writeString} but does not encode a type byte.
         """
-        if type(s) is unicode:
+        if type(s) is six.text_type:
             s = self.context.getBytesForString(s)
 
         l = len(s)
@@ -545,8 +548,8 @@ class Encoder(codec.Encoder):
 
         @param o: The C{dict} data to be encoded to the AMF0 data stream.
         """
-        for key, val in o.iteritems():
-            if isinstance(key, (int, long)):
+        for key, val in six.iteritems(o):
+            if isinstance(key, six.integer_types):
                 key = str(key)
 
             self.serialiseString(key)
@@ -570,7 +573,7 @@ class Encoder(codec.Encoder):
             # list comprehensions to save the day
             max_index = max([
                 y[0] for y in o.items()
-                if isinstance(y[0], (int, long))
+                if isinstance(y[0], six.integer_types)
             ])
 
             if max_index < 0:
@@ -659,7 +662,7 @@ class Encoder(codec.Encoder):
 
         data = xml.tostring(e)
 
-        if isinstance(data, unicode):
+        if isinstance(data, six.text_type):
             data = data.encode('utf-8')
 
         self.stream.write_ulong(len(data))

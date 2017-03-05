@@ -14,6 +14,7 @@ import new
 
 import miniamf
 from .util import ClassCacheClearingTestCase, replace_dict, Spam
+import six
 
 
 class ASObjectTestCase(unittest.TestCase):
@@ -68,7 +69,7 @@ class ASObjectTestCase(unittest.TestCase):
 
         x = []
 
-        for k, v in bag.iteritems():
+        for k, v in six.iteritems(bag):
             x.append((k, v))
 
         self.assertEqual(x, [('spam', 'eggs')])
@@ -151,15 +152,15 @@ class UnregisterClassTestCase(ClassCacheClearingTestCase):
         alias = miniamf.register_class(Spam, 'spam.eggs')
 
         miniamf.unregister_class(Spam)
-        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE.keys())
-        self.assertTrue(Spam not in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
+        self.assertTrue(Spam not in list(miniamf.CLASS_CACHE.keys()))
         self.assertTrue(alias not in miniamf.CLASS_CACHE)
 
     def test_alias(self):
         alias = miniamf.register_class(Spam, 'spam.eggs')
 
         miniamf.unregister_class('spam.eggs')
-        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
         self.assertTrue(alias not in miniamf.CLASS_CACHE)
 
 
@@ -191,9 +192,9 @@ class ClassLoaderTestCase(ClassCacheClearingTestCase):
 
         miniamf.register_class_loader(class_loader)
 
-        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
         miniamf.load_class('spam.eggs')
-        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' in list(miniamf.CLASS_CACHE.keys()))
 
     def test_load_unknown_class(self):
         def class_loader(x):
@@ -211,9 +212,9 @@ class ClassLoaderTestCase(ClassCacheClearingTestCase):
 
         miniamf.register_class_loader(class_loader)
 
-        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
         miniamf.load_class('spam.eggs')
-        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE.keys())
+        self.assertTrue('spam.eggs' in list(miniamf.CLASS_CACHE.keys()))
 
     def test_load_class_bad_return(self):
         def class_loader(x):
@@ -244,7 +245,7 @@ class TypeMapTestCase(unittest.TestCase):
         self.assertRaises(TypeError, miniamf.add_type, 'spam')
         self.assertRaises(TypeError, miniamf.add_type, u'eggs')
         self.assertRaises(TypeError, miniamf.add_type, 1)
-        self.assertRaises(TypeError, miniamf.add_type, 234234L)
+        self.assertRaises(TypeError, miniamf.add_type, 234234)
         self.assertRaises(TypeError, miniamf.add_type, 34.23)
         self.assertRaises(TypeError, miniamf.add_type, None)
         self.assertRaises(TypeError, miniamf.add_type, object())
@@ -275,7 +276,7 @@ class TypeMapTestCase(unittest.TestCase):
         td = miniamf.add_type(ord)
 
         self.assertTrue(ord in miniamf.TYPE_MAP)
-        self.assertTrue(td in miniamf.TYPE_MAP.values())
+        self.assertTrue(td in list(miniamf.TYPE_MAP.values()))
 
     def test_add_multiple(self):
         td = miniamf.add_type((chr,))
@@ -354,7 +355,7 @@ class ErrorClassMapTestCase(unittest.TestCase):
         self.assertRaises(TypeError, miniamf.remove_error_class, None)
 
         miniamf.remove_error_class('abc')
-        self.assertFalse('abc' in miniamf.ERROR_CLASS_MAP.keys())
+        self.assertFalse('abc' in list(miniamf.ERROR_CLASS_MAP.keys()))
         self.assertRaises(KeyError, miniamf.ERROR_CLASS_MAP.__getitem__, 'abc')
 
         miniamf.ERROR_CLASS_MAP['abc'] = B
@@ -398,7 +399,7 @@ class RegisterAliasTypeTestCase(unittest.TestCase):
 
         miniamf.register_alias_type(DummyAlias, A)
 
-        self.assertTrue(DummyAlias in miniamf.ALIAS_TYPES.keys())
+        self.assertTrue(DummyAlias in list(miniamf.ALIAS_TYPES.keys()))
         self.assertEqual(miniamf.ALIAS_TYPES[DummyAlias], (A,))
 
     def test_multiple(self):
@@ -436,7 +437,7 @@ class RegisterAliasTypeTestCase(unittest.TestCase):
 
         miniamf.register_alias_type(DummyAlias, A)
 
-        self.assertTrue(DummyAlias in miniamf.ALIAS_TYPES.keys())
+        self.assertTrue(DummyAlias in list(miniamf.ALIAS_TYPES.keys()))
         self.assertEqual(miniamf.unregister_alias_type(DummyAlias), (A,))
 
 
@@ -565,7 +566,7 @@ class PackageTestCase(ClassCacheClearingTestCase):
         self.assertRaises(TypeError, miniamf.register_package, object())
         self.assertRaises(TypeError, miniamf.register_package, 1)
         self.assertRaises(TypeError, miniamf.register_package, 1.2)
-        self.assertRaises(TypeError, miniamf.register_package, 23897492834L)
+        self.assertRaises(TypeError, miniamf.register_package, 23897492834)
         self.assertRaises(TypeError, miniamf.register_package, [])
         self.assertRaises(TypeError, miniamf.register_package, '')
         self.assertRaises(TypeError, miniamf.register_package, u'')

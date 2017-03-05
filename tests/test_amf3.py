@@ -19,6 +19,7 @@ import miniamf
 from miniamf import amf3, util, xml
 from .util import (
     Spam, EncoderMixIn, DecoderMixIn, ClassCacheClearingTestCase)
+from six.moves import range
 
 
 class MockAlias(object):
@@ -534,9 +535,9 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.encoder.send('hello')
         self.encoder.send(u'ƒøø')
 
-        self.assertEqual(self.encoder.next(), '\x06\x01')
-        self.assertEqual(self.encoder.next(), '\x06\x0bhello')
-        self.assertEqual(self.encoder.next(), '\x06\r\xc6\x92\xc3\xb8\xc3\xb8')
+        self.assertEqual(next(self.encoder), '\x06\x01')
+        self.assertEqual(next(self.encoder), '\x06\x0bhello')
+        self.assertEqual(next(self.encoder), '\x06\r\xc6\x92\xc3\xb8\xc3\xb8')
 
         self.assertRaises(StopIteration, self.encoder.next)
 
@@ -559,7 +560,7 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         self.encoder.send(x)
 
-        self.assertEqual(self.encoder.next(), '\t\x05\x01\x04\x01\x04\x02')
+        self.assertEqual(next(self.encoder), '\t\x05\x01\x04\x01\x04\x02')
 
 
 class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
@@ -866,9 +867,9 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         self.decoder.send('\x03')
         self.decoder.send('\x02')
 
-        self.assertEqual(self.decoder.next(), None)
-        self.assertEqual(self.decoder.next(), True)
-        self.assertEqual(self.decoder.next(), False)
+        self.assertEqual(next(self.decoder), None)
+        self.assertEqual(next(self.decoder), True)
+        self.assertEqual(next(self.decoder), False)
 
         self.assertRaises(StopIteration, self.decoder.next)
 
@@ -916,7 +917,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         bytes = miniamf.encode(u'foo', encoding=miniamf.AMF3).getvalue()
 
         self.decoder.send(bytes)
-        ret = self.decoder.next()
+        ret = next(self.decoder)
 
         self.assertTrue(self.executed)
         self.assertEqual(ret, u'foo')
@@ -1174,7 +1175,7 @@ class DataOutputTestCase(unittest.TestCase, EncoderMixIn):
         self.assertEqual(self.buf.getvalue(), '\x00')
 
     def test_byte(self):
-        for y in xrange(10):
+        for y in range(10):
             self.x.writeByte(y)
 
         self.assertEqual(
@@ -1302,7 +1303,7 @@ class DataInputTestCase(unittest.TestCase):
         self.buf.write('\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09')
         self.buf.seek(0)
 
-        for y in xrange(10):
+        for y in range(10):
             self.assertEqual(x.readByte(), y)
 
     def test_double(self):
@@ -1577,7 +1578,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase, EncoderMixIn):
     def test_exception(self):
         try:
             raise Exception('foo bar')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
@@ -1592,7 +1593,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         try:
             raise FooBar('foo bar')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
@@ -1609,7 +1610,7 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         try:
             raise XYZ('blarg')
-        except Exception, e:
+        except Exception as e:
             self.encoder.writeElement(e)
 
         self.assertEqual(
