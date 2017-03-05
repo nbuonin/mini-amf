@@ -108,7 +108,7 @@ class BufferedByteStream(object):
                                     % (buf,))
 
             self._buf.write(buf)
-            self._buf.seek(0,0)
+            self._buf.seek(0, 0)
             self._len = len(buf)
 
     def __len__(self):

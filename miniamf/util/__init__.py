@@ -32,6 +32,7 @@ __all__ = [
     'get_module',
 ]
 
+
 def get_timestamp(d):
     """
     Returns a UTC timestamp for a C{datetime.datetime} object.
