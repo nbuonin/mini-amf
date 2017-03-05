@@ -8,14 +8,7 @@ Unit tests.
 """
 
 import os.path
-
-try:
-    import unittest2 as unittest
-    import sys
-
-    sys.modules['unittest'] = unittest
-except ImportError:
-    import unittest
+import unittest
 
 
 if not hasattr(unittest.TestCase, 'assertIdentical'):

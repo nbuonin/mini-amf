@@ -12,13 +12,6 @@ import unittest
 import miniamf
 from miniamf import codec
 
-try:
-    unicode
-except NameError:
-    # py3k
-    unicode = str
-    str = bytes
-
 
 class TestObject(object):
     def __init__(self):
