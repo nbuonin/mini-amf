@@ -184,7 +184,7 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         self.assertEncoded(
             x,
-            '\x10\x00\x0eorg.miniamf.spam\x00\x03baz\x02\x00\x05hello\x00\x00\t'
+            '\x10\x00\x10org.miniamf.spam\x00\x03baz\x02\x00\x05hello\x00\x00\t'
         )
 
     def test_complex_list(self):
@@ -698,7 +698,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         miniamf.register_class(Spam, alias='org.miniamf.spam')
 
         bytes = (
-            '\x10\x00\x0eorg.miniamf.spam\x00\x03baz\x02\x00\x05hello\x00\x00'
+            '\x10\x00\x10org.miniamf.spam\x00\x03baz\x02\x00\x05hello\x00\x00'
             '\x09'
         )
 
@@ -1211,53 +1211,3 @@ class ExceptionEncodingTestCase(ClassCacheClearingTestCase):
             '\x10\x00\x07foo.bar\x00\x07message\x02\x00\x05blarg\x00\x04name'
             '\x02\x00\x03XYZ\x00\x00\t'
         )
-
-
-class AMF0ContextTestCase(unittest.TestCase):
-    """
-    """
-
-    bytes = (
-        '\x00\x03\x00\x02\x00\x0eServiceLicense\x00\x00\x00\x00O\x11\n\x0b'
-        '\x01-serviceConfigurationId\x06\t1234\x15licenseKey\x06Axxxxxxxxxxxxx'
-        'xxxxxxxxxxxxxxxxxxx\x01\x00\tSessionId\x00\x00\x00\x00\xb2\x11\n\x0b'
-        '\x01\x0bToken\x06\x82Iyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-        'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy'
-        'yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\x01\x00\x01\x00\x0cR'
-        'egisterUser\x00\x02/3\x00\x00\x01k\n\x00\x00\x00\x07\x11\n#\x01\rform'
-        'at\x0bvalue\x069urn:TribalDDB:identity:email\x06!tester@trial.com\x11'
-        '\n#\x01\x02\ttype\x06\x0fpasswrd\x06Kurn:TribalDDB:authentication:pas'
-        'sword\x11\nS\x01\x19EmailAddress\x15PostalCode\x17DateOfBirth\x11Last'
-        'Name\x13FirstName\x06\x06\x06\x0b12345\n3\x12\x0bmonth\x07day\tyear'
-        '\x04\x04\x04\x0f\x04\x8fF\x06\rewrwer\x06\x07wer\x11\n3\x1fSectionTra'
-        'cking\tCsId\x11TrtmntId\x13LocalCsId\x04\x00\x04\x86\x94z\x04\x00\x11'
-        '\n\x13\x11Tracking\x07CTC\x06\x07555\x11\t\x03\x01\n#\x13UserOptIn'
-        '\x1dliveModeEnable\x05id\x02\x04\x884\x02\x00\x10wwwwwwwwwwwwwwww'
-    )
-
-    def test_decode(self):
-        from miniamf.remoting import decode
-
-        e = decode(self.bytes)
-
-        a, b, c, d, e, f, g = e['/3'].body
-
-        self.assertEqual(a, {
-            'value': u'tester@trial.com',
-            'format': u'urn:TribalDDB:identity:email'
-        })
-        self.assertEqual(b, {
-            'type': u'urn:TribalDDB:authentication:password',
-            'value': u'passwrd'}
-        )
-        self.assertEqual(c, {
-            'PostalCode': u'12345',
-            'DateOfBirth': {'month': 4, 'day': 15, 'year': 1990},
-            'EmailAddress': u'tester@trial.com',
-            'FirstName': u'wer',
-            'LastName': u'ewrwer'}
-        )
-        self.assertEqual(d, {'CsId': 0, 'TrtmntId': 100986, 'LocalCsId': 0})
-        self.assertEqual(e, {'CTC': u'555'})
-        self.assertEqual(f, [{'liveModeEnable': False, 'id': 1076}])
-        self.assertEqual(g, u'wwwwwwwwwwwwwwww')

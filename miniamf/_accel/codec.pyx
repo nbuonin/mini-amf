@@ -515,7 +515,7 @@ cdef class Encoder(Codec):
     cdef int writeXML(self, object o) except -1:
         raise NotImplementedError
 
-    cpdef int writeList(self, object o, bint is_proxy=0) except -1:
+    cpdef int writeList(self, object o) except -1:
         raise NotImplementedError
 
     cdef int writeTuple(self, object o) except -1:
@@ -551,7 +551,7 @@ cdef class Encoder(Codec):
 
         return self.writeList(list(iterable))
 
-    cpdef int writeObject(self, object o, bint is_proxy=0) except -1:
+    cpdef int writeObject(self, object o) except -1:
         raise NotImplementedError
 
     cdef int writeMixedArray(self, object o) except -1:
@@ -624,7 +624,6 @@ cdef class Encoder(Codec):
         cdef int ret = 0
         cdef object py_type = type(element)
         cdef object func = None
-        cdef int use_proxy
 
         ret = self.handleBasicTypes(element, py_type)
 

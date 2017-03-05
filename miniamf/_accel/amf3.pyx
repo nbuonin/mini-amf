@@ -51,7 +51,6 @@ cdef long MIN_29B_INT = -0x10000000
 cdef int OBJECT_ENCODING_STATIC = 0x00
 cdef int OBJECT_ENCODING_EXTERNAL = 0x01
 cdef int OBJECT_ENCODING_DYNAMIC = 0x02
-cdef int OBJECT_ENCODING_PROXY = 0x03
 
 cdef object ByteArrayType = amf3.ByteArray
 cdef object DataInput = amf3.DataInput
@@ -144,7 +143,6 @@ cdef class Context(codec.Context):
         self.strings = codec.ByteStringReferenceCollection()
         self.classes = {}
         self.class_ref = {}
-        self.proxied_objects = {}
 
         self.class_idx = 0
 
@@ -155,7 +153,6 @@ cdef class Context(codec.Context):
         codec.Context.clear(self)
 
         self.strings.clear()
-        self.proxied_objects = {}
 
         self.classes = {}
         self.class_ref = {}
@@ -191,60 +188,6 @@ cdef class Context(codec.Context):
         self.class_idx += 1
 
         return ref
-
-    cpdef object getProxyForObject(self, object obj):
-        """
-        Returns the proxied version of C{obj} as stored in the context, or
-        creates a new proxied object and returns that.
-
-        @see: L{miniamf.flex.proxy_object}
-        @since: 0.6
-        """
-        cdef PyObject *ret = PyDict_GetItem(self.proxied_objects, PyLong_FromVoidPtr(<void *>obj))
-
-        if ret != NULL:
-            return <object>ret
-
-        from miniamf import flex
-
-        proxied = flex.proxy_object(obj)
-
-        self.addProxyObject(obj, proxied)
-
-        return proxied
-
-    cpdef object getObjectForProxy(self, object proxy):
-        """
-        Returns the unproxied version of C{proxy} as stored in the context, or
-        unproxies the proxy and returns that 'raw' object.
-
-        @see: L{miniamf.flex.unproxy_object}
-        @since: 0.6
-        """
-        cdef PyObject *ret = PyDict_GetItem(self.proxied_objects, PyLong_FromVoidPtr(<void *>proxy))
-
-        if ret != NULL:
-            return <object>ret
-
-        from miniamf import flex
-
-        obj = flex.unproxy_object(proxy)
-
-        self.addProxyObject(obj, proxy)
-
-        return obj
-
-    cpdef int addProxyObject(self, object obj, object proxied) except? -1:
-        """
-        Stores a reference to the unproxied and proxied versions of C{obj} for
-        later retrieval.
-
-        @since: 0.6
-        """
-        self.proxied_objects[PyLong_FromVoidPtr(<void *>obj)] = proxied
-        self.proxied_objects[PyLong_FromVoidPtr(<void *>proxied)] = obj
-
-        return 0
 
 
 cdef class Decoder(codec.Decoder):
@@ -458,9 +401,6 @@ cdef class Decoder(codec.Decoder):
             if obj is None:
                 raise miniamf.ReferenceError('Unknown reference')
 
-            if self.use_proxies == 1:
-                return self.readProxy(obj)
-
             return obj
 
         cdef ClassDefinition class_def = self._getClassDefinition(ref >> 1)
@@ -476,20 +416,14 @@ cdef class Decoder(codec.Decoder):
             self._readDynamic(class_def, obj_attrs)
         elif class_def.encoding == OBJECT_ENCODING_STATIC:
             self._readStatic(class_def, obj_attrs)
-        elif class_def.encoding == OBJECT_ENCODING_EXTERNAL or class_def.encoding == OBJECT_ENCODING_PROXY:
+        elif class_def.encoding == OBJECT_ENCODING_EXTERNAL:
             obj.__readamf__(DataInput(self))
-
-            if self.use_proxies == 1:
-                return self.readProxy(obj)
 
             return obj
         else:
             raise miniamf.DecodeError("Unknown object encoding")
 
         alias.applyAttributes(obj, obj_attrs, codec=self)
-
-        if self.use_proxies:
-            return self.readProxy(obj)
 
         return obj
 
@@ -555,14 +489,6 @@ cdef class Decoder(codec.Decoder):
 
         return s
 
-    cdef object readProxy(self, obj):
-        """
-        Decodes a proxied object from the stream.
-
-        @since: 0.6
-        """
-        return self.context.getObjectForProxy(obj)
-
     cdef object readConcreteElement(self, char t):
         if t == TYPE_STRING:
             return self.readString()
@@ -600,7 +526,6 @@ cdef class Encoder(codec.Encoder):
     """
 
     def __init__(self, *args, **kwargs):
-        self.use_proxies = kwargs.pop('use_proxies', amf3.use_proxies_default)
         context = kwargs.pop('context', None)
 
         if context is None:
@@ -699,14 +624,10 @@ cdef class Encoder(codec.Encoder):
 
         return 0
 
-    cpdef int writeList(self, object n, bint is_proxy=0) except -1:
+    cpdef int writeList(self, object n) except -1:
         cdef Py_ssize_t ref = self.context.getObjectReference(n)
         cdef Py_ssize_t i
         cdef PyObject *x
-
-        if self.use_proxies == 1 and not is_proxy:
-            # Encode lists as ArrayCollections
-            return self.writeProxy(n)
 
         self.writeType(TYPE_ARRAY)
 
@@ -754,9 +675,6 @@ cdef class Encoder(codec.Encoder):
     cdef int writeDict(self, dict obj) except -1:
         cdef Py_ssize_t idx = 0
 
-        if self.use_proxies:
-            return self.writeProxy(obj)
-
         self.writeType(TYPE_OBJECT)
 
         ref = self.context.getObjectReference(obj)
@@ -797,9 +715,6 @@ cdef class Encoder(codec.Encoder):
         # for more info
         if '' in n:
             raise miniamf.EncodeError("dicts cannot contain empty string keys")
-
-        if self.use_proxies:
-            return self.writeProxy(n)
 
         self.writeType(TYPE_ARRAY)
 
@@ -851,7 +766,7 @@ cdef class Encoder(codec.Encoder):
         for k in int_keys:
             self.writeElement(n[k])
 
-    cpdef int writeObject(self, object obj, bint is_proxy=0) except -1:
+    cpdef int writeObject(self, object obj) except -1:
         cdef Py_ssize_t ref
         cdef object kls
         cdef ClassDefinition definition
@@ -862,9 +777,6 @@ cdef class Encoder(codec.Encoder):
         cdef PyObject *key
         cdef PyObject *value
         cdef object attrs
-
-        if self.use_proxies and not is_proxy:
-            return self.writeProxy(obj)
 
         self.writeType(TYPE_OBJECT)
 
@@ -1019,16 +931,6 @@ cdef class Encoder(codec.Encoder):
 
         ms = <double>util.get_timestamp(obj)
         self.stream.write_double(ms * 1000.0)
-
-    cdef int writeProxy(self, obj) except -1:
-        """
-        Encodes a proxied object to the stream.
-
-        @since: 0.6
-        """
-        cdef object proxy = self.context.getProxyForObject(obj)
-
-        return self.writeObject(proxy, 1)
 
     cdef int handleBasicTypes(self, object element, object py_type) except -1:
         cdef int ret = codec.Encoder.handleBasicTypes(self, element, py_type)

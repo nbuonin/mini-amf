@@ -43,7 +43,6 @@ class ClassAlias(object):
         self.static_attrs = kwargs.pop('static_attrs', None)
         self.exclude_attrs = kwargs.pop('exclude_attrs', None)
         self.readonly_attrs = kwargs.pop('readonly_attrs', None)
-        self.proxy_attrs = kwargs.pop('proxy_attrs', None)
         self.amf3 = kwargs.pop('amf3', None)
         self.external = kwargs.pop('external', None)
         self.dynamic = kwargs.pop('dynamic', None)
@@ -108,7 +107,6 @@ class ClassAlias(object):
         self.readonly_attrs = set(self.readonly_attrs or [])
         self.static_attrs = list(self.static_attrs or [])
         self.static_attrs_set = set(self.static_attrs)
-        self.proxy_attrs = set(self.proxy_attrs or [])
 
         self.sealed = util.is_class_sealed(self.klass)
 
@@ -169,9 +167,6 @@ class ClassAlias(object):
             for a in alias.static_attrs:
                 if a not in self.static_attrs:
                     self.static_attrs.insert(0, a)
-
-        if alias.proxy_attrs:
-            self.proxy_attrs.update(alias.proxy_attrs)
 
         if alias.encodable_properties:
             self.encodable_properties.update(alias.encodable_properties)
@@ -250,12 +245,6 @@ class ClassAlias(object):
             self.readonly_attrs = list(self.readonly_attrs)
             self.readonly_attrs.sort()
 
-        if not self.proxy_attrs:
-            self.proxy_attrs = None
-        else:
-            self.proxy_attrs = list(self.proxy_attrs)
-            self.proxy_attrs.sort()
-
         if len(self.decodable_properties) == 0:
             self.decodable_properties = None
         else:
@@ -284,7 +273,7 @@ class ClassAlias(object):
         self.shortcut_decode = True
 
         if (self.encodable_properties or self.static_attrs or
-                self.exclude_attrs or self.proxy_attrs or self.external or
+                self.exclude_attrs or self.external or
                 self.synonym_attrs):
             self.shortcut_encode = False
 
@@ -436,13 +425,6 @@ class ClassAlias(object):
         for attr in dynamic_props:
             attrs[attr] = self.getAttribute(obj, attr, codec=codec)
 
-        if self.proxy_attrs is not None and attrs and codec:
-            context = codec.context
-
-            for k, v in attrs.copy().iteritems():
-                if k in self.proxy_attrs:
-                    attrs[k] = context.getProxyForObject(v)
-
         if self.synonym_attrs:
             missing = object()
 
@@ -506,17 +488,6 @@ class ClassAlias(object):
         if self.exclude_attrs:
             props.difference_update(self.exclude_attrs)
             changed = True
-
-        if self.proxy_attrs is not None and codec:
-            context = codec.context
-
-            for k in self.proxy_attrs:
-                try:
-                    v = attrs[k]
-                except KeyError:
-                    continue
-
-                attrs[k] = context.getObjectForProxy(v)
 
         if changed:
             # apply all filters before synonyms

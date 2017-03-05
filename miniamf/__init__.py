@@ -543,50 +543,6 @@ def get_encoder(encoding, *args, **kwargs):
     return _get_encoder_class()(*args, **kwargs)
 
 
-def blaze_loader(alias):
-    """
-    Loader for BlazeDS framework compatibility classes, specifically
-    implementing C{ISmallMessage}.
-
-    @type alias: C{string}
-    @see: U{BlazeDS<http://opensource.adobe.com/wiki/display/blazeds/BlazeDS>}
-    @see: U{ISmallMessage on Adobe Help (external) <http://help.adobe.com/en_US
-        /FlashPlatform/reference/actionscript/3/mx/messaging/messages/
-        ISmallMessage.html>}
-    @since: 0.5
-    """
-    if alias not in ['DSC', 'DSK']:
-        return
-
-    import miniamf.flex.messaging  # noqa
-
-    return CLASS_CACHE[alias]
-
-
-def flex_loader(alias):
-    """
-    Loader for L{Flex<miniamf.flex>} framework compatibility classes.
-
-    @type alias: C{string}
-    @raise UnknownClassAlias: Trying to load an unknown Flex compatibility
-        class.
-    """
-    if not alias.startswith('flex.'):
-        return
-
-    try:
-        if alias.startswith('flex.messaging.messages'):
-            import miniamf.flex.messaging
-        elif alias.startswith('flex.messaging.io'):
-            import miniamf.flex
-        elif alias.startswith('flex.data.messages'):
-            import miniamf.flex.data  # noqa
-
-        return CLASS_CACHE[alias]
-    except KeyError:
-        raise UnknownClassAlias(alias)
-
-
 def add_type(type_, func=None):
     """
     Adds a custom type to L{TYPE_MAP}. A custom type allows fine grain control
@@ -653,9 +609,7 @@ def remove_type(type_):
 
 def add_error_class(klass, code):
     """
-    Maps an exception class to a string code. Used to map remoting C{onStatus}
-    objects to an exception class so that an exception can be built to
-    represent that error.
+    Maps an exception class to a string code.
 
     An example::
 
@@ -947,8 +901,6 @@ def add_post_decode_processor(func):
 
 # setup some some standard class registrations and class loaders.
 register_class(ASObject)
-register_class_loader(flex_loader)
-register_class_loader(blaze_loader)
 register_alias_type(TypedObjectClassAlias, TypedObject)
 register_alias_type(ErrorAlias, Exception)
 

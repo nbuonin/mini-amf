@@ -10,7 +10,6 @@ summary of all new features.
 - :mod:`AMF3 <miniamf.amf3>` encoder/decoder for the new AMF format in Adobe Flash Player 9
   and newer
 - Optional C-extension for maximum performance, created using `Cython`_
-- Remoting gateway for any compatible WSGI_ framework
 - :doc:`Adapter framework <../architecture/adapters>`
 - :doc:`Authentication <../tutorials/general/authentication/index>`/``setCredentials`` support
 - Python AMF :doc:`client <../tutorials/general/client>` with HTTP(S)

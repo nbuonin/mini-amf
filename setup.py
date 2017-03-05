@@ -26,9 +26,8 @@ Development Status :: 5 - Production/Stable
 """
 
 keywords = """
-amf amf0 amf3 flex flash remoting rpc http flashplayer air bytearray
-objectproxy arraycollection recordset actionscript decoder encoder gateway
-remoteobject twisted pylons django sharedobject lso sol
+amf amf0 amf3 actionscript air flash flashplayer bytearray recordset
+decoder encoder sharedobject lso sol
 """
 
 import sys
