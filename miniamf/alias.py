@@ -9,11 +9,10 @@ Class alias base functionality.
 
 from __future__ import absolute_import
 import inspect
-import types
+import six
 
 import miniamf
-from miniamf import util
-import six
+from . import util
 
 
 class UnknownClassAlias(Exception):

@@ -94,7 +94,7 @@ class BufferedByteStream(object):
         self._len = 0
 
         if buf is not None:
-            if not isinstance(buf, (six.binary_type, buffer)):
+            if not isinstance(buf, six.binary_type):
                 if hasattr(buf, 'getvalue'):
                     buf = buf.getvalue()
                 elif (hasattr(buf, 'read') and

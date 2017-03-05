@@ -12,15 +12,15 @@ is compatible with the Adobe U{Flash Player
 """
 
 from __future__ import absolute_import
-import types
+
 import inspect
 from importlib import import_module
-
-from miniamf import util, _version
-from miniamf.adapters import register_adapters, get_adapter
-from miniamf.alias import ClassAlias, UnknownClassAlias
 import six
 from six.moves import range
+
+from . import util, _version
+from .adapters import register_adapters, get_adapter
+from .alias import ClassAlias, UnknownClassAlias
 
 
 __all__ = [

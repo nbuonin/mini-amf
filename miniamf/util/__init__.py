@@ -8,18 +8,18 @@ AMF Utilities.
 """
 
 from __future__ import absolute_import
+
 import calendar
 import datetime
 import inspect
-import types
-
-import miniamf
 import six
 
+import miniamf
+
 try:
-    from miniamf._accel.util import BufferedByteStream
+    from .._accel.util import BufferedByteStream
 except ImportError:
-    from miniamf.util.pure import BufferedByteStream
+    from .pure import BufferedByteStream
 
 
 __all__ = [

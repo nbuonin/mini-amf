@@ -11,6 +11,7 @@ import unittest
 from miniamf import versions
 from six import text_type
 
+
 class VersionTestCase(unittest.TestCase):
     """
     Tests for L{miniamf.version.get_version}

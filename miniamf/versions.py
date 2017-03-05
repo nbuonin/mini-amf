@@ -10,6 +10,7 @@ out ...) we currently provide our own way to get the string of a version tuple.
 
 from six import text_type, integer_types
 
+
 class Version(tuple):
 
     _version = None

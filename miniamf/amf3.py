@@ -24,12 +24,12 @@ only in ActionScript 3.0, such as L{ByteArray} and L{ArrayCollection}.
 
 from __future__ import absolute_import
 import datetime
+import six
+from six.moves import range
 import zlib
 
 import miniamf
-from miniamf import codec, util, xml
-import six
-from six.moves import range
+from . import codec, util, xml
 
 
 __all__ = [
@@ -302,7 +302,6 @@ class DataOutput(object):
         self.stream.write_ushort(len(value))
         self.stream.write(value)
 
-
     def writeUTFBytes(self, value):
         """
         Writes a UTF-8 string. Similar to L{writeUTF}, but does
@@ -518,11 +517,35 @@ class ByteArray(util.BufferedByteStream, DataInput, DataOutput):
 
         return super(ByteArray, self).writeObject(obj)
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if isinstance(other, ByteArray):
-            return cmp(self.getvalue(), other.getvalue())
+            return self.getvalue() == other.getvalue()
+        return self.getvalue() == other
 
-        return cmp(self.getvalue(), other)
+    def __ne__(self, other):
+        if isinstance(other, ByteArray):
+            return self.getvalue() != other.getvalue()
+        return self.getvalue() != other
+
+    def __lt__(self, other):
+        if isinstance(other, ByteArray):
+            return self.getvalue() < other.getvalue()
+        return self.getvalue() < other
+
+    def __le__(self, other):
+        if isinstance(other, ByteArray):
+            return self.getvalue() <= other.getvalue()
+        return self.getvalue() <= other
+
+    def __gt__(self, other):
+        if isinstance(other, ByteArray):
+            return self.getvalue() > other.getvalue()
+        return self.getvalue() > other
+
+    def __ge__(self, other):
+        if isinstance(other, ByteArray):
+            return self.getvalue() >= other.getvalue()
+        return self.getvalue() >= other
 
     def __str__(self):
         buf = self.getvalue()

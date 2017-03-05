@@ -7,9 +7,9 @@ Useful helpers for adapters.
 @since: 0.4
 """
 
-
-from __future__ import absolute_import
 import six
+
+
 def to_list(obj, encoder):
     """
     Converts an arbitrary object C{obj} to a C{list}.

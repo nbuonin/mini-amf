@@ -15,13 +15,15 @@ import math
 import unittest
 
 from datetime import datetime
-from StringIO import StringIO
+from six.moves import cStringIO as StringIO
+from six.moves import range
 
 import miniamf
-from miniamf import util
+from miniamf.util import (get_timestamp, get_datetime, BufferedByteStream,
+                          get_class_alias, is_class_sealed, get_class_meta)
+
 from .util import replace_dict
-import six
-from six.moves import range
+
 
 PosInf = 1e300000
 NegInf = -1e300000
@@ -47,59 +49,59 @@ class TimestampTestCase(unittest.TestCase):
 
     def test_get_timestamp(self):
         self.assertEqual(
-            util.get_timestamp(datetime(2007, 11, 12)),
+            get_timestamp(datetime(2007, 11, 12)),
             1194825600
         )
 
     def test_get_datetime(self):
-        self.assertEqual(util.get_datetime(1194825600), datetime(2007, 11, 12))
+        self.assertEqual(get_datetime(1194825600), datetime(2007, 11, 12))
 
     def test_get_negative_datetime(self):
-        self.assertEqual(util.get_datetime(-31536000), datetime(1969, 1, 1))
+        self.assertEqual(get_datetime(-31536000), datetime(1969, 1, 1))
 
     def test_preserved_microseconds(self):
         dt = datetime(2009, 3, 8, 23, 30, 47, 770122)
-        ts = util.get_timestamp(dt)
-        self.assertEqual(util.get_datetime(ts), dt)
+        ts = get_timestamp(dt)
+        self.assertEqual(get_datetime(ts), dt)
 
 
 class StringIOTestCase(unittest.TestCase):
 
     def test_create(self):
-        sp = util.BufferedByteStream()
+        sp = BufferedByteStream()
 
         self.assertEqual(sp.tell(), 0)
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(len(sp), 0)
         self.assertEqual(sp.getvalue(), '')
 
-        sp = util.BufferedByteStream(None)
+        sp = BufferedByteStream(None)
 
         self.assertEqual(sp.tell(), 0)
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(len(sp), 0)
 
-        sp = util.BufferedByteStream('')
+        sp = BufferedByteStream('')
 
         self.assertEqual(sp.tell(), 0)
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(len(sp), 0)
 
-        sp = util.BufferedByteStream('spam')
+        sp = BufferedByteStream('spam')
 
         self.assertEqual(sp.tell(), 0)
         self.assertEqual(sp.getvalue(), 'spam')
         self.assertEqual(len(sp), 4)
 
-        sp = util.BufferedByteStream(StringIO('this is a test'))
+        sp = BufferedByteStream(StringIO('this is a test'))
         self.assertEqual(sp.tell(), 0)
         self.assertEqual(sp.getvalue(), 'this is a test')
         self.assertEqual(len(sp), 14)
 
-        self.assertRaises(TypeError, util.BufferedByteStream, self)
+        self.assertRaises(TypeError, BufferedByteStream, self)
 
     def test_getvalue(self):
-        sp = util.BufferedByteStream()
+        sp = BufferedByteStream()
 
         sp.write('asdfasdf')
         self.assertEqual(sp.getvalue(), 'asdfasdf')
@@ -107,7 +109,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(sp.getvalue(), 'asdfasdfspam')
 
     def test_read(self):
-        sp = util.BufferedByteStream('this is a test')
+        sp = BufferedByteStream('this is a test')
 
         self.assertEqual(len(sp), 14)
         self.assertEqual(sp.read(1), 't')
@@ -117,7 +119,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(sp.read(), 'est')
 
     def test_seek(self):
-        sp = util.BufferedByteStream('abcdefghijklmnopqrstuvwxyz')
+        sp = BufferedByteStream('abcdefghijklmnopqrstuvwxyz')
 
         self.assertEqual(sp.getvalue(), 'abcdefghijklmnopqrstuvwxyz')
         self.assertEqual(sp.tell(), 0)
@@ -148,7 +150,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(len(sp), 26)
 
     def test_tell(self):
-        sp = util.BufferedByteStream('abcdefghijklmnopqrstuvwxyz')
+        sp = BufferedByteStream('abcdefghijklmnopqrstuvwxyz')
 
         self.assertEqual(sp.getvalue(), 'abcdefghijklmnopqrstuvwxyz')
         self.assertEqual(len(sp), 26)
@@ -164,7 +166,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(sp.tell(), 6)
 
     def test_truncate(self):
-        sp = util.BufferedByteStream('abcdef')
+        sp = BufferedByteStream('abcdef')
 
         self.assertEqual(sp.getvalue(), 'abcdef')
         self.assertEqual(len(sp), 6)
@@ -173,7 +175,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(len(sp), 0)
 
-        sp = util.BufferedByteStream('hello')
+        sp = BufferedByteStream('hello')
 
         self.assertEqual(sp.getvalue(), 'hello')
         self.assertEqual(len(sp), 5)
@@ -184,7 +186,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(len(sp), 3)
 
     def test_write(self):
-        sp = util.BufferedByteStream()
+        sp = BufferedByteStream()
 
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(len(sp), 0)
@@ -195,7 +197,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(len(sp), 5)
         self.assertEqual(sp.tell(), 5)
 
-        sp = util.BufferedByteStream('xyz')
+        sp = BufferedByteStream('xyz')
 
         self.assertEqual(sp.getvalue(), 'xyz')
         self.assertEqual(len(sp), 3)
@@ -207,7 +209,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(sp.tell(), 3)
 
     def test_len(self):
-        sp = util.BufferedByteStream()
+        sp = BufferedByteStream()
 
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(len(sp), 0)
@@ -217,7 +219,7 @@ class StringIOTestCase(unittest.TestCase):
 
         self.assertEqual(len(sp), 3)
 
-        sp = util.BufferedByteStream('foo')
+        sp = BufferedByteStream('foo')
 
         self.assertEqual(len(sp), 3)
 
@@ -227,7 +229,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(len(sp), 6)
 
     def test_consume(self):
-        sp = util.BufferedByteStream()
+        sp = BufferedByteStream()
 
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(sp.tell(), 0)
@@ -237,7 +239,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(sp.getvalue(), '')
         self.assertEqual(sp.tell(), 0)
 
-        sp = util.BufferedByteStream('foobar')
+        sp = BufferedByteStream('foobar')
 
         self.assertEqual(sp.getvalue(), 'foobar')
         self.assertEqual(sp.tell(), 0)
@@ -251,7 +253,7 @@ class StringIOTestCase(unittest.TestCase):
         self.assertEqual(sp.tell(), 0)
 
         # from ticket 451 - http://miniamf.org/ticket/451
-        sp = util.BufferedByteStream('abcdef')
+        sp = BufferedByteStream('abcdef')
         # move the stream pos to the end
         sp.read()
 
@@ -259,7 +261,7 @@ class StringIOTestCase(unittest.TestCase):
         sp.consume()
         self.assertEqual(len(sp), 0)
 
-        sp = util.BufferedByteStream('abcdef')
+        sp = BufferedByteStream('abcdef')
         sp.seek(6)
         sp.consume()
         self.assertEqual(sp.getvalue(), '')
@@ -283,7 +285,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
 
     def _read_endian(self, data, func, args, expected):
         for x in range(2):
-            obj = util.BufferedByteStream(data[x])
+            obj = BufferedByteStream(data[x])
             obj.endian = self.endians[x]
 
             result = getattr(obj, func)(*args)
@@ -291,13 +293,13 @@ class DataTypeMixInTestCase(unittest.TestCase):
             self.assertEqual(result, expected)
 
     def test_read_uchar(self):
-        x = util.BufferedByteStream('\x00\xff')
+        x = BufferedByteStream('\x00\xff')
 
         self.assertEqual(x.read_uchar(), 0)
         self.assertEqual(x.read_uchar(), 255)
 
     def test_write_uchar(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         x.write_uchar(0)
         self.assertEqual(x.getvalue(), '\x00')
@@ -309,7 +311,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         self.assertRaises(TypeError, x.write_uchar, 'f')
 
     def test_read_char(self):
-        x = util.BufferedByteStream('\x00\x7f\xff\x80')
+        x = BufferedByteStream('\x00\x7f\xff\x80')
 
         self.assertEqual(x.read_char(), 0)
         self.assertEqual(x.read_char(), 127)
@@ -317,7 +319,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         self.assertEqual(x.read_char(), -128)
 
     def test_write_char(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         x.write_char(0)
         x.write_char(-128)
@@ -330,7 +332,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         self.assertRaises(TypeError, x.write_char, 'f')
 
     def test_write_ushort(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(x, x.write_ushort, (0,), ('\x00\x00', '\x00\x00'))
         self._write_endian(x, x.write_ushort, (12345,), ('09', '90'))
@@ -351,7 +353,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         self._read_endian(['\xff\xff', '\xff\xff'], 'read_ushort', (), 65535)
 
     def test_write_short(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x,
@@ -374,7 +376,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         self._read_endian(['\x7f\xff', '\xff\x7f'], 'read_short', (), 32767)
 
     def test_write_ulong(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x,
@@ -420,7 +422,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         )
 
     def test_write_long(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x,
@@ -478,7 +480,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         )
 
     def test_write_u24bit(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x,
@@ -521,7 +523,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         )
 
     def test_write_24bit(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x, x.write_24bit_int, (0,), ('\x00\x00\x00', '\x00\x00\x00')
@@ -561,7 +563,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         )
 
     def test_write_float(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x, x.write_float, (0.2,), ('>L\xcc\xcd', '\xcd\xccL>')
@@ -574,7 +576,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         )
 
     def test_write_double(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x,
@@ -593,7 +595,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
         )
 
     def test_write_utf8_string(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(
             x,
@@ -615,30 +617,30 @@ class DataTypeMixInTestCase(unittest.TestCase):
         )
 
     def test_nan(self):
-        x = util.BufferedByteStream('\xff\xf8\x00\x00\x00\x00\x00\x00')
+        x = BufferedByteStream('\xff\xf8\x00\x00\x00\x00\x00\x00')
         self.assertTrue(isNaN(x.read_double()))
 
-        x = util.BufferedByteStream('\xff\xf0\x00\x00\x00\x00\x00\x00')
+        x = BufferedByteStream('\xff\xf0\x00\x00\x00\x00\x00\x00')
         self.assertTrue(isNegInf(x.read_double()))
 
-        x = util.BufferedByteStream('\x7f\xf0\x00\x00\x00\x00\x00\x00')
+        x = BufferedByteStream('\x7f\xf0\x00\x00\x00\x00\x00\x00')
         self.assertTrue(isPosInf(x.read_double()))
 
         # now test little endian
-        x = util.BufferedByteStream('\x00\x00\x00\x00\x00\x00\xf8\xff')
+        x = BufferedByteStream('\x00\x00\x00\x00\x00\x00\xf8\xff')
         x.endian = '<'
         self.assertTrue(isNaN(x.read_double()))
 
-        x = util.BufferedByteStream('\x00\x00\x00\x00\x00\x00\xf0\xff')
+        x = BufferedByteStream('\x00\x00\x00\x00\x00\x00\xf0\xff')
         x.endian = '<'
         self.assertTrue(isNegInf(x.read_double()))
 
-        x = util.BufferedByteStream('\x00\x00\x00\x00\x00\x00\xf0\x7f')
+        x = BufferedByteStream('\x00\x00\x00\x00\x00\x00\xf0\x7f')
         x.endian = '<'
         self.assertTrue(isPosInf(x.read_double()))
 
     def test_write_infinites(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self._write_endian(x, x.write_double, (NaN,), (
             '\xff\xf8\x00\x00\x00\x00\x00\x00',
@@ -658,22 +660,22 @@ class DataTypeMixInTestCase(unittest.TestCase):
 
 class BufferedByteStreamTestCase(unittest.TestCase):
     """
-    Tests for L{BufferedByteStream<util.BufferedByteStream>}
+    Tests for L{BufferedByteStream<BufferedByteStream>}
     """
 
     def test_create(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self.assertEqual(x.getvalue(), '')
         self.assertEqual(x.tell(), 0)
 
-        x = util.BufferedByteStream('abc')
+        x = BufferedByteStream('abc')
 
         self.assertEqual(x.getvalue(), 'abc')
         self.assertEqual(x.tell(), 0)
 
     def test_read(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self.assertEqual(x.tell(), 0)
         self.assertEqual(len(x), 0)
@@ -690,14 +692,14 @@ class BufferedByteStreamTestCase(unittest.TestCase):
         """
         @see: #799
         """
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         x.write('*' * 6000)
         x.seek(100)
         self.assertRaises(IOError, x.read, -345)
 
     def test_peek(self):
-        x = util.BufferedByteStream('abcdefghijklmnopqrstuvwxyz')
+        x = BufferedByteStream('abcdefghijklmnopqrstuvwxyz')
 
         self.assertEqual(x.tell(), 0)
 
@@ -709,7 +711,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
         self.assertEqual(x.peek(50), 'klmnopqrstuvwxyz')
 
     def test_eof(self):
-        x = util.BufferedByteStream()
+        x = BufferedByteStream()
 
         self.assertTrue(x.at_eof())
         x.write('hello')
@@ -719,7 +721,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
         self.assertTrue(x.at_eof())
 
     def test_remaining(self):
-        x = util.BufferedByteStream('spameggs')
+        x = BufferedByteStream('spameggs')
 
         self.assertEqual(x.tell(), 0)
         self.assertEqual(x.remaining(), 8)
@@ -729,18 +731,18 @@ class BufferedByteStreamTestCase(unittest.TestCase):
         self.assertEqual(x.remaining(), 6)
 
     def test_add(self):
-        a = util.BufferedByteStream('a')
-        b = util.BufferedByteStream('b')
+        a = BufferedByteStream('a')
+        b = BufferedByteStream('b')
 
         c = a + b
 
-        self.assertTrue(isinstance(c, util.BufferedByteStream))
+        self.assertTrue(isinstance(c, BufferedByteStream))
         self.assertEqual(c.getvalue(), 'ab')
         self.assertEqual(c.tell(), 0)
 
     def test_add_pos(self):
-        a = util.BufferedByteStream('abc')
-        b = util.BufferedByteStream('def')
+        a = BufferedByteStream('abc')
+        b = BufferedByteStream('def')
 
         a.seek(1)
         b.seek(0, 2)
@@ -753,7 +755,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
     def test_append_types(self):
         # test non string types
-        a = util.BufferedByteStream()
+        a = BufferedByteStream()
 
         self.assertRaises(TypeError, a.append, 234234)
         self.assertRaises(TypeError, a.append, 234.0)
@@ -766,10 +768,10 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
     def test_append_string(self):
         """
-        Test L{util.BufferedByteStream.append} with bytestring objects.
+        Test L{BufferedByteStream.append} with bytestring objects.
         """
         # test empty
-        a = util.BufferedByteStream()
+        a = BufferedByteStream()
 
         self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
@@ -783,7 +785,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
         # test pointer beginning, some data
 
-        a = util.BufferedByteStream(b'bar')
+        a = BufferedByteStream(b'bar')
 
         self.assertEqual(a.getvalue(), b'bar')
         self.assertEqual(a.tell(), 0)
@@ -797,7 +799,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
         # test pointer middle, some data
 
-        a = util.BufferedByteStream(b'bar')
+        a = BufferedByteStream(b'bar')
         a.seek(2)
 
         self.assertEqual(a.getvalue(), b'bar')
@@ -812,7 +814,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
         # test pointer end, some data
 
-        a = util.BufferedByteStream(b'bar')
+        a = BufferedByteStream(b'bar')
         a.seek(0, 2)
 
         self.assertEqual(a.getvalue(), b'bar')
@@ -832,7 +834,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
             def __str__(self):
                 raise AttributeError()
 
-        a = util.BufferedByteStream()
+        a = BufferedByteStream()
 
         self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
@@ -846,10 +848,10 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
     def test_append_unicode(self):
         """
-        Test L{util.BufferedByteStream.append} with Unicode strings.
+        Test L{BufferedByteStream.append} with Unicode strings.
         """
         # test empty
-        a = util.BufferedByteStream()
+        a = BufferedByteStream()
 
         self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
@@ -863,7 +865,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
         # test pointer beginning, some data
 
-        a = util.BufferedByteStream(b'bar')
+        a = BufferedByteStream(b'bar')
 
         self.assertEqual(a.getvalue(), b'bar')
         self.assertEqual(a.tell(), 0)
@@ -877,7 +879,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
         # test pointer middle, some data
 
-        a = util.BufferedByteStream(b'bar')
+        a = BufferedByteStream(b'bar')
         a.seek(2)
 
         self.assertEqual(a.getvalue(), b'bar')
@@ -892,7 +894,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
 
         # test pointer end, some data
 
-        a = util.BufferedByteStream(b'bar')
+        a = BufferedByteStream(b'bar')
         a.seek(0, 2)
 
         self.assertEqual(a.getvalue(), 'bar')
@@ -912,7 +914,7 @@ class BufferedByteStreamTestCase(unittest.TestCase):
             def __str__(self):
                 raise AttributeError()
 
-        a = util.BufferedByteStream()
+        a = BufferedByteStream()
 
         self.assertEqual(a.getvalue(), b'')
         self.assertEqual(a.tell(), 0)
@@ -950,7 +952,7 @@ class ClassAliasTestCase(unittest.TestCase):
 
         miniamf.register_alias_type(DummyAlias, A)
 
-        self.assertEqual(util.get_class_alias(A), DummyAlias)
+        self.assertEqual(get_class_alias(A), DummyAlias)
 
     def test_nested(self):
         class A(object):
@@ -964,7 +966,7 @@ class ClassAliasTestCase(unittest.TestCase):
 
         miniamf.register_alias_type(DummyAlias, A, B, C)
 
-        self.assertEqual(util.get_class_alias(B), DummyAlias)
+        self.assertEqual(get_class_alias(B), DummyAlias)
 
     def test_multiple(self):
         class A(object):
@@ -980,12 +982,12 @@ class ClassAliasTestCase(unittest.TestCase):
         miniamf.register_alias_type(AnotherDummyAlias, B)
         miniamf.register_alias_type(YADummyAlias, C)
 
-        self.assertEqual(util.get_class_alias(B), AnotherDummyAlias)
-        self.assertEqual(util.get_class_alias(C), YADummyAlias)
-        self.assertEqual(util.get_class_alias(A), DummyAlias)
+        self.assertEqual(get_class_alias(B), AnotherDummyAlias)
+        self.assertEqual(get_class_alias(C), YADummyAlias)
+        self.assertEqual(get_class_alias(A), DummyAlias)
 
     def test_none_existant(self):
-        self.assertEqual(util.get_class_alias(self.__class__), None)
+        self.assertEqual(get_class_alias(self.__class__), None)
 
     def test_subclass(self):
         class A(object):
@@ -996,12 +998,12 @@ class ClassAliasTestCase(unittest.TestCase):
 
         miniamf.register_alias_type(DummyAlias, A)
 
-        self.assertEqual(util.get_class_alias(B), DummyAlias)
+        self.assertEqual(get_class_alias(B), DummyAlias)
 
 
 class IsClassSealedTestCase(unittest.TestCase):
     """
-    Tests for L{util.is_class_sealed}
+    Tests for L{is_class_sealed}
     """
 
     def test_new_mixed(self):
@@ -1014,9 +1016,9 @@ class IsClassSealedTestCase(unittest.TestCase):
         class C(B):
             __slots__ = ('spam', 'eggs')
 
-        self.assertTrue(util.is_class_sealed(A))
-        self.assertFalse(util.is_class_sealed(B))
-        self.assertFalse(util.is_class_sealed(C))
+        self.assertTrue(is_class_sealed(A))
+        self.assertFalse(is_class_sealed(B))
+        self.assertFalse(is_class_sealed(C))
 
     def test_deep(self):
         class A(object):
@@ -1028,14 +1030,14 @@ class IsClassSealedTestCase(unittest.TestCase):
         class C(B):
             pass
 
-        self.assertTrue(util.is_class_sealed(A))
-        self.assertTrue(util.is_class_sealed(B))
-        self.assertFalse(util.is_class_sealed(C))
+        self.assertTrue(is_class_sealed(A))
+        self.assertTrue(is_class_sealed(B))
+        self.assertFalse(is_class_sealed(C))
 
 
 class GetClassMetaTestCase(unittest.TestCase):
     """
-    Tests for L{util.get_class_meta}
+    Tests for L{get_class_meta}
     """
 
     def test_types(self):
@@ -1046,7 +1048,7 @@ class GetClassMetaTestCase(unittest.TestCase):
             pass
 
         for t in ['', u'', 1, 1.0, 1, [], {}, object, object(), A(), B()]:
-            self.assertRaises(TypeError, util.get_class_meta, t)
+            self.assertRaises(TypeError, get_class_meta, t)
 
     def test_no_meta(self):
         class A:
@@ -1066,8 +1068,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None
         }
 
-        self.assertEqual(util.get_class_meta(A), empty)
-        self.assertEqual(util.get_class_meta(B), empty)
+        self.assertEqual(get_class_meta(A), empty)
+        self.assertEqual(get_class_meta(B), empty)
 
     def test_alias(self):
         class A:
@@ -1089,8 +1091,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
 
     def test_static(self):
         class A:
@@ -1112,8 +1114,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
 
     def test_exclude(self):
         class A:
@@ -1135,8 +1137,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
 
     def test_readonly(self):
         class A:
@@ -1158,8 +1160,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None,
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
 
     def test_amf3(self):
         class A:
@@ -1181,8 +1183,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
 
     def test_dynamic(self):
         class A:
@@ -1204,8 +1206,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
 
     def test_external(self):
         class A:
@@ -1227,8 +1229,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': True
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
 
     def test_dict(self):
         meta = {
@@ -1259,8 +1261,8 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': True
         }
 
-        self.assertEqual(util.get_class_meta(A), ret)
-        self.assertEqual(util.get_class_meta(B), ret)
+        self.assertEqual(get_class_meta(A), ret)
+        self.assertEqual(get_class_meta(B), ret)
 
     def test_synonym(self):
         class A:
@@ -1282,5 +1284,5 @@ class GetClassMetaTestCase(unittest.TestCase):
             'external': None
         }
 
-        self.assertEqual(util.get_class_meta(A), meta)
-        self.assertEqual(util.get_class_meta(B), meta)
+        self.assertEqual(get_class_meta(A), meta)
+        self.assertEqual(get_class_meta(B), meta)
