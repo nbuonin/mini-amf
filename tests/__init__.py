@@ -7,7 +7,6 @@ Unit tests.
 @since: 0.1.0
 """
 
-import os.path
 import unittest
 
 

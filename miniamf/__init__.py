@@ -355,6 +355,7 @@ def unregister_class_loader(loader):
     except ValueError:
         raise LookupError("loader not registered")
 
+
 def _load_class_from_module(alias):
     """
     Load a class by guessing the name of a module that might define it.
@@ -374,6 +375,7 @@ def _load_class_from_module(alias):
         return None
 
     return getattr(module, klass)
+
 
 def load_class(alias):
     """

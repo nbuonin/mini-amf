@@ -5,11 +5,11 @@
 AMF3 implementation.
 
 C{AMF3} is the default serialization for
-U{ActionScript<http://en.wikipedia.org/wiki/ActionScript>} 3.0 and provides
-various advantages over L{AMF0<miniamf.amf0>}, which is used for ActionScript 1.0
-and 2.0. It adds support for sending C{int} and C{uint} objects as integers and
-supports data types that are available only in ActionScript 3.0, such as
-L{ByteArray} and L{ArrayCollection}.
+U{ActionScript<http://en.wikipedia.org/wiki/ActionScript>} 3.0 and
+provides various advantages over L{AMF0<miniamf.amf0>}, which is used
+for ActionScript 1.0 and 2.0. It adds support for sending C{int} and
+C{uint} objects as integers and supports data types that are available
+only in ActionScript 3.0, such as L{ByteArray} and L{ArrayCollection}.
 
 @see: U{Official AMF3 Specification in English
 <http://opensource.adobe.com/wiki/download/attachments/1114283/amf3_spec_05_05_08.pdf>}
@@ -19,6 +19,7 @@ L{ByteArray} and L{ArrayCollection}.
 <http://osflash.org/documentation/amf3>}
 
 @since: 0.1
+
 """
 
 import datetime

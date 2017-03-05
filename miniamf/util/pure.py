@@ -625,10 +625,12 @@ class BufferedByteStream(StringIOProxy, DataTypeMixIn):
 
         return new
 
+
 PosInf = 1e300000
 NegInf = -1e300000
 # we do this instead of float('nan') because windows throws a wobbler.
 NaN = PosInf / PosInf
+
 
 def is_float_broken():
     """

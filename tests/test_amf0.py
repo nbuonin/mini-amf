@@ -143,7 +143,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
             '\x0bBq\xfe\x86\xca5\xa1\xf4\x00\x00'
         )
 
-        self.assertRaises(miniamf.EncodeError, self.encode, datetime.time(22, 3))
+        self.assertRaises(miniamf.EncodeError, self.encode,
+                          datetime.time(22, 3))
 
     def test_xml(self):
         blob = '<a><b>hello world</b></a>'
@@ -185,7 +186,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
 
         self.assertEncoded(
             x,
-            '\x10\x00\x10org.miniamf.spam\x00\x03baz\x02\x00\x05hello\x00\x00\t'
+            '\x10\x00\x10org.miniamf.spam'
+            '\x00\x03baz\x02\x00\x05hello\x00\x00\t'
         )
 
     def test_complex_list(self):
@@ -389,7 +391,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
             pass
 
         for i in (chr, self.assertRaises, lambda x: x, miniamf):
-            self.assertRaises(miniamf.EncodeError, self.encoder.writeElement, i)
+            self.assertRaises(miniamf.EncodeError,
+                              self.encoder.writeElement, i)
 
     def test_external_subclassed_list(self):
         class L(list):
@@ -838,7 +841,8 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         Test to ensure that if an IOError is raised by `readElement` that
         the original position of the stream is restored.
         """
-        bytes = miniamf.encode(u'foo', [1, 2, 3], encoding=miniamf.AMF0).getvalue()
+        bytes = miniamf.encode(u'foo', [1, 2, 3],
+                               encoding=miniamf.AMF0).getvalue()
 
         self.buf.write(bytes[:-1])
         self.buf.seek(0)

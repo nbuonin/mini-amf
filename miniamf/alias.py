@@ -13,6 +13,7 @@ import types
 import miniamf
 from miniamf import util
 
+
 class UnknownClassAlias(Exception):
     """
     Raised if the AMF stream specifies an Actionscript class that does not

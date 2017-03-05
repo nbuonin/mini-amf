@@ -339,7 +339,8 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
         self.assertEncoded(x, '\x08\x01Bp+6!\x15\x80\x00')
         self.assertEncoded(x, '\x08\x00', clear=False)
 
-        self.assertRaises(miniamf.EncodeError, self.encode, datetime.time(22, 3))
+        self.assertRaises(miniamf.EncodeError,
+                          self.encode, datetime.time(22, 3))
 
     def test_byte_array(self):
         self.assertEncoded(amf3.ByteArray('hello'), '\x0c\x0bhello')
@@ -836,7 +837,8 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         Test to ensure that if an IOError is raised by `readElement` that
         the original position of the stream is restored.
         """
-        bytes = miniamf.encode(u'foo', [1, 2, 3], encoding=miniamf.AMF3).getvalue()
+        bytes = miniamf.encode(u'foo', [1, 2, 3],
+                               encoding=miniamf.AMF3).getvalue()
 
         self.buf.write(bytes[:-1])
         self.buf.seek(0)

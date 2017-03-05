@@ -751,6 +751,7 @@ class RecordSet(object):
 
         return ret
 
+
 miniamf.register_class(RecordSet)
 
 

@@ -1259,7 +1259,6 @@ class GetClassMetaTestCase(unittest.TestCase):
         self.assertEqual(util.get_class_meta(A), ret)
         self.assertEqual(util.get_class_meta(B), ret)
 
-
     def test_synonym(self):
         class A:
             class __amf__:

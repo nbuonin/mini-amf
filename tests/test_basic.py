@@ -390,7 +390,8 @@ class RegisterAliasTypeTestCase(unittest.TestCase):
 
     def test_type_args(self):
         self.assertTrue(issubclass(DummyAlias, miniamf.ClassAlias))
-        self.assertRaises(TypeError, miniamf.register_alias_type, DummyAlias, 1)
+        self.assertRaises(TypeError,
+                          miniamf.register_alias_type, DummyAlias, 1)
 
     def test_single(self):
         class A(object):
@@ -525,7 +526,8 @@ class PackageTestCase(ClassCacheClearingTestCase):
     def test_ignore(self):
         self.module.Spam = Spam
 
-        r = miniamf.register_package(self.module, 'com.example', ignore=['Spam'])
+        r = miniamf.register_package(self.module, 'com.example',
+                                     ignore=['Spam'])
         self.check_module(r, 'com.example.')
 
     def test_separator(self):

@@ -3,6 +3,22 @@
 # Copyright (c) The PyAMF Project.
 # See LICENSE.txt for details.
 
+import sys
+import os.path
+import fnmatch
+
+try:
+    from Cython.Distutils import build_ext
+    have_cython = True
+except ImportError:
+    from setuptools.command.build_ext import build_ext
+    have_cython = False
+
+from setuptools.command import sdist
+from setuptools import Extension, setup
+from distutils.core import Distribution
+
+
 name = "Mini-AMF"
 description = "AMF serialization and deserialization support for Python"
 url = "https://github.com/zackw/mini-amf"
@@ -29,24 +45,6 @@ keywords = """
 amf amf0 amf3 actionscript air flash flashplayer bytearray recordset
 decoder encoder sharedobject lso sol
 """
-
-import sys
-import os.path
-import fnmatch
-
-try:
-    from Cython.Distutils import build_ext
-
-    have_cython = True
-except ImportError:
-    from setuptools.command.build_ext import build_ext
-
-    have_cython = False
-
-from setuptools.command import sdist
-from setuptools import Extension, setup
-from distutils.core import Distribution
-
 
 jython = sys.platform.startswith("java")
 can_compile_extensions = not jython
@@ -139,6 +137,7 @@ def make_extension(mod_name, **extra_options):
         print("WARNING: Could not build extension for %r, no source found" % (
             mod_name,))
 
+
 def get_extensions():
     """
     Return a list of Extension instances that can be compiled.
@@ -179,11 +178,11 @@ def recursive_glob(path, pattern):
     return matches
 
 
-
 def setup_package():
 
-    with open(os.path.join(os.path.dirname(__file__), "README.rst"), "rt") as f:
-        long_description=f.read()
+    with open(os.path.join(os.path.dirname(__file__),
+                           "README.rst"), "rt") as f:
+        long_description = f.read()
 
     from miniamf._version import version
 
@@ -215,6 +214,7 @@ def setup_package():
             "miniamf._accel": ["*.pxd"]
         }
     )
+
 
 if __name__ == "__main__":
     setup_package()
