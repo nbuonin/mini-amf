@@ -37,7 +37,8 @@ For installing this development version::
 Older releases
 ==============
 
-Older releases are archived on https://pypi.python.org/packages/source/M/Mini-AMF/.
+Older releases are archived on
+https://pypi.python.org/packages/source/M/Mini-AMF/.
 
 .. _Git: https://git-scm.com/
 .. _Mini-AMF-1.0.0.tar.gz: https://pypi.python.org/packages/source/M/Mini-AMF/Mini-AMF-1.0.0.tar.gz

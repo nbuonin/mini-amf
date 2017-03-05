@@ -14,7 +14,7 @@ from libc.string cimport *
 cdef extern from "math.h":
     float floor(float)
 
-from cminiamf cimport codec, amf3
+from miniamf._accel cimport codec, amf3
 
 import miniamf
 from miniamf import xml, util

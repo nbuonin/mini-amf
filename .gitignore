@@ -1,11 +1,11 @@
 *.pyc
 *.class
+*.c
+*.so
+*.pyd
 *.egg-info/
 _trial_temp/
 build/
-cpyamf/*.c
-cpyamf/*.so
-cpyamf/*.pyd
 doc/build/
 doc/changelog.rst
 doc/html/intro.html

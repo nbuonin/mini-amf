@@ -52,27 +52,37 @@ can_compile_extensions = not jython
 
 class MyDistribution(Distribution):
     """
-    This seems to be is the only obvious way to add a global option to
+    This seems to be the only obvious way to add a global option to
     distutils.
 
-    Provide the ability to disable building the extensions for any called
+    Provide the ability to toggle building the extensions for any called
     command.
     """
 
     global_options = Distribution.global_options + [
-        ("disable-ext", None, "Disable building extensions.")
+        ("disable-ext", None, "Disable building extensions."),
+        ("enable-ext", None, "Enable building extensions.")
     ]
 
     def finalize_options(self):
         Distribution.finalize_options(self)
 
-        try:
-            i = self.script_args.index("--disable-ext")
-        except ValueError:
-            self.disable_ext = False
-        else:
-            self.disable_ext = True
-            self.script_args.pop(i)
+        # The default is not to build extensions, because right
+        # now they're broken.
+        self.disable_ext = True
+
+        # If --enable/--disable-ext are given more than once, the last
+        # one on the command line wins.
+        filtered = []
+        for arg in self.script_args:
+            if arg == "--disable-ext":
+                self.disable_ext = True
+            elif arg == "--enable-ext":
+                self.disable_ext = False
+            else:
+                filtered.append(arg)
+
+        self.script_args = filtered
 
 
 class MyBuildExt(build_ext):

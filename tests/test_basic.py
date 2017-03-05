@@ -121,17 +121,16 @@ class HelperTestCase(unittest.TestCase):
 
     def test_encode(self):
         self.assertEqual(
-            '\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00',
-            miniamf.encode(u'connect', 1.0).getvalue()
+            miniamf.encode(u'connect', 1.0).getvalue(),
+            '\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00'
         )
 
     def test_decode(self):
-        expected = [u'connect', 1.0]
-        bytes = '\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00'
-
-        returned = [x for x in miniamf.decode(bytes)]
-
-        self.assertEqual(expected, returned)
+        self.assertEqual(
+            list(miniamf.decode(
+                '\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00')),
+            [u'connect', 1.0]
+        )
 
     def test_default_encoding(self):
         miniamf.DEFAULT_ENCODING = miniamf.AMF3
@@ -642,7 +641,7 @@ class TestAMF0Codecs(unittest.TestCase):
         If the extension is available, it must be returned by default.
         """
         try:
-            from cminiamf import amf0
+            from miniamf._accel import amf0
         except ImportError:
             from miniamf import amf0
 
@@ -655,7 +654,7 @@ class TestAMF0Codecs(unittest.TestCase):
         With `use_ext=True` specified, the extension must be returned.
         """
         try:
-            from cminiamf import amf0
+            from miniamf._accel import amf0
         except ImportError:
             self.skipTest('amf0 extension not available')
 
@@ -678,7 +677,7 @@ class TestAMF0Codecs(unittest.TestCase):
         If the extension is available, it must be returned by default.
         """
         try:
-            from cminiamf import amf0
+            from miniamf._accel import amf0
         except ImportError:
             from miniamf import amf0
 
@@ -691,7 +690,7 @@ class TestAMF0Codecs(unittest.TestCase):
         With `use_ext=True` specified, the extension must be returned.
         """
         try:
-            from cminiamf import amf0
+            from miniamf._accel import amf0
         except ImportError:
             self.skipTest('amf0 extension not available')
 
@@ -720,7 +719,7 @@ class TestAMF3Codecs(unittest.TestCase):
         If the extension is available, it must be returned by default.
         """
         try:
-            from cminiamf import amf3
+            from miniamf._accel import amf3
         except ImportError:
             from miniamf import amf3
 
@@ -733,7 +732,7 @@ class TestAMF3Codecs(unittest.TestCase):
         With `use_ext=True` specified, the extension must be returned.
         """
         try:
-            from cminiamf import amf3
+            from miniamf._accel import amf3
         except ImportError:
             self.skipTest('amf3 extension not available')
 
@@ -756,7 +755,7 @@ class TestAMF3Codecs(unittest.TestCase):
         If the extension is available, it must be returned by default.
         """
         try:
-            from cminiamf import amf3
+            from miniamf._accel import amf3
         except ImportError:
             from miniamf import amf3
 
@@ -769,7 +768,7 @@ class TestAMF3Codecs(unittest.TestCase):
         With `use_ext=True` specified, the extension must be returned.
         """
         try:
-            from cminiamf import amf3
+            from miniamf._accel import amf3
         except ImportError:
             self.skipTest('amf3 extension not available')
 

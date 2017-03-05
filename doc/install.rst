@@ -34,11 +34,6 @@ Then install using the ``setup.py`` script::
 This will byte-compile the Python source code and install it in the
 ``site-packages`` directory of your Python installation.
 
-To disable the installation of the C accelerator module, supply the
-``--disable-ext`` option::
-
-    python setup.py install --disable-ext
-
 
 Unit Tests
 ==========
@@ -52,9 +47,14 @@ are required::
 C Accelerator Module
 ====================
 
-To modify the C accelerator module, you will need Cython_.  If it is
-installed, the C source code will automatically be regenerated from
-the ``.pyx`` files during the build.
+The C accelerator module is broken, and will not be compiled or
+installed by default.  If you want to experiment with it, supply
+the ``--enable-ext`` option::
+
+    python setup.py test --enable-ext
+
+You will need Cython_ to build the module, and do not be surprised
+when the test runner crashes.
 
 Documentation
 =============
@@ -82,4 +82,3 @@ website_.
 .. _Epydoc:			http://epydoc.sourceforge.net/
 .. _sphinxcontrib.epydoc:       http://packages.python.org/sphinxcontrib-epydoc
 .. _website:    		https://github.com/hydralabs/miniamf
-

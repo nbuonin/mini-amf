@@ -12,8 +12,8 @@ from libc.stdlib cimport malloc, free
 
 cimport cython
 
-from cminiamf.util cimport cBufferedByteStream, BufferedByteStream
-from cminiamf cimport codec
+from miniamf._accel.util cimport cBufferedByteStream, BufferedByteStream
+from miniamf._accel cimport codec
 import miniamf
 from miniamf import util, amf3, xml
 import types

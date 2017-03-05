@@ -15,7 +15,7 @@ import types
 import miniamf
 
 try:
-    from cminiamf.util import BufferedByteStream
+    from miniamf._accel.util import BufferedByteStream
 except ImportError:
     from miniamf.util.pure import BufferedByteStream
 

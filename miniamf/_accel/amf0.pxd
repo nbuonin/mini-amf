@@ -1,4 +1,4 @@
-from cpyamf cimport codec, util, amf3
+from miniamf._accel cimport codec, util, amf3
 
 
 cdef class Context(codec.Context):

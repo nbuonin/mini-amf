@@ -17,6 +17,11 @@ their frameworks.  I have no plans to add any of that back; I think
 server integration is properly a separate package, or perhaps several
 packages, one per framework.
 
+PyAMF also included a C extension module for speed.  The source code
+to this module is still included in Mini-AMF, but it is broken and has
+been disabled by default (you can activate it by giving ``setup.py``
+the command line option ``--enable-ext``).  I may eventually get
+around to fixing it.
 
 .. _PyAMF: https://github.com/hydralabs/pyamf
 .. _Adobe Flex: https://en.wikipedia.org/wiki/Apache_Flex

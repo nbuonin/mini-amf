@@ -6,7 +6,7 @@ cdef extern from "Python.h":
         pass
 
 
-from cminiamf cimport util
+from miniamf._accel cimport util
 
 cdef class IndexedCollection(object):
     """

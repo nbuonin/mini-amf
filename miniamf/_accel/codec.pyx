@@ -19,7 +19,7 @@ cdef extern from "datetime.h":
 cdef extern from "Python.h":
     bint PyClass_Check(object)
 
-from cminiamf.util cimport cBufferedByteStream, BufferedByteStream
+from miniamf._accel.util cimport cBufferedByteStream, BufferedByteStream
 
 import types
 import miniamf

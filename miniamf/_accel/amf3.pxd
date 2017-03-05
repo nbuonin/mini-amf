@@ -1,4 +1,4 @@
-from cpyamf cimport codec, util
+from miniamf._accel cimport codec, util
 
 
 cdef class ClassDefinition(object):

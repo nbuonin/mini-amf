@@ -13,6 +13,7 @@ is compatible with the Adobe U{Flash Player
 
 import types
 import inspect
+from importlib import import_module
 
 from miniamf import util, _version
 from miniamf.adapters import register_adapters, get_adapter
@@ -457,7 +458,7 @@ def encode(*args, **kwargs):
     return stream
 
 
-def _get_amf_module(version, use_ext=None):
+def _get_amf_module(version, use_ext):
     """
     Returns a module for a specific version of AMF.
 
@@ -467,23 +468,27 @@ def _get_amf_module(version, use_ext=None):
         `True` the extension will be returned. If the extension does not exist
         L{ImportError} will be raised.
     """
-    module_name = 'amf%s' % (version,)
-
-    if module_name not in ['amf0', 'amf3']:
+    if version not in ENCODING_TYPES:
         raise ValueError('Invalid AMF version: %r specified' % (version,))
 
-    if use_ext is None:
-        # try to use the extension but fallback gracefully
-        try:
-            module = __import__('cminiamf.' + module_name)
-        except ImportError:
-            module = __import__('miniamf.' + module_name)
-    elif not use_ext:
-        module = __import__('miniamf.' + module_name)
-    else:
-        module = __import__('cminiamf.' + module_name)
+    module_name = '.amf%s' % (version,)
 
-    return getattr(module, module_name)
+    if use_ext is None:
+        packages = ['miniamf._accel', 'miniamf']
+    elif use_ext:
+        packages = ['miniamf._accel']
+    else:
+        packages = ['miniamf']
+
+    exc = None
+    for pkg in packages:
+        try:
+            return import_module(module_name, pkg)
+
+        except ImportError as e:
+            exc = e
+
+    raise exc
 
 
 def get_decoder(encoding, *args, **kwargs):
@@ -492,23 +497,16 @@ def get_decoder(encoding, *args, **kwargs):
 
     @param encoding: AMF encoding type. One of L{ENCODING_TYPES}.
     @type encoding: C{int}
+    @param use_ext: Whether to use the extensions. If `None` (the default) the
+        extension will be attempted before falling back to the pure python
+        version. If `False`, only the pure python version will be returned. If
+        `True` the extension will be returned. If the extension does not exist
+        L{ImportError} will be raised.
     @raise ValueError: Unknown C{encoding}.
     """
     use_ext = kwargs.pop('use_ext', None)
-
-    def _get_decoder_class():
-        if encoding == AMF0:
-            amf0 = _get_amf_module(AMF0, use_ext=use_ext)
-
-            return amf0.Decoder
-        elif encoding == AMF3:
-            amf3 = _get_amf_module(AMF3, use_ext=use_ext)
-
-            return amf3.Decoder
-
-        raise ValueError("Unknown encoding %r" % (encoding,))
-
-    return _get_decoder_class()(*args, **kwargs)
+    module = _get_amf_module(encoding, use_ext)
+    return module.Decoder(*args, **kwargs)
 
 
 def get_encoder(encoding, *args, **kwargs):
@@ -517,23 +515,16 @@ def get_encoder(encoding, *args, **kwargs):
 
     @kwarg encoding: AMF encoding type. One of L{ENCODING_TYPES}.
     @type encoding: C{int}
+    @param use_ext: Whether to use the extensions. If `None` (the default) the
+        extension will be attempted before falling back to the pure python
+        version. If `False`, only the pure python version will be returned. If
+        `True` the extension will be returned. If the extension does not exist
+        L{ImportError} will be raised.
     @raise ValueError: Unknown C{encoding} type.
     """
     use_ext = kwargs.pop('use_ext', None)
-
-    def _get_encoder_class():
-        if encoding == AMF0:
-            amf0 = _get_amf_module(AMF0, use_ext=use_ext)
-
-            return amf0.Encoder
-        elif encoding == AMF3:
-            amf3 = _get_amf_module(AMF3, use_ext=use_ext)
-
-            return amf3.Encoder
-
-        raise ValueError("Unknown encoding %r" % (encoding,))
-
-    return _get_encoder_class()(*args, **kwargs)
+    module = _get_amf_module(encoding, use_ext)
+    return module.Encoder(*args, **kwargs)
 
 
 def add_type(type_, func=None):
