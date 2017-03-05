@@ -316,7 +316,7 @@ class EncoderTestCase(ClassCacheClearingTestCase, EncoderMixIn):
             y.update({'': 1, 0: 1})
             self.encode(y)
 
-        self.failUnlessRaises(miniamf.EncodeError, x)
+        self.assertRaises(miniamf.EncodeError, x)
 
     def test_object(self):
         self.assertEncoded(

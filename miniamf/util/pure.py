@@ -14,15 +14,15 @@ Do not reference directly, use L{miniamf.util.BufferedByteStream} instead.
 from __future__ import absolute_import
 import struct
 
-from cStringIO import StringIO
 import six
+from six.moves import cStringIO as StringIO
 
 
 def _get_endian_system():
     encoded = struct.pack('@I', 0x01020304)
-    if encoded == '\x01\x02\x03\x04':
+    if encoded == b'\x01\x02\x03\x04':
         return ENDIAN_BIG
-    elif encoded == '\x04\x03\x02\x01':
+    elif encoded == b'\x04\x03\x02\x01':
         return ENDIAN_LITTLE
     else:
         raise ValueError("unrecognized system endianness: %r" % (encoded,))

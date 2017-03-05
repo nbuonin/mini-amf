@@ -16,9 +16,13 @@ import six
 
 import miniamf
 
+# The exception thrown on failure to load a module changed from
+# ImportError to ModuleNotFoundError at some point in the 3.x series.
+# 2.x does not have ModuleNotFoundError, and shimming it is too much
+# trouble.
 try:
     from .._accel.util import BufferedByteStream
-except ImportError:
+except Exception:
     from .pure import BufferedByteStream
 
 
