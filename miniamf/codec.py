@@ -476,23 +476,22 @@ class Encoder(_Codec):
 
     def writeSequence(self, iterable):
         """
-        Encodes an iterable. The default is to write If the iterable has an al
+        Encodes an iterable. The default is to write it out as a list.
+        If the iterable has an external alias, it can override.
         """
+        use_writeObject = False
         try:
             alias = self.context.getClassAlias(iterable.__class__)
+            if alias.external:
+                use_writeObject = True
+
         except (AttributeError, miniamf.UnknownClassAlias):
-            self.writeList(list(iterable))
+            pass
 
-            return
-
-        if alias.external:
-            # a is a subclassed list with a registered alias - push to the
-            # correct method
+        if use_writeObject:
             self.writeObject(iterable)
-
-            return
-
-        self.writeList(list(iterable))
+        else:
+            self.writeList(list(iterable))
 
     def writeGenerator(self, gen):
         """
