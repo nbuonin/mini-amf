@@ -895,3 +895,9 @@ register_alias_type(TypedObjectClassAlias, TypedObject)
 register_alias_type(ErrorAlias, Exception)
 
 register_adapters()
+
+# Special case: The 'sets' adapter also applies to the built-in types
+# 'set' and 'frozenset', so it should be loaded regardless of whether
+# the 'sets' module is loaded.  (Also, in Python 3, the 'sets' module
+# doesn't exist.)
+import_module('._sets', 'miniamf.adapters')

@@ -5,40 +5,54 @@
 Tests for the C{sets} module integration.
 """
 
-from __future__ import absolute_import
-
 import unittest
 
 import miniamf
-from ..util import check_buffer
 
-# All set types are mapped to simple tuples.
+
+# All set types are mapped to sorted tuples.
 class BaseTestCase(unittest.TestCase):
     def amf0_encode_test(self, ty):
-        x = ty(['1', '2', '3'])
 
-        self.assertTrue(check_buffer(
-            miniamf.encode(x, encoding=miniamf.AMF0).getvalue(), (
-                b'\n\x00\x00\x00\x03', (
-                    b'\x02\x00\x011',
-                    b'\x02\x00\x013',
-                    b'\x02\x00\x012'
-                )
-            )
-        ))
+        x = ty(['1', '2', '3'])
+        self.assertEqual(
+            miniamf.encode(x, encoding=miniamf.AMF0).getvalue(),
+            b'\n\x00\x00\x00\x03'
+            b'\x02\x00\x011'
+            b'\x02\x00\x012'
+            b'\x02\x00\x013'
+        )
+
+        y = ty(['z', 'x', 'c', 'v'])
+        self.assertEqual(
+            miniamf.encode(y, encoding=miniamf.AMF0).getvalue(),
+            b'\n\x00\x00\x00\x04'
+            b'\x02\x00\x01c'
+            b'\x02\x00\x01v'
+            b'\x02\x00\x01x'
+            b'\x02\x00\x01z'
+        )
 
     def amf3_encode_test(self, ty):
-        x = ty(['1', '2', '3'])
 
-        self.assertTrue(check_buffer(
-            miniamf.encode(x, encoding=miniamf.AMF3).getvalue(), (
-                b'\t\x07\x01', (
-                    b'\x06\x031',
-                    b'\x06\x033',
-                    b'\x06\x032'
-                )
-            )
-        ))
+        x = ty(['1', '2', '3'])
+        self.assertEqual(
+            miniamf.encode(x, encoding=miniamf.AMF3).getvalue(),
+            b'\t\x07\x01'
+            b'\x06\x031'
+            b'\x06\x032'
+            b'\x06\x033'
+        )
+
+        y = ty(['z', 'x', 'c', 'v'])
+        self.assertEqual(
+            miniamf.encode(y, encoding=miniamf.AMF3).getvalue(),
+            b'\t\t\x01'
+            b'\x06\x03c'
+            b'\x06\x03v'
+            b'\x06\x03x'
+            b'\x06\x03z'
+        )
 
 
 class BuiltinSetTypesTestCase(BaseTestCase):

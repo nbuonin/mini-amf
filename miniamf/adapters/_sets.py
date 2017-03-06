@@ -10,12 +10,14 @@ Adapter for the stdlib C{sets} module.
 from __future__ import absolute_import
 
 import miniamf
-from miniamf.adapters import util
 
 
-miniamf.add_type(frozenset, util.to_tuple)
-miniamf.add_type(set, util.to_tuple)
+def to_sorted_tuple(obj, encoder):
+    return tuple(sorted(obj))
 
+
+miniamf.add_type(frozenset, to_sorted_tuple)
+miniamf.add_type(set, to_sorted_tuple)
 
 # The sets module was removed in Python 3.
 try:
@@ -25,7 +27,7 @@ except NameError:
 
 try:
     import sets
-    miniamf.add_type(sets.ImmutableSet, util.to_tuple)
-    miniamf.add_type(sets.Set, util.to_tuple)
+    miniamf.add_type(sets.ImmutableSet, to_sorted_tuple)
+    miniamf.add_type(sets.Set, to_sorted_tuple)
 except ModuleNotFoundError:
     pass
