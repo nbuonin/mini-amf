@@ -12,10 +12,9 @@ Do not reference directly, use L{miniamf.util.BufferedByteStream} instead.
 """
 
 from __future__ import absolute_import
-import struct
 
+import struct
 import six
-from six.moves import cStringIO as StringIO
 
 
 def _get_endian_system():
@@ -63,10 +62,10 @@ def _compile_packers(endian):
     }
 
 
-# Note: cStringIO.StringIO is not a type and cannot be subclassed.
+# Note: BytesIO in Python 2 is not a type, so it cannot be subclassed.
 class BufferedByteStream(object):
     """
-    I am a C{StringIO} type object containing byte data from the AMF stream.
+    I am a C{BytesIO} type object containing byte data from the AMF stream.
 
     Features:
      - Always read-write.
@@ -86,11 +85,11 @@ class BufferedByteStream(object):
 
     def __init__(self, buf=None, endian=ENDIAN_NETWORK):
         """
-        @raise TypeError: Unable to coerce C{buf} to C{StringIO}.
+        @raise TypeError: Unable to coerce C{buf} to C{BytesIO}.
         """
 
         self.endian = endian
-        self._buf = StringIO()
+        self._buf = six.BytesIO()
         self._len = 0
 
         if buf is not None:
@@ -108,6 +107,9 @@ class BufferedByteStream(object):
                 else:
                     raise TypeError("Unable to coerce %r to a byte buffer"
                                     % (buf,))
+
+                if isinstance(buf, six.text_type):
+                    buf = buf.encode("utf-8")
 
             self._buf.write(buf)
             self._buf.seek(0, 0)
@@ -239,32 +241,35 @@ class BufferedByteStream(object):
         @type data: string
         @raise TypeError: data is not a string
         """
+
+        if not isinstance(data, six.string_types):
+            if hasattr(data, 'getvalue'):
+                data = data.getvalue()
+            elif (hasattr(data, 'read') and
+                  hasattr(data, 'seek') and
+                  hasattr(data, 'tell')):
+                dt = data.tell()
+                dt.seek(0, 0)
+                buf = dt.read()
+                dt.seek(dt, 0)
+                data = buf
+            else:
+                raise TypeError("expected a string or filelike")
+
+        if isinstance(data, six.text_type):
+            data = data.encode('utf-8')
+
+        if not isinstance(data, six.binary_type):
+            raise TypeError("expected a string or filelike")
+
         t = self.tell()
-
-        # seek to the end of the stream
         self.seek(0, 2)
-
-        if hasattr(data, 'getvalue'):
-            self.write_utf8_string(data.getvalue())
-        else:
-            self.write_utf8_string(data)
-
-        self.seek(t)
+        self.write(data)
+        self.seek(t, 0)
 
     def __add__(self, other):
-        old_pos = self.tell()
-        old_other_pos = other.tell()
-
         new = BufferedByteStream(self)
-
-        other.seek(0)
-        new.seek(0, 2)
-        new.write(other.read())
-
-        self.seek(old_pos)
-        other.seek(old_other_pos)
-        new.seek(0)
-
+        new.append(other)
         return new
 
     # Methods for reading and writing typed data.

@@ -7,12 +7,11 @@ Test utilities.
 @since: 0.1.0
 """
 
-from __future__ import absolute_import
-import unittest
 import copy
+import six
+import unittest
 
 import miniamf
-import six
 
 
 class ClassicSpam:
@@ -231,14 +230,14 @@ def get_fqcn(klass):
 
 
 def _join(parts):
-    ret = ''
+    ret = bytearray()
 
     for p in parts:
-        if not isinstance(p, six.string_types):
-            ret += _join(p)
+        if isinstance(p, six.integer_types):
+            ret.append(p)
+        elif not isinstance(p, six.string_types):
+            ret.extend(_join(p))
+        else:
+            ret.extend(p)
 
-            continue
-
-        ret += p
-
-    return ret
+    return bytes(ret)

@@ -7,13 +7,12 @@ Tests miniamf.util.imports
 @since: 0.3.1
 """
 
-from __future__ import absolute_import
-import unittest
-import sys
 import os.path
+import six
+import sys
+import unittest
 
 from miniamf.util import imports
-import six
 
 
 class InstalledTestCase(unittest.TestCase):

@@ -10,12 +10,12 @@ General tests.
 
 from __future__ import absolute_import
 
+import six
+from types import ModuleType
 import unittest
-import new
 
 import miniamf
 from .util import ClassCacheClearingTestCase, replace_dict, Spam
-import six
 
 
 class ASObjectTestCase(unittest.TestCase):
@@ -95,24 +95,24 @@ class HelperTestCase(unittest.TestCase):
     def test_get_decoder(self):
         self.assertRaises(ValueError, miniamf.get_decoder, 'spam')
 
-        decoder = miniamf.get_decoder(miniamf.AMF0, stream='123', strict=True)
-        self.assertEqual(decoder.stream.getvalue(), '123')
+        decoder = miniamf.get_decoder(miniamf.AMF0, stream=b'123', strict=True)
+        self.assertEqual(decoder.stream.getvalue(), b'123')
         self.assertTrue(decoder.strict)
 
-        decoder = miniamf.get_decoder(miniamf.AMF3, stream='456', strict=True)
-        self.assertEqual(decoder.stream.getvalue(), '456')
+        decoder = miniamf.get_decoder(miniamf.AMF3, stream=b'456', strict=True)
+        self.assertEqual(decoder.stream.getvalue(), b'456')
         self.assertTrue(decoder.strict)
 
     def test_get_encoder(self):
         miniamf.get_encoder(miniamf.AMF0)
         miniamf.get_encoder(miniamf.AMF3)
-        self.assertRaises(ValueError, miniamf.get_encoder, 'spam')
+        self.assertRaises(ValueError, miniamf.get_encoder, b'spam')
 
-        encoder = miniamf.get_encoder(miniamf.AMF0, stream='spam')
-        self.assertEqual(encoder.stream.getvalue(), 'spam')
+        encoder = miniamf.get_encoder(miniamf.AMF0, stream=b'spam')
+        self.assertEqual(encoder.stream.getvalue(), b'spam')
         self.assertFalse(encoder.strict)
 
-        encoder = miniamf.get_encoder(miniamf.AMF3, stream='eggs')
+        encoder = miniamf.get_encoder(miniamf.AMF3, stream=b'eggs')
         self.assertFalse(encoder.strict)
 
         encoder = miniamf.get_encoder(miniamf.AMF0, strict=True)
@@ -124,13 +124,13 @@ class HelperTestCase(unittest.TestCase):
     def test_encode(self):
         self.assertEqual(
             miniamf.encode(u'connect', 1.0).getvalue(),
-            '\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00'
+            b'\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00'
         )
 
     def test_decode(self):
         self.assertEqual(
             list(miniamf.decode(
-                '\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00')),
+                b'\x06\x0fconnect\x05?\xf0\x00\x00\x00\x00\x00\x00')),
             [u'connect', 1.0]
         )
 
@@ -139,13 +139,13 @@ class HelperTestCase(unittest.TestCase):
 
         x = miniamf.encode('foo').getvalue()
 
-        self.assertEqual(x, '\x06\x07foo')
+        self.assertEqual(x, b'\x06\x07foo')
 
         miniamf.DEFAULT_ENCODING = miniamf.AMF0
 
         x = miniamf.encode('foo').getvalue()
 
-        self.assertEqual(x, '\x02\x00\x03foo')
+        self.assertEqual(x, b'\x02\x00\x03foo')
 
 
 class UnregisterClassTestCase(ClassCacheClearingTestCase):
@@ -153,15 +153,15 @@ class UnregisterClassTestCase(ClassCacheClearingTestCase):
         alias = miniamf.register_class(Spam, 'spam.eggs')
 
         miniamf.unregister_class(Spam)
-        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
-        self.assertTrue(Spam not in list(miniamf.CLASS_CACHE.keys()))
+        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE)
+        self.assertTrue(Spam not in miniamf.CLASS_CACHE)
         self.assertTrue(alias not in miniamf.CLASS_CACHE)
 
     def test_alias(self):
         alias = miniamf.register_class(Spam, 'spam.eggs')
 
         miniamf.unregister_class('spam.eggs')
-        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
+        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE)
         self.assertTrue(alias not in miniamf.CLASS_CACHE)
 
 
@@ -193,9 +193,9 @@ class ClassLoaderTestCase(ClassCacheClearingTestCase):
 
         miniamf.register_class_loader(class_loader)
 
-        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
+        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE)
         miniamf.load_class('spam.eggs')
-        self.assertTrue('spam.eggs' in list(miniamf.CLASS_CACHE.keys()))
+        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE)
 
     def test_load_unknown_class(self):
         def class_loader(x):
@@ -213,9 +213,9 @@ class ClassLoaderTestCase(ClassCacheClearingTestCase):
 
         miniamf.register_class_loader(class_loader)
 
-        self.assertTrue('spam.eggs' not in list(miniamf.CLASS_CACHE.keys()))
+        self.assertTrue('spam.eggs' not in miniamf.CLASS_CACHE)
         miniamf.load_class('spam.eggs')
-        self.assertTrue('spam.eggs' in list(miniamf.CLASS_CACHE.keys()))
+        self.assertTrue('spam.eggs' in miniamf.CLASS_CACHE)
 
     def test_load_class_bad_return(self):
         def class_loader(x):
@@ -226,11 +226,11 @@ class ClassLoaderTestCase(ClassCacheClearingTestCase):
         self.assertRaises(TypeError, miniamf.load_class, 'spam.eggs')
 
     def test_load_class_by_module(self):
-        miniamf.load_class('__builtin__.tuple')
+        miniamf.load_class('unittest.TestCase')
 
     def test_load_class_by_module_bad(self):
         with self.assertRaises(miniamf.UnknownClassAlias):
-            miniamf.load_class('__builtin__.tuple.')
+            miniamf.load_class('unittest.TestCase.')
 
 
 class TypeMapTestCase(unittest.TestCase):
@@ -240,7 +240,7 @@ class TypeMapTestCase(unittest.TestCase):
         self.addCleanup(replace_dict, self.tm, miniamf.TYPE_MAP)
 
     def test_add_invalid(self):
-        mod = new.module('spam')
+        mod = ModuleType('spam')
         self.assertRaises(TypeError, miniamf.add_type, mod)
         self.assertRaises(TypeError, miniamf.add_type, {})
         self.assertRaises(TypeError, miniamf.add_type, 'spam')
@@ -277,7 +277,7 @@ class TypeMapTestCase(unittest.TestCase):
         td = miniamf.add_type(ord)
 
         self.assertTrue(ord in miniamf.TYPE_MAP)
-        self.assertTrue(td in list(miniamf.TYPE_MAP.values()))
+        self.assertTrue(td in miniamf.TYPE_MAP.values())
 
     def test_add_multiple(self):
         td = miniamf.add_type((chr,))
@@ -356,7 +356,7 @@ class ErrorClassMapTestCase(unittest.TestCase):
         self.assertRaises(TypeError, miniamf.remove_error_class, None)
 
         miniamf.remove_error_class('abc')
-        self.assertFalse('abc' in list(miniamf.ERROR_CLASS_MAP.keys()))
+        self.assertFalse('abc' in miniamf.ERROR_CLASS_MAP)
         self.assertRaises(KeyError, miniamf.ERROR_CLASS_MAP.__getitem__, 'abc')
 
         miniamf.ERROR_CLASS_MAP['abc'] = B
@@ -400,7 +400,7 @@ class RegisterAliasTypeTestCase(unittest.TestCase):
 
         miniamf.register_alias_type(DummyAlias, A)
 
-        self.assertTrue(DummyAlias in list(miniamf.ALIAS_TYPES.keys()))
+        self.assertTrue(DummyAlias in miniamf.ALIAS_TYPES)
         self.assertEqual(miniamf.ALIAS_TYPES[DummyAlias], (A,))
 
     def test_multiple(self):
@@ -438,7 +438,7 @@ class RegisterAliasTypeTestCase(unittest.TestCase):
 
         miniamf.register_alias_type(DummyAlias, A)
 
-        self.assertTrue(DummyAlias in list(miniamf.ALIAS_TYPES.keys()))
+        self.assertTrue(DummyAlias in miniamf.ALIAS_TYPES)
         self.assertEqual(miniamf.unregister_alias_type(DummyAlias), (A,))
 
 
@@ -473,11 +473,11 @@ class PackageTestCase(ClassCacheClearingTestCase):
     def setUp(self):
         ClassCacheClearingTestCase.setUp(self)
 
-        self.module = new.module("foo")
+        self.module = ModuleType("foo")
 
         self.module.Classic = self.ClassicType
         self.module.New = self.NewType
-        self.module.b = b'str'
+        self.module.b = b'binary'
         self.module.i = 12323
         self.module.f = 345.234
         self.module.u = u"Unicöde"
@@ -570,7 +570,7 @@ class PackageTestCase(ClassCacheClearingTestCase):
         self.assertRaises(TypeError, miniamf.register_package, 23897492834)
         self.assertRaises(TypeError, miniamf.register_package, [])
         self.assertRaises(TypeError, miniamf.register_package, b'')
-        self.assertRaises(TypeError, miniamf.register_package, u"")
+        self.assertRaises(TypeError, miniamf.register_package, u'')
 
     def test_strict(self):
         self.module.Spam = Spam

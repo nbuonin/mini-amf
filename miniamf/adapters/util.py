@@ -7,7 +7,7 @@ Useful helpers for adapters.
 @since: 0.4
 """
 
-import six
+from six import text_type, binary_type
 
 
 def to_list(obj, encoder):
@@ -46,7 +46,7 @@ def to_string(obj, encoder):
 
     @since: 0.5
     """
-    return six.text_type(obj)
+    return text_type(obj)
 
 
 def to_bytes(obj, encoder):
@@ -55,4 +55,4 @@ def to_bytes(obj, encoder):
 
     @since: 0.7
     """
-    return six.binary_type(obj)
+    return binary_type(obj)

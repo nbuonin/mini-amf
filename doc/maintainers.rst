@@ -44,6 +44,7 @@ problem.
 - Bob Ippolito
 - Joachim Bauch
 - Antti Kaihola
+- Simon Zack
 
 Thanks also to everyone who keeps sending feedback, helping us improve
 Mini-AMF.

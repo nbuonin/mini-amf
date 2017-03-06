@@ -5,11 +5,10 @@
 Tests for L{miniamf.version}
 """
 
-from __future__ import absolute_import
+from six import text_type
 import unittest
 
 from miniamf import versions
-from six import text_type
 
 
 class VersionTestCase(unittest.TestCase):

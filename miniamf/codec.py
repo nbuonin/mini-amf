@@ -8,10 +8,11 @@ Provides basic functionality for all miniamf.amf?.[De|E]ncoder classes.
 from __future__ import absolute_import
 import types
 import datetime
+import six
 
 import miniamf
 from miniamf import util, xml
-import six
+
 
 __all__ = [
     'IndexedCollection',
@@ -290,7 +291,7 @@ class _Codec(object):
 
     def __init__(self, stream=None, context=None, strict=False,
                  timezone_offset=None, forbid_dtd=True, forbid_entities=True):
-        if isinstance(stream, six.string_types) or stream is None:
+        if isinstance(stream, six.binary_type) or stream is None:
             stream = util.BufferedByteStream(stream)
 
         self.stream = stream
@@ -341,7 +342,7 @@ class Decoder(_Codec):
         """
         self.stream.append(data)
 
-    def next(self):
+    def __next__(self):
         """
         Part of the iterator protocol.
         """
@@ -350,6 +351,8 @@ class Decoder(_Codec):
         except miniamf.EOStream:
             # all data was successfully decoded from the stream
             raise StopIteration
+    # Python 2 compat
+    next = __next__
 
     def finalise(self, payload):
         """
@@ -495,11 +498,9 @@ class Encoder(_Codec):
         """
         Iterates over a generator object and encodes all that is returned.
         """
-        n = getattr(gen, 'next')
-
         while True:
             try:
-                self.writeElement(n())
+                self.writeElement(next(gen))
             except StopIteration:
                 break
 
@@ -600,6 +601,8 @@ class Encoder(_Codec):
         self.stream.seek(start_pos)
 
         return self.stream.read(end_pos - start_pos)
+
+    __next__ = next
 
     def __iter__(self):
         return self

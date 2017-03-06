@@ -11,12 +11,11 @@ Tests for Local Shared Object (LSO) Implementation.
 
 from __future__ import absolute_import
 
-import unittest
 import os.path
-import warnings
+from six import BytesIO
 import tempfile
-
-from StringIO import StringIO
+import unittest
+import warnings
 
 import miniamf
 from miniamf import sol
@@ -28,8 +27,8 @@ warnings.simplefilter('ignore', RuntimeWarning)
 class DecoderTestCase(unittest.TestCase):
     def test_header(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
 
         try:
@@ -39,22 +38,22 @@ class DecoderTestCase(unittest.TestCase):
 
     def test_invalid_header(self):
         bytes = (
-            '\x00\x00\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x00\x00'
+            b'\x00\x00\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
         self.assertRaises(miniamf.DecodeError, sol.decode, bytes)
 
     def test_invalid_header_length(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00\x05TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x05TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
         self.assertRaises(miniamf.DecodeError, sol.decode, bytes)
 
     def test_strict_header_length(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00\x00TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x00TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
 
         try:
@@ -64,37 +63,37 @@ class DecoderTestCase(unittest.TestCase):
 
     def test_invalid_signature(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00\x15ABCD\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15ABCD\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
         self.assertRaises(miniamf.DecodeError, sol.decode, bytes)
 
     def test_invalid_header_name_length(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x01hello'
-            '\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x01hello\x00\x00\x00\x00'
         )
         self.assertRaises(miniamf.DecodeError, sol.decode, bytes)
 
     def test_invalid_header_padding(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x01\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x01\x00'
         )
         self.assertRaises(miniamf.DecodeError, sol.decode, bytes)
 
     def test_unknown_encoding(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x00\x01'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x01'
         )
         self.assertRaises(ValueError, sol.decode, bytes)
 
     def test_amf3(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00aTCSO\x00\x04\x00\x00\x00\x00\x00\x08'
-            'EchoTest\x00\x00\x00\x03\x0fhttpUri\x06=http://localhost:8000'
-            '/gateway/\x00\x0frtmpUri\x06+rtmp://localhost/echo\x00'
+            b'\x00\xbf\x00\x00\x00aTCSO\x00\x04\x00\x00\x00\x00\x00\x08'
+            b'EchoTest\x00\x00\x00\x03\x0fhttpUri\x06=http://localhost:8000'
+            b'/gateway/\x00\x0frtmpUri\x06+rtmp://localhost/echo\x00'
         )
 
         self.assertEqual(
@@ -114,8 +113,8 @@ class EncoderTestCase(unittest.TestCase):
 
         self.assertEqual(
             stream.getvalue(),
-            '\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-            '\x00\x00\x00\x00'
+            b'\x00\xbf\x00\x00\x00\x15TCSO\x00\x04\x00\x00\x00\x00\x00'
+            b'\x05hello\x00\x00\x00\x00'
         )
 
     def test_multiple_values(self):
@@ -127,10 +126,10 @@ class EncoderTestCase(unittest.TestCase):
 
     def test_amf3(self):
         bytes = (
-            '\x00\xbf\x00\x00\x00aTCSO\x00\x04\x00\x00\x00\x00\x00\x08'
-            'EchoTest\x00\x00\x00\x03', (
-                '\x0fhttpUri\x06=http://localhost:8000/gateway/\x00',
-                '\x0frtmpUri\x06+rtmp://localhost/echo\x00'
+            b'\x00\xbf\x00\x00\x00aTCSO\x00\x04\x00\x00\x00\x00\x00\x08'
+            b'EchoTest\x00\x00\x00\x03', (
+                b'\x0fhttpUri\x06=http://localhost:8000/gateway/\x00',
+                b'\x0frtmpUri\x06+rtmp://localhost/echo\x00'
             )
         )
 
@@ -147,17 +146,17 @@ class EncoderTestCase(unittest.TestCase):
 
 class HelperTestCase(unittest.TestCase):
     contents = (
-        '\x00\xbf\x00\x00\x002TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
-        '\x00\x00\x00\x00', (
-            '\x00\x04name\x02\x00\x05value\x00',
-            '\x00\x04spam\x02\x00\x04eggs\x00'
+        b'\x00\xbf\x00\x00\x002TCSO\x00\x04\x00\x00\x00\x00\x00\x05hello'
+        b'\x00\x00\x00\x00', (
+            b'\x00\x04name\x02\x00\x05value\x00',
+            b'\x00\x04spam\x02\x00\x04eggs\x00'
         )
     )
 
     contents_str = (
-        '\x00\xbf\x00\x00\x002TCSO\x00\x04\x00\x00\x00\x00\x00'
-        '\x05hello\x00\x00\x00\x00\x00\x04name\x02\x00\x05value\x00\x00'
-        '\x04spam\x02\x00\x04eggs\x00')
+        b'\x00\xbf\x00\x00\x002TCSO\x00\x04\x00\x00\x00\x00\x00'
+        b'\x05hello\x00\x00\x00\x00\x00\x04name\x02\x00\x05value\x00\x00'
+        b'\x04spam\x02\x00\x04eggs\x00')
 
     def setUp(self):
         self.fp, self.file_name = tempfile.mkstemp()
@@ -233,7 +232,7 @@ class SOLTestCase(unittest.TestCase):
         s = sol.SOL('hello')
         s.update({'name': 'value', 'spam': 'eggs'})
 
-        x = StringIO()
+        x = BytesIO()
 
         s.save(x)
 

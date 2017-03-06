@@ -9,14 +9,14 @@ Tests for XML library integration
 @since: 0.4
 """
 
-from __future__ import absolute_import
-import unittest
-
-import miniamf.xml
-from miniamf import util
 
 import defusedxml
 import six
+import unittest
+
+import miniamf
+import miniamf.xml
+from miniamf import util
 
 
 class _BaseTestCase(unittest.TestCase):
