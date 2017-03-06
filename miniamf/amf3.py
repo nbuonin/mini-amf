@@ -1418,7 +1418,7 @@ class Encoder(codec.Encoder):
                 except TypeError:
                     raise miniamf.EncodeError(
                         'Unable to encode %r (unsortable attrs: %r)'
-                                              % (obj, attrs))
+                        % (obj, attrs))
 
                 for key in keys:
                     value = attrs[key]

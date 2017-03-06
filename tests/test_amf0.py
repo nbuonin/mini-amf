@@ -588,26 +588,26 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         for t in nr_types:
             bytes, expected_type = t
             self.buf.truncate()
-            self.buf.write(bytes)
-            self.buf.seek(0)
+            self.buf.seek(0, 0)
+            self.buf.append(bytes)
             self.assertEqual(type(self.decoder.readElement()), expected_type)
 
     def test_infinites(self):
         self.buf.truncate()
-        self.buf.write(b'\x00\xff\xf8\x00\x00\x00\x00\x00\x00')
-        self.buf.seek(0)
+        self.buf.seek(0, 0)
+        self.buf.append(b'\x00\xff\xf8\x00\x00\x00\x00\x00\x00')
         x = self.decoder.readElement()
         self.assertTrue(math.isnan(x))
 
         self.buf.truncate()
-        self.buf.write(b'\x00\xff\xf0\x00\x00\x00\x00\x00\x00')
-        self.buf.seek(0)
+        self.buf.seek(0, 0)
+        self.buf.append(b'\x00\xff\xf0\x00\x00\x00\x00\x00\x00')
         x = self.decoder.readElement()
         self.assertTrue(math.isinf(x) and x < 0)
 
         self.buf.truncate()
-        self.buf.write(b'\x00\x7f\xf0\x00\x00\x00\x00\x00\x00')
-        self.buf.seek(0)
+        self.buf.seek(0, 0)
+        self.buf.append(b'\x00\x7f\xf0\x00\x00\x00\x00\x00\x00')
         x = self.decoder.readElement()
         self.assertTrue(math.isinf(x) and x > 0)
 
@@ -644,8 +644,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
         self.assertDecoded({'a': 'a'}, bytes)
 
-        self.buf.write(bytes)
-        self.buf.seek(0)
+        self.buf.append(bytes)
         self.decoder.readElement()
 
     def test_mixed_array(self):
@@ -657,8 +656,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
         self.assertDecoded(miniamf.MixedArray(a=1, b=2, c=3), bytes)
 
-        self.buf.write(bytes)
-        self.buf.seek(0)
+        self.buf.append(bytes)
         self.decoder.readElement()
 
     def test_date(self):
@@ -678,11 +676,11 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         self.assertEqual(xml.tostring(ret), e)
 
     def test_xml_references(self):
-        self.buf.truncate(0)
-        self.buf.write(
+        self.buf.truncate()
+        self.buf.seek(0, 0)
+        self.buf.append(
             b'\x0f\x00\x00\x00\x19<a><b>hello world</b></a>\x07\x00\x00'
         )
-        self.buf.seek(0)
 
         self.assertEqual(
             xml.tostring(xml.fromstring('<a><b>hello world</b></a>')),
@@ -697,8 +695,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
         self.assertDecoded({'a': 'b'}, bytes)
 
-        self.buf.write(bytes)
-        self.buf.seek(0)
+        self.buf.append(bytes)
         self.decoder.readElement()
 
     def test_registered_class(self):
@@ -741,9 +738,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         )
 
     def test_amf3(self):
-        self.buf.write(b'\x11\x04\x01')
-        self.buf.seek(0)
-
+        self.buf.append(b'\x11\x04\x01')
         self.assertEqual(self.decoder.readElement(), 1)
 
     def test_dynamic(self):
@@ -766,10 +761,9 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
     def test_classic_class(self):
         miniamf.register_class(ClassicSpam, 'spam.eggs')
 
-        self.buf.write(
+        self.buf.append(
             b'\x10\x00\tspam.eggs\x00\x03foo\x02\x00\x03bar\x00\x00\t'
         )
-        self.buf.seek(0)
 
         foo = self.decoder.readElement()
 
@@ -779,10 +773,9 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         self.assertFalse(self.decoder.strict)
 
         # write a typed object to the stream
-        self.buf.write(
+        self.buf.append(
             b'\x10\x00\tspam.eggs\x00\x03foo\x02\x00\x03bar\x00\x00\t'
         )
-        self.buf.seek(0)
 
         self.assertFalse('spam.eggs' in miniamf.CLASS_CACHE)
 
@@ -798,10 +791,9 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         self.assertTrue(self.decoder.strict)
 
         # write a typed object to the stream
-        self.buf.write(
+        self.buf.append(
             b'\x10\x00\tspam.eggs\x00\x03foo\x02\x00\x03bar\x00\x00\t'
         )
-        self.buf.seek(0)
 
         self.assertFalse('spam.eggs' in miniamf.CLASS_CACHE)
 
@@ -811,11 +803,10 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         class Person(object):
             __slots__ = ('family_name', 'given_name')
 
-        self.buf.write(
+        self.buf.append(
             b'\x03\x00\x0bfamily_name\x02\x00\x03Doe\x00\ngiven_name\x02\x00'
             b'\x04Jane\x00\x00\t'
         )
-        self.buf.seek(0)
 
         foo = self.decoder.readElement()
 
@@ -828,11 +819,10 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
         miniamf.register_class(Person, 'spam.eggs.Person')
 
-        self.buf.write(
+        self.buf.append(
             b'\x10\x00\x10spam.eggs.Person\x00\x0bfamily_name\x02\x00\x03Doe'
             b'\x00\ngiven_name\x02\x00\x04Jane\x00\x00\t'
         )
-        self.buf.seek(0)
 
         foo = self.decoder.readElement()
 
@@ -848,8 +838,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
         bytes = miniamf.encode(u'foo', [1, 2, 3],
                                encoding=miniamf.AMF0).getvalue()
 
-        self.buf.write(bytes[:-1])
-        self.buf.seek(0)
+        self.buf.append(bytes[:-1])
 
         self.decoder.readElement()
         self.assertEqual(self.buf.tell(), 6)
@@ -860,8 +849,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
     def test_timezone(self):
         self.decoder.timezone_offset = datetime.timedelta(hours=-5)
 
-        self.buf.write(b'\x0bBr>\xc6\xf5w\x80\x00\x00\x00')
-        self.buf.seek(0)
+        self.buf.append(b'\x0bBr>\xc6\xf5w\x80\x00\x00\x00')
 
         f = self.decoder.readElement()
 

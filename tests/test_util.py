@@ -273,6 +273,7 @@ class DataTypeMixInTestCase(unittest.TestCase):
 
         for x in range(2):
             obj.truncate()
+            obj.seek(0, 0)
             obj.endian = self.endians[x]
 
             func(*args)

@@ -4,7 +4,7 @@
 # See LICENSE.txt for details.
 
 """
-Provides the pure Python versions of L{BufferedByteStream}.
+Provides the pure Python version of L{BufferedByteStream}.
 
 Do not reference directly, use L{miniamf.util.BufferedByteStream} instead.
 
@@ -18,7 +18,7 @@ import six
 
 
 def _get_endian_system():
-    encoded = struct.pack('@I', 0x01020304)
+    encoded = struct.pack("@I", 0x01020304)
     if encoded == b'\x01\x02\x03\x04':
         return ENDIAN_BIG
     elif encoded == b'\x04\x03\x02\x01':
@@ -39,7 +39,7 @@ ENDIAN_LITTLE = "<"
 #: Big endian
 ENDIAN_BIG = ">"
 
-#: System endian (whichever of '<' or '>' corresponds to the behavior of '@').
+#: System endian (whichever of "<" or ">" corresponds to the behavior of "@").
 ENDIAN_SYSTEM = _get_endian_system()
 
 #: All valid endianness strings
@@ -52,15 +52,34 @@ def _compile_packers(endian):
     Called whenever a BufferedByteStream's endianness is changed.
     """
     return {
-        'B': struct.Struct(endian + 'B'),
-        'b': struct.Struct(endian + 'b'),
-        'h': struct.Struct(endian + 'h'),
-        'H': struct.Struct(endian + 'H'),
-        'l': struct.Struct(endian + 'l'),
-        'L': struct.Struct(endian + 'L'),
-        'd': struct.Struct(endian + 'd'),
-        'f': struct.Struct(endian + 'f')
+        "B": struct.Struct(endian + "B"),
+        "b": struct.Struct(endian + "b"),
+        "h": struct.Struct(endian + "h"),
+        "H": struct.Struct(endian + "H"),
+        "l": struct.Struct(endian + "l"),
+        "L": struct.Struct(endian + "L"),
+        "d": struct.Struct(endian + "d"),
+        "f": struct.Struct(endian + "f"),
     }
+
+
+class Excursion(object):
+    """
+    Context manager which saves and restores the seek position of a filelike.
+    """
+    def __init__(self, fp):
+        if not hasattr(fp, "seek") or not hasattr(fp, "tell"):
+            raise TypeError("%r: not a seekable filelike" % fp)
+
+        self._fp = fp
+        self._pos = None
+
+    def __enter__(self):
+        self._pos = self._fp.tell()
+
+    def __exit__(self, *unused):
+        if self._pos is not None:
+            self._fp.seek(self._pos, 0)
 
 
 # Note: BytesIO in Python 2 is not a type, so it cannot be subclassed.
@@ -86,44 +105,20 @@ class BufferedByteStream(object):
 
     def __init__(self, data=None, endian=ENDIAN_NETWORK):
         """
-        @raise TypeError: Unable to coerce C{data} to C{BytesIO}.
+        @raise TypeError: C{data} is not acceptable to C{append}.
         """
 
         self.endian = endian
         self._buf = six.BytesIO()
         self._len = 0
-
-        if data is not None:
-            if not isinstance(data, six.binary_type):
-                if hasattr(data, 'getvalue'):
-                    data = data.getvalue()
-                elif (hasattr(data, 'read') and
-                      hasattr(data, 'seek') and
-                      hasattr(data, 'tell')):
-                    old_pos = data.tell()
-                    data.seek(0)
-                    s = data.read()
-                    data.seek(old_pos, 0)
-                    data = s
-
-                if isinstance(data, six.text_type):
-                    data = data.encode("utf-8")
-
-                if not isinstance(data, six.binary_type):
-                    raise TypeError("Unable to coerce %r to a byte buffer"
-                                    % (data,))
-
-            self._buf.write(data)
-            self._buf.seek(0, 0)
-            self._len = len(data)
+        self.append(data)
 
     def __len__(self):
         if self._len is None:
-            old_pos = self._buf.tell()
-            self._buf.seek(0, 2)
+            with Excursion(self._buf):
+                self._buf.seek(0, 2)
+                self._len = self._buf.tell()
 
-            self._len = self._buf.tell()
-            self._buf.seek(old_pos)
         return self._len
 
     def seek(self, offset, whence=0):
@@ -134,41 +129,16 @@ class BufferedByteStream(object):
 
     def truncate(self, size=0):
         self._buf.truncate(size)
-        self._len = None
+        self._len = size
 
     def getvalue(self):
         return self._buf.getvalue()
 
-    def write(self, s):
-        """
-        Writes the content of the specified C{s} into this buffer.
-
-        @param s: Raw bytes
-        """
-        self._buf.write(s)
-        self._len = None
-
-    def consume(self):
-        """
-        Discard all of the data already read (from byte 0 up to C{tell()})
-        and reset the read position to the new beginning of the stream.
-
-        @since: 0.4
-        """
-        bytes = self._buf.read()
-        self._buf.truncate(0)
-
-        if len(bytes) > 0:
-            self._buf.write(bytes)
-            self._buf.seek(0)
-
-        self._len = None
-
     def read(self, length=-1):
         """
-        If C{length} is -1 or unspecified, reads the rest of the buffer.
-        Otherwise, reads exactly the specified number of bytes from the
-        buffer.
+        If C{length} is -1 or unspecified, return the rest of the buffer.
+        Otherwise, return exactly the specified number of bytes from the
+        buffer.  Either way, advance the seek position over the data read.
 
         @raise IOError: Attempted to read past the end of the buffer.
         """
@@ -178,22 +148,24 @@ class BufferedByteStream(object):
             raise IOError("invalid read length: %r" % length)
         if self.at_eof():
             raise IOError(
-                'Attempted to read from the buffer but already at the end')
+                "Attempted to read from the buffer but already at the end")
 
         if length == -1:
             return self._buf.read()
         else:
             if self._buf.tell() + length > len(self):
                 raise IOError(
-                    'Attempted to read %d bytes from the buffer but only %d '
-                    'remain' % (length, len(self) - self.tell())
+                    "Attempted to read %d bytes from the buffer but only %d "
+                    "remain" % (length, len(self) - self.tell())
                 )
             return self._buf.read(length)
 
     def peek(self, size=1):
         """
-        Looks C{size} bytes ahead in the stream, returning what it finds,
-        returning the stream pointer to its initial position.
+        Looks up to C{size} bytes ahead in the stream without changing the
+        seek position.  Unlike C{read}, it is not an error to try to peek
+        past the end of the buffer, and fewer than the number of requested
+        bytes may be returned.
 
         @param size: Default is 1.
         @type size: C{int}
@@ -201,21 +173,36 @@ class BufferedByteStream(object):
 
         @return: Bytes.
         """
-        if size == -1:
-            return self.peek(len(self) - self.tell())
-
         if size < -1:
             raise ValueError("Cannot peek backwards")
 
+        if size == 0:
+            return b''
+
+        if size == -1:
+            size = self.remaining()
+
         peeked = b''
-        pos = self.tell()
-
-        while not self.at_eof() and len(peeked) != size:
-            peeked += self.read(1)
-
-        self.seek(pos)
+        with Excursion(self._buf):
+            while len(peeked) < size:
+                c = self._buf.read(1)
+                if not c: break
+                peeked += c
 
         return peeked
+
+    def consume(self):
+        """
+        Discard all of the data already read (from byte 0 up to C{tell()})
+        and reset the seek position to the new beginning of the stream.
+
+        @since: 0.4
+        """
+        rest = self._buf.read()
+        self._buf.seek(0, 0)
+        self._buf.truncate(0)
+        self._len = 0
+        self.append(rest)
 
     def remaining(self):
         """
@@ -228,48 +215,62 @@ class BufferedByteStream(object):
 
     def at_eof(self):
         """
-        Returns C{True} if the internal pointer is at the end of the stream.
+        Returns C{True} if the seek position is at the end of the stream.
 
         @rtype: C{bool}
         """
         return self.tell() == len(self)
 
+    def write(self, s):
+        """
+        Writes the content of the specified C{s} into this buffer at the
+        current seek position, and advance the seek position.
+
+        @param s: Raw bytes
+        """
+        self._buf.write(s)
+        self._len = None
+
     def append(self, data):
         """
-        Append data to the end of the stream. The pointer will not move if
-        this operation is successful.
+        Append data to the end of the stream.  Does not change the
+        seek position.
 
         @param data: The data to append to the stream.
-        @type data: string
-        @raise TypeError: data is not a string
+        @type data: None, Unicode string, byte string, byte buffer, or
+        any object with either a getvalue method or read+seek+tell
+        methods.  In the latter two cases, the value returned by
+        getvalue / read must be a Unicode string, byte string, or byte buffer.
+        @raise TypeError: data is not convertible to a byte sequence.
+
         """
 
-        if not isinstance(data, six.string_types):
-            if hasattr(data, 'getvalue'):
+        if data is None:
+            return
+
+        odata = data
+        if not isinstance(data, (six.binary_type, six.text_type, bytearray)):
+            if hasattr(data, "getvalue"):
                 data = data.getvalue()
-            elif (hasattr(data, 'read') and
-                  hasattr(data, 'seek') and
-                  hasattr(data, 'tell')):
-                dt = data.tell()
-                dt.seek(0, 0)
-                buf = dt.read()
-                dt.seek(dt, 0)
-                data = buf
-            else:
-                raise TypeError("expected a string or filelike, not %r"
-                                % data)
+            elif (hasattr(data, "read") and
+                  hasattr(data, "seek") and
+                  hasattr(data, "tell")):
+                with Excursion(data):
+                    data = data.read()
 
         if isinstance(data, six.text_type):
-            data = data.encode('utf-8')
+            data = data.encode("utf-8")
+        elif isinstance(data, bytearray):
+            data = six.binary_type(data)
 
         if not isinstance(data, six.binary_type):
             raise TypeError("expected a string or filelike, not %r"
-                            % data)
+                            % odata)
 
-        t = self.tell()
-        self.seek(0, 2)
-        self.write(data)
-        self.seek(t, 0)
+        with Excursion(self._buf):
+            self._buf.seek(0, 2)
+            self._buf.write(data)
+            self._len = self._buf.tell()
 
     def __add__(self, other):
         new = BufferedByteStream(self)
@@ -311,7 +312,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(c, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % type(c))
+            raise TypeError("expected an int, got %r" % type(c))
 
         if not 0 <= c <= 255:
             raise OverflowError("Not in range, %d" % c)
@@ -334,7 +335,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(c, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % type(c))
+            raise TypeError("expected an int, got %r" % type(c))
 
         if not -128 <= c <= 127:
             raise OverflowError("Not in range, %d" % c)
@@ -357,7 +358,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(s, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % (type(s),))
+            raise TypeError("expected an int, got %r" % (type(s),))
 
         if not 0 <= s <= 65535:
             raise OverflowError("Not in range, %d" % s)
@@ -380,7 +381,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(s, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % (type(s),))
+            raise TypeError("expected an int, got %r" % (type(s),))
 
         if not -32768 <= s <= 32767:
             raise OverflowError("Not in range, %d" % s)
@@ -403,7 +404,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(l, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % (type(l),))
+            raise TypeError("expected an int, got %r" % (type(l),))
 
         if not 0 <= l <= 4294967295:
             raise OverflowError("Not in range, %d" % l)
@@ -426,7 +427,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(l, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % (type(l),))
+            raise TypeError("expected an int, got %r" % (type(l),))
 
         if not -2147483648 <= l <= 2147483647:
             raise OverflowError("Not in range, %d" % l)
@@ -461,7 +462,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(n, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % (type(n),))
+            raise TypeError("expected an int, got %r" % (type(n),))
 
         if not 0 <= n <= 0xffffff:
             raise OverflowError("n is out of range")
@@ -499,7 +500,7 @@ class BufferedByteStream(object):
         @raise OverflowError: Not in range.
         """
         if not isinstance(n, six.integer_types):
-            raise TypeError('expected an int (got:%r)' % (type(n),))
+            raise TypeError("expected an int, got %r" % (type(n),))
 
         if not -8388608 <= n <= 8388607:
             raise OverflowError("n is out of range")
@@ -530,7 +531,7 @@ class BufferedByteStream(object):
         @raise TypeError: Unexpected type for float C{d}.
         """
         if not isinstance(d, float):
-            raise TypeError('expected a float (got:%r)' % (type(d),))
+            raise TypeError("expected a float, got %r" % (type(d),))
 
         self.write(self._packers["d"].pack(d))
 
@@ -549,7 +550,7 @@ class BufferedByteStream(object):
         @raise TypeError: Unexpected type for float C{f}.
         """
         if not isinstance(f, float):
-            raise TypeError('expected a float (got:%r)' % (type(f),))
+            raise TypeError("expected a float, got %r" % (type(f),))
 
         self.write(self._packers["f"].pack(f))
 
@@ -559,7 +560,7 @@ class BufferedByteStream(object):
 
         @rtype: Unicode string
         """
-        return self.read(length).decode('utf-8')
+        return self.read(length).decode("utf-8")
 
     def write_utf8_string(self, u):
         """
@@ -571,7 +572,9 @@ class BufferedByteStream(object):
         @raise TypeError: Unexpected type for C{u}
         """
         if isinstance(u, six.text_type):
-            u = u.encode('utf-8')
+            u = u.encode("utf-8")
+        elif isinstance(u, bytearray):
+            u = six.binary_type(u)
         if not isinstance(u, six.binary_type):
-            raise TypeError('Expected a string, not %r' % (u,))
+            raise TypeError("Expected a string, got %r" % (u,))
         self.write(u)

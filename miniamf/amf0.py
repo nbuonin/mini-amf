@@ -562,7 +562,7 @@ class Encoder(codec.Encoder):
             elif isinstance(k, six.text_type):
                 str_items.append((k.encode("utf-8"), v))
             elif isinstance(k, six.binary_type):
-                str_items.append((k, v));
+                str_items.append((k, v))
             else:
                 raise miniamf.EncodeError(
                     "Unable to encode key %r in dict %r" % (k, o))
