@@ -121,15 +121,18 @@ class ClassAliasTestCase(ClassCacheClearingTestCase):
 
         x = ClassAlias(Eggs, b'org.example.eggs.Eggs')
 
+        self.assertEqual(six.text_type(x), u'org.example.eggs.Eggs')
         self.assertEqual(six.binary_type(x), b'org.example.eggs.Eggs')
 
     def test_unicode_alias(self):
         class Ham(object):
             pass
 
-        x = ClassAlias(Ham, u"org.example.jamón.Jamón")
+        x = ClassAlias(Ham, u'org.example.jamón.Jamón')
 
-        self.assertEqual(six.text_type(x), u"org.example.jamón.Jamón")
+        self.assertEqual(six.text_type(x), u'org.example.jamón.Jamón')
+        self.assertEqual(six.binary_type(x),
+                         b'org.example.jam\xc3\xb3n.Jam\xc3\xb3n')
 
     def test_eq(self):
         class A(object):

@@ -298,8 +298,16 @@ class ClassAlias(object):
     def is_compiled(self):
         return self._compiled
 
-    def __str__(self):
+    def __unicode__(self):
         return self.alias
+
+    def __bytes__(self):
+        return self.alias.encode('utf-8')
+
+    if six.PY3:
+        __str__ = __unicode__
+    else:
+        __str__ = __bytes__
 
     def __repr__(self):
         k = self.__class__
