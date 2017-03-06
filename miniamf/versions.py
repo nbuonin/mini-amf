@@ -8,7 +8,7 @@ out ...) we currently provide our own way to get the string of a version tuple.
 @since: 0.6
 """
 
-from six import text_type, integer_types
+from six import text_type, binary_type, integer_types
 
 
 class Version(tuple):
@@ -34,7 +34,12 @@ def get_version(elements):
     for x in elements:
         if not first and isinstance(x, integer_types):
             v.append(u".")
-        v.append(text_type(x))
+        if isinstance(x, text_type):
+            v.append(x)
+        elif isinstance(x, binary_type):
+            v.append(x.decode('utf-8'))
+        else:
+            v.append(text_type(x))
         first = False
 
     return u"".join(v)

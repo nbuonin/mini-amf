@@ -8,15 +8,14 @@ Tests for the C{sets} module integration.
 from __future__ import absolute_import
 
 import unittest
-import sets
 
 import miniamf
 from ..util import check_buffer
 
-
-class ImmutableSetTestCase(unittest.TestCase):
-    def test_amf0_encode(self):
-        x = sets.ImmutableSet(['1', '2', '3'])
+# All set types are mapped to simple tuples.
+class BaseTestCase(unittest.TestCase):
+    def amf0_encode_test(self, ty):
+        x = ty(['1', '2', '3'])
 
         self.assertTrue(check_buffer(
             miniamf.encode(x, encoding=miniamf.AMF0).getvalue(), (
@@ -28,8 +27,8 @@ class ImmutableSetTestCase(unittest.TestCase):
             )
         ))
 
-    def test_amf3_encode(self):
-        x = sets.ImmutableSet(['1', '2', '3'])
+    def amf3_encode_test(self, ty):
+        x = ty(['1', '2', '3'])
 
         self.assertTrue(check_buffer(
             miniamf.encode(x, encoding=miniamf.AMF3).getvalue(), (
@@ -40,3 +39,43 @@ class ImmutableSetTestCase(unittest.TestCase):
                 )
             )
         ))
+
+
+class BuiltinSetTypesTestCase(BaseTestCase):
+    def test_amf0_set(self):
+        self.amf0_encode_test(set)
+
+    def test_amf3_set(self):
+        self.amf3_encode_test(set)
+
+    def test_amf0_frozenset(self):
+        self.amf0_encode_test(frozenset)
+
+    def test_amf3_frozenset(self):
+        self.amf3_encode_test(frozenset)
+
+
+# The sets module was removed in Python 3.
+try:
+    ModuleNotFoundError
+except NameError:
+    ModuleNotFoundError = ImportError
+
+try:
+    import sets
+
+    class LibrarySetTypesTestCase(BaseTestCase):
+        def test_amf0_Set(self):
+            self.amf0_encode_test(sets.Set)
+
+        def test_amf3_Set(self):
+            self.amf3_encode_test(sets.Set)
+
+        def test_amf0_ImmutableSet(self):
+            self.amf0_encode_test(sets.ImmutableSet)
+
+        def test_amf3_ImmutableSet(self):
+            self.amf3_encode_test(sets.ImmutableSet)
+
+except ModuleNotFoundError:
+    pass

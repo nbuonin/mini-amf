@@ -777,7 +777,7 @@ class DecoderTestCase(ClassCacheClearingTestCase, DecoderMixIn):
 
         self.assertEqual(obj.__class__, Spam)
 
-        self.failUnless(hasattr(obj, 'baz'))
+        self.assertTrue(hasattr(obj, 'baz'))
         self.assertEqual(obj.baz, 'hello')
 
     def test_byte_array(self):

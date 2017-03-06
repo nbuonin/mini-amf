@@ -52,6 +52,7 @@ def _compile_packers(endian):
     Called whenever a BufferedByteStream's endianness is changed.
     """
     return {
+        'B': struct.Struct(endian + 'B'),
         'b': struct.Struct(endian + 'b'),
         'h': struct.Struct(endian + 'h'),
         'H': struct.Struct(endian + 'H'),
@@ -83,37 +84,38 @@ class BufferedByteStream(object):
     @type endian: ENDIAN_* code
     """
 
-    def __init__(self, buf=None, endian=ENDIAN_NETWORK):
+    def __init__(self, data=None, endian=ENDIAN_NETWORK):
         """
-        @raise TypeError: Unable to coerce C{buf} to C{BytesIO}.
+        @raise TypeError: Unable to coerce C{data} to C{BytesIO}.
         """
 
         self.endian = endian
         self._buf = six.BytesIO()
         self._len = 0
 
-        if buf is not None:
-            if not isinstance(buf, six.binary_type):
-                if hasattr(buf, 'getvalue'):
-                    buf = buf.getvalue()
-                elif (hasattr(buf, 'read') and
-                      hasattr(buf, 'seek') and
-                      hasattr(buf, 'tell')):
-                    old_pos = buf.tell()
-                    buf.seek(0)
-                    s = buf.read()
-                    buf.seek(old_pos, 0)
-                    buf = s
-                else:
+        if data is not None:
+            if not isinstance(data, six.binary_type):
+                if hasattr(data, 'getvalue'):
+                    data = data.getvalue()
+                elif (hasattr(data, 'read') and
+                      hasattr(data, 'seek') and
+                      hasattr(data, 'tell')):
+                    old_pos = data.tell()
+                    data.seek(0)
+                    s = data.read()
+                    data.seek(old_pos, 0)
+                    data = s
+
+                if isinstance(data, six.text_type):
+                    data = data.encode("utf-8")
+
+                if not isinstance(data, six.binary_type):
                     raise TypeError("Unable to coerce %r to a byte buffer"
-                                    % (buf,))
+                                    % (data,))
 
-                if isinstance(buf, six.text_type):
-                    buf = buf.encode("utf-8")
-
-            self._buf.write(buf)
+            self._buf.write(data)
             self._buf.seek(0, 0)
-            self._len = len(buf)
+            self._len = len(data)
 
     def __len__(self):
         if self._len is None:
@@ -171,7 +173,7 @@ class BufferedByteStream(object):
         @raise IOError: Attempted to read past the end of the buffer.
         """
         if length == 0:
-            return ''
+            return b''
         if length < -1:
             raise IOError("invalid read length: %r" % length)
         if self.at_eof():
@@ -205,15 +207,15 @@ class BufferedByteStream(object):
         if size < -1:
             raise ValueError("Cannot peek backwards")
 
-        bytes = ''
+        peeked = b''
         pos = self.tell()
 
-        while not self.at_eof() and len(bytes) != size:
-            bytes += self.read(1)
+        while not self.at_eof() and len(peeked) != size:
+            peeked += self.read(1)
 
         self.seek(pos)
 
-        return bytes
+        return peeked
 
     def remaining(self):
         """
@@ -254,13 +256,15 @@ class BufferedByteStream(object):
                 dt.seek(dt, 0)
                 data = buf
             else:
-                raise TypeError("expected a string or filelike")
+                raise TypeError("expected a string or filelike, not %r"
+                                % data)
 
         if isinstance(data, six.text_type):
             data = data.encode('utf-8')
 
         if not isinstance(data, six.binary_type):
-            raise TypeError("expected a string or filelike")
+            raise TypeError("expected a string or filelike, not %r"
+                            % data)
 
         t = self.tell()
         self.seek(0, 2)
@@ -295,7 +299,7 @@ class BufferedByteStream(object):
         """
         Reads an C{unsigned char} from the stream.
         """
-        return ord(self.read(1))
+        return self._packers["B"].unpack(self.read(1))[0]
 
     def write_uchar(self, c):
         """
@@ -312,7 +316,7 @@ class BufferedByteStream(object):
         if not 0 <= c <= 255:
             raise OverflowError("Not in range, %d" % c)
 
-        self.write(chr(c))
+        self.write(self._packers["B"].pack(c))
 
     def read_char(self):
         """
