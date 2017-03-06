@@ -186,7 +186,8 @@ class BufferedByteStream(object):
         with Excursion(self._buf):
             while len(peeked) < size:
                 c = self._buf.read(1)
-                if not c: break
+                if not c:
+                    break
                 peeked += c
 
         return peeked
