@@ -159,66 +159,52 @@ class HelperTestCase(unittest.TestCase):
         b'\x04spam\x02\x00\x04eggs\x00')
 
     def setUp(self):
-        self.fp, self.file_name = tempfile.mkstemp()
-        os.close(self.fp)
+        self.fp = tempfile.NamedTemporaryFile()
+        self.file_name = self.fp.name
 
     def tearDown(self):
-        if os.path.isfile(self.file_name):
-            os.unlink(self.file_name)
+        self.fp.close()
 
-    def _load(self):
-        fp = open(self.file_name, 'wb+')
-
-        fp.write(self.contents_str)
-        fp.flush()
-
-        return fp
+    def _fill_file(self):
+        self.fp.write(self.contents_str)
+        self.fp.flush()
 
     def test_load_name(self):
-        fp = self._load()
-        fp.close()
+        self._fill_file()
 
         s = sol.load(self.file_name)
-
         self.assertEqual(s.name, 'hello')
         self.assertEqual(s, {'name': 'value', 'spam': 'eggs'})
 
     def test_load_file(self):
-        fp = self._load()
-        y = fp.tell()
-        fp.seek(0)
+        self._fill_file()
+        y = self.fp.tell()
+        self.fp.seek(0)
 
-        s = sol.load(fp)
-
+        s = sol.load(self.fp)
         self.assertEqual(s.name, 'hello')
         self.assertEqual(s, {'name': 'value', 'spam': 'eggs'})
-        self.assertEqual(y, fp.tell())
+
+        self.assertFalse(self.fp.closed)
+        self.assertEqual(y, self.fp.tell())
 
     def test_save_name(self):
         s = sol.SOL('hello')
         s.update({'name': 'value', 'spam': 'eggs'})
-
         sol.save(s, self.file_name)
 
-        fp = open(self.file_name, 'rb')
-
-        try:
-            self.assertTrue(check_buffer(fp.read(), self.contents))
-        finally:
-            fp.close()
+        self.fp.seek(0)
+        self.assertTrue(check_buffer(self.fp.read(), self.contents))
 
     def test_save_file(self):
-        fp = open(self.file_name, 'wb+')
         s = sol.SOL('hello')
         s.update({'name': 'value', 'spam': 'eggs'})
 
-        sol.save(s, fp)
-        fp.seek(0)
+        sol.save(s, self.fp)
+        self.assertFalse(self.fp.closed)
 
-        self.assertFalse(fp.closed)
-        self.assertTrue(check_buffer(fp.read(), self.contents))
-
-        fp.close()
+        self.fp.seek(0)
+        self.assertTrue(check_buffer(self.fp.read(), self.contents))
 
 
 class SOLTestCase(unittest.TestCase):
@@ -233,31 +219,5 @@ class SOLTestCase(unittest.TestCase):
         s.update({'name': 'value', 'spam': 'eggs'})
 
         x = BytesIO()
-
         s.save(x)
-
         self.assertTrue(check_buffer(x.getvalue(), HelperTestCase.contents))
-
-        x = tempfile.mkstemp()[1]
-
-        try:
-            fp = open(x, 'wb+')
-
-            self.assertEqual(fp.closed, False)
-
-            s.save(fp)
-            self.assertNotEqual(fp.tell(), 0)
-
-            fp.seek(0)
-
-            self.assertTrue(check_buffer(fp.read(), HelperTestCase.contents))
-            self.assertEqual(fp.closed, False)
-
-            self.assertTrue(
-                check_buffer(open(x, 'rb').read(), HelperTestCase.contents)
-            )
-        except:
-            if os.path.isfile(x):
-                os.unlink(x)
-
-            raise
