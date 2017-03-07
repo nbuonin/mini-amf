@@ -5,12 +5,14 @@
 #
 # Documentation build configuration file.
 #
-# This file is execfile()d with the current directory set to its containing dir.
+# This file is execfile()d with the current directory set to its
+# containing dir.
 #
-# Note that not all possible configuration values are present in this file.
+# Note that not all possible configuration values are present in this
+# file.
 #
-# All configuration values have a default value; values that are commented out
-# serve to show the default value.
+# All configuration values have a default value; values that are
+# commented out serve to show the default value.
 
 import sys, os, time
 from shutil import copyfile
@@ -18,38 +20,16 @@ from shutil import copyfile
 from docutils.core import publish_parts
 
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute.
+# If extensions (or modules to document with autodoc) are in another
+# directory, add these directories to sys.path here. If the directory
+# is relative to the documentation root, use os.path.abspath to make
+# it absolute.
 sys.path.insert(0, os.path.abspath('..'))
-sys.path.append(os.path.abspath('.'))
-sys.path.append(os.path.abspath('html'))
 
 
-# When ReaTheDocs.org builds your project, it sets the READTHEDOCS environment
-# variable to the string True.
+# When ReadTheDocs.org builds your project, it sets the READTHEDOCS
+# environment variable to the string True.
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
-
-
-def rst2html(input, output):
-    """
-    Create html file from rst file.
-
-    :param input: Path to rst source file
-    :type: `str`
-    :param output: Path to html output file
-    :type: `str`
-    """
-    file = os.path.abspath(input)
-    rst = open(file, 'r').read()
-    html = publish_parts(rst, writer_name='html')
-    body = html['html_body']
-
-    tmp = open(output, 'w')
-    tmp.write(body)
-    tmp.close()
-
-    return body
 
 # -- General configuration -----------------------------------------------------
 
@@ -61,12 +41,12 @@ needs_sphinx = '1.0'
 #
 # Make sure to install the following Sphinx extension module as well:
 # - http://packages.python.org/sphinxcontrib-epydoc
-extensions = ['sphinx.ext.intersphinx', 'sphinx.ext.extlinks',
-              'sphinxcontrib.epydoc']
+extensions = [
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.autodoc'
+]
 
-if on_rtd == False:
-    # Paths that contain additional templates, relative to this directory.
-    templates_path = ['html']
+templates_path = ['html']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -75,19 +55,13 @@ source_suffix = '.rst'
 #source_encoding = 'utf-8'
 
 # create content template for the homepage
-readme = rst2html('../README.rst', 'html/intro.html')
-readme = copyfile('../CHANGES.txt', 'changelog.rst')
+changelog = copyfile('../CHANGES.rst', 'changelog.rst')
 
 # General substitutions.
 project = 'Mini-AMF'
 url = 'http://miniamf.github.io'
 description = 'AMF Encoding and Decoding for Python'
-
-if on_rtd == False:
-    copyright = "Copyright &#169; 2007-%s The <a href='%s'>%s</a> Project. All rights reserved." % (
-        time.strftime('%Y'), url, project)
-else:
-    copyright = "2007-%s The %s Project" % (time.strftime('%Y'), project)
+copyright = "2007-2015 The PyAMF Project"
 
 # We look for the __init__.py file in the current Mini-AMF source tree
 # and replace the values accordingly.
@@ -129,29 +103,22 @@ add_module_names = True
 # A list of ignored prefixes for module index sorting.
 #modindex_common_prefix = []
 
+# Warnings to suppress
+# The badges in README.rst are excluded from the Sphinx build,
+# but produce warnings anyway; no other external images are involved
+suppress_warnings = ['image.nonlocal_uri']
 
 # -- Options for HTML output ---------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-if on_rtd:
-    # default theme for readthedocs.org
-    html_theme = 'default'
-else:
-    # Note: you can download the 'beam' theme from:
-    # http://github.com/collab-project/sphinx-themes
-    # and place it in a 'themes' directory relative to this config file.
-    html_theme = 'beam'
+html_theme = 'default'
 
-    # Custom themes here, relative to this directory.
-    html_theme_path = ['themes']
-
-    # Additional templates that should be rendered to pages, maps page names to
-    # template names.
-    html_additional_pages = {
-        'index': 'defindex.html',
-        'tutorials/index': 'tutorials.html',
-    }
+# Additional templates that should be rendered to pages, maps page names to
+# template names.
+#html_additional_pages = {
+#    'index': 'defindex.html',
+#}
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -185,7 +152,7 @@ html_use_modindex = True
 html_copy_source = False
 
 # Output an OpenSearch description file.
-html_use_opensearch = 'http://pyamf.org'
+html_use_opensearch = 'https://miniamf.readthedocs.io'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pyamf' + release.replace('.', '')
@@ -227,17 +194,7 @@ latex_logo = 'html/static/logo.png'
 #latex_use_modindex = True
 
 
-# -- Options for external links --------------------------------------------------
-
-# A dictionary mapping URIs to a list of regular expression.
-#
-# Each key of this dictionary is a base url of an epydoc-generated
-# documentation. Each value is a list of regular expressions, the reference
-# target must match (see re.match()) to be cross-referenced with the base url.
-epydoc_mapping = {
-   # TODO: don't harcode version nr
-   'http://api.pyamf.org/0.6.1/': [r'pyamf\.'],
-}
+# -- Options for external links ----------------------------------------------
 
 # refer to the Python standard library.
 intersphinx_mapping = {'python': ('http://docs.python.org', None)}
@@ -245,9 +202,3 @@ intersphinx_mapping = {'python': ('http://docs.python.org', None)}
 # A list of regular expressions that match URIs that should
 # not be checked when doing a 'make linkcheck' build (since Sphinx 1.1)
 linkcheck_ignore = [r'http://localhost:\d+/']
-
-# The base url of the Trac instance you want to create links to
-trac_url = 'http://dev.pyamf.org'
-
-# Trac url mapping
-extlinks = {'ticket': (trac_url + '/ticket/%s', '#')}

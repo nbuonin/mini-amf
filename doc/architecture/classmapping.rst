@@ -79,14 +79,3 @@ You can also supply a list of classes to register. An example, taking the
 example classes::
 
     >>> miniamf.register_package([User, Permission], 'org.miniamf')
-
-
-Class Decorators
-================
-
-Mini-AMF supplies class decorators_ that help you to avoid writing
-most of the boilerplate code that is used when registering classes in
-Python. An example:
-
-.. literalinclude:: examples/class-mapping/alias-decorator.py
-   :linenos:

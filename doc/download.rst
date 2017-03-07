@@ -2,8 +2,6 @@
   Download
 ============
 
-.. contents::
-
 Mini-AMF is released under the :doc:`MIT license <../license>`. For
 installation instructions, see the included :doc:`Installation Guide
 <../install>`.
@@ -11,8 +9,6 @@ installation instructions, see the included :doc:`Installation Guide
 
 Latest Stable Release - 1.0
 ===========================
-
-:doc:`../whatsnew/1.0`
 
 +-----------------+-----------------------------------+
 | **Gzipped Tar** | `Mini-AMF-1.0.0.tar.gz`_          |

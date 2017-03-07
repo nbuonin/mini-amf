@@ -1,13 +1,14 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Mini-AMF Documentation contents
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+.. include:: ../README.rst
+
+Contents
+--------
 
 .. toctree::
 
    download.rst
    install.rst
    architecture/index.rst
-   community.rst
+   maintainers.rst
    bugs.rst
    license.rst
    changelog.rst

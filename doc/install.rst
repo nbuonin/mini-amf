@@ -2,8 +2,6 @@
  Installation Guide
 =====================
 
-.. contents::
-
 Mini-AMF requires Python_ 2.7 or 3.4+, and DefusedXML_.
 
 
@@ -22,7 +20,7 @@ First install DefusedXML_.  If you wish to build the C accelerator
 module, you will also need a C compiler and the libraries for
 compiling Python extensions.
 
-:doc:`community/download` and unpack the Mini-AMF archive of your choice::
+:doc:`download` and unpack the Mini-AMF archive of your choice::
 
     tar zxfv Mini-AMF-<version>.tar.gz
     cd Mini-AMF-<version>
@@ -59,15 +57,10 @@ when the test runner crashes.
 Documentation
 =============
 
-To build the main documentation you need:
+To build the main documentation you need Sphinx_ 1.0 or newer.
 
-- Sphinx_ 1.0 or newer
-- Epydoc_ 3.0 or newer
-- `sphinxcontrib.epydoc`_ 0.4 or newer
-- a :doc:`copy <community/download>` of the Mini-AMF source distribution
-
-Then, from the ``doc`` subdirectory of the source distribution, run
-this command::
+From the ``doc`` subdirectory of the source distribution, run this
+command::
 
     sphinx-build -b html . build
 
@@ -79,6 +72,4 @@ website_.
 .. _DefusedXML:                 https://pypi.python.org/pypi/defusedxml
 .. _Cython:			http://cython.org
 .. _Sphinx:     		http://www.sphinx-doc.org/
-.. _Epydoc:			http://epydoc.sourceforge.net/
-.. _sphinxcontrib.epydoc:       http://packages.python.org/sphinxcontrib-epydoc
 .. _website:    		https://github.com/hydralabs/miniamf
