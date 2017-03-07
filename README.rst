@@ -6,11 +6,6 @@ Mini-AMF provides Action Message Format (AMF_) serialization and
 deserialization support for Python_, compatible with the `Adobe Flash
 Player`_.  It supports Python 2.7 and 3.4+.
 
-.. image:: https://travis-ci.org/zackw/mini-amf.svg?branch=master
-    :target: https://travis-ci.org/zackw/mini-amf
-.. image:: https://coveralls.io/repos/zackw/mini-amf/badge.svg
-    :target: https://coveralls.io/r/zackw/mini-amf
-
 Mini-AMF is a trimmed-down version of the `original PyAMF`_, which (as
 far as I can tell) is no longer being maintained.  It provides only
 the core serialization and deserialization primitives, and support for
@@ -45,3 +40,16 @@ that are available only in ActionScript_ 3.0, such as ByteArray.
 
 .. _Adobe Integrated Runtime: https://en.wikipedia.org/wiki/Adobe_AIR
 .. _ActionScript: https://en.wikipedia.org/wiki/ActionScript
+
+Automatic build statuses
+------------------------
+
+.. image:: https://travis-ci.org/zackw/mini-amf.svg?branch=master
+    :target: https://travis-ci.org/zackw/mini-amf
+    :alt: Build status
+.. image:: https://coveralls.io/repos/zackw/mini-amf/badge.svg
+    :target: https://coveralls.io/r/zackw/mini-amf
+    :alt: Test coverage
+.. image:: https://readthedocs.org/projects/mini-amf/badge/?version=latest
+    :target: http://mini-amf.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation status

@@ -121,13 +121,15 @@ def get_version():
     return u''.join(v)
 
 
+# Note: this logic is duplicated in doc/conf.py.
+# We only want the flair on the Github page.
 def get_long_description():
     with open(os.path.join(os.path.dirname(__file__),
                            "README.rst"), "rt") as f:
-        return "".join(
-            line for line in f
-            if ("https://travis-ci.org/" not in line
-                and "https://coveralls.io/" not in line))
+        text = f.read()
+        cut = text.find("\nAutomatic build statuses\n")
+        if cut != -1:
+            return text[:cut]
 
 
 def setup_package():

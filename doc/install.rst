@@ -57,19 +57,22 @@ when the test runner crashes.
 Documentation
 =============
 
-To build the main documentation you need Sphinx_ 1.0 or newer.
+To build the documentation you need Sphinx_ and the
+`sphinxcontrib-fulltoc`_ extension. The `official documentation`_ is
+generated with Sphinx 1.5 running under Python 3.5.  Older versions of
+Sphinx and/or Python may also work.
 
 From the ``doc`` subdirectory of the source distribution, run this
 command::
 
-    sphinx-build -b html . build
+    sphinx-build -b html . _build
 
-This will generate HTML documentation in the ``doc/build/html``
-folder. This documentation is identical to the content on the main Mini-AMF
-website_.
+This will generate HTML documentation in the ``doc/_build``
+folder.
 
-.. _Python: 			https://www.python.org/
-.. _DefusedXML:                 https://pypi.python.org/pypi/defusedxml
-.. _Cython:			http://cython.org
-.. _Sphinx:     		http://www.sphinx-doc.org/
-.. _website:    		https://github.com/hydralabs/miniamf
+.. _Python:                  https://www.python.org/
+.. _DefusedXML:              https://pypi.python.org/pypi/defusedxml
+.. _Cython:                  http://cython.org
+.. _Sphinx:                  http://www.sphinx-doc.org/
+.. _official documentation:  https://mini-amf.readthedocs.io/
+.. _sphinxcontrib-fulltoc:   https://sphinxcontrib-fulltoc.readthedocs.io/

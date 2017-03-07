@@ -3,8 +3,15 @@ Changelog
 
 This document contains a detailed log of the history of Mini-AMF.
 
-0.9 (2017-03-07)
-----------------
+0.9.1 (2017-03-07)
+------------------
+- Corrections to the documentation and the way the documentation is
+  built.
+- No code changes from 0.9.0.
+
+
+0.9.0 (2017-03-07)
+------------------
 - First release as Mini-AMF.
 - Supports Python 3.4 and greater.
 - Removed features:

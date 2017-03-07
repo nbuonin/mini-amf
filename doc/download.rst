@@ -1,23 +1,23 @@
-============
-  Download
-============
+========
+Download
+========
 
 Mini-AMF is released under the :doc:`MIT license <../license>`. For
 installation instructions, see the included :doc:`Installation Guide
 <../install>`.
 
 
-Latest Stable Release - 1.0
-===========================
+Latest Stable Release - |release|
+=================================
 
-+-----------------+-----------------------------------+
-| **Gzipped Tar** | `Mini-AMF-1.0.0.tar.gz`_          |
-+-----------------+-----------------------------------+
++-----------------+--------------------------------------------------+
+| **Gzipped Tar** | |t-pre|\ |release|\ |t-mid|\ |release|\ |t-post| |
++-----------------+--------------------------------------------------+
 
-Latest Development Source Code
-==============================
+Git repository
+==============
 
-The Git_ repository URL for the Mini-AMF project is at
+The `Git <https://git-scm.com/>`_ repository for Mini-AMF is
 https://github.com/zackw/mini-amf.
 
 The latest revision of Mini-AMF can be checked out with the
@@ -25,16 +25,24 @@ following command::
 
     git clone https://github.com/zackw/mini-amf.git
 
-For installing this development version::
-
-    cd mini-amf
-    python setup.py develop
-
 Older releases
 ==============
 
 Older releases are archived on
 https://pypi.python.org/packages/source/M/Mini-AMF/.
 
-.. _Git: https://git-scm.com/
-.. _Mini-AMF-1.0.0.tar.gz: https://pypi.python.org/packages/source/M/Mini-AMF/Mini-AMF-1.0.0.tar.gz
+.. The following is a horrible kludge but it is better than having to
+   remember to update this file for every release.
+   See https://stackoverflow.com/questions/30920983 for explanation.
+
+.. |t-pre| raw:: html
+
+   <a href="https://pypi.python.org/packages/source/M/Mini-AMF/Mini-AMF-
+
+.. |t-mid| raw:: html
+
+   .tar.gz">Mini-AMF-
+
+.. |t-post| raw:: html
+
+   .tar.gz</a>
