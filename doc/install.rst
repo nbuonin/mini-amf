@@ -57,10 +57,9 @@ when the test runner crashes.
 Documentation
 =============
 
-To build the documentation you need Sphinx_ and the
-`sphinxcontrib-fulltoc`_ extension. The `official documentation`_ is
-generated with Sphinx 1.5 running under Python 3.5.  Older versions of
-Sphinx and/or Python may also work.
+To build the documentation you need Sphinx_.  The `official
+documentation`_ is generated with Sphinx 1.5 running under Python 3.5.
+Older versions of Sphinx and/or Python may also work.
 
 From the ``doc`` subdirectory of the source distribution, run this
 command::
@@ -75,4 +74,3 @@ folder.
 .. _Cython:                  http://cython.org
 .. _Sphinx:                  http://www.sphinx-doc.org/
 .. _official documentation:  https://mini-amf.readthedocs.io/
-.. _sphinxcontrib-fulltoc:   https://sphinxcontrib-fulltoc.readthedocs.io/

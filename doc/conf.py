@@ -44,7 +44,6 @@ def synthesize_pages():
                 "   bugs.rst\n"
                 "   license.rst\n"
                 "   changelog.rst\n"
-                "   about.rst\n"
                 "\n")
 
 synthesize_pages()
@@ -183,7 +182,7 @@ html_short_title = '%s %s' % (project, release)
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-html_logo = '_static/logo.png'
+# html_logo = ''
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
