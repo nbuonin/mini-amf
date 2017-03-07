@@ -1,6 +1,7 @@
 include *.rst
 include *.txt
 include *.ini
+include *.yml
 recursive-include miniamf *.pyx
 recursive-include miniamf *.pxd
 graft doc

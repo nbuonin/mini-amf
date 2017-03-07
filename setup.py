@@ -150,7 +150,12 @@ def setup_package():
         features={"accel": AccelFeature(have_cython)},
         test_suite="tests",
         zip_safe=True,
-        extras_require={},
+        extras_require={
+            "docs": [
+                "sphinx >= 1.5",
+                "sphinxcontrib-fulltoc"
+            ]
+        },
         classifiers=[
             l for l in (ll.strip() for ll in classifiers.splitlines()) if l
         ],
