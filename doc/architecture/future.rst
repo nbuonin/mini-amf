@@ -20,7 +20,7 @@ packages, one per framework.
 PyAMF also included a C extension module for speed.  The source code
 to this module is still included in Mini-AMF, but it is broken and has
 been disabled by default (you can activate it by giving ``setup.py``
-the command line option ``--enable-ext``).  I may eventually get
+the command line option ``--with-accel``).  I may eventually get
 around to fixing it.
 
 .. _PyAMF: https://github.com/hydralabs/pyamf

@@ -49,9 +49,9 @@ C Accelerator Module
 
 The C accelerator module is broken, and will not be compiled or
 installed by default.  If you want to experiment with it, supply
-the ``--enable-ext`` option::
+the ``--with-accel`` option::
 
-    python setup.py test --enable-ext
+    python setup.py --with-accel test
 
 You will need Cython_ to build the module, and do not be surprised
 when the test runner crashes.

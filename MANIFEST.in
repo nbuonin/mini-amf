@@ -1,8 +1,9 @@
 graft doc
-graft pyamf/tests/imports
 prune doc/build
 prune doc/_build
-include setupinfo.py
+graft tests
 include *.txt
-global-exclude *.swf
+global-include *.pyx
+global-include *.pxd
 global-exclude *.pyc
+global-exclude *.c

@@ -3,22 +3,15 @@
 # Copyright (c) The PyAMF Project.
 # See LICENSE.txt for details.
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import os.path
-import fnmatch
+from setuptools import Feature, setup
+import sys
 
 try:
-    from Cython.Distutils import build_ext
+    from Cython.Build import cythonize
     have_cython = True
-except ImportError:
-    from setuptools.command.build_ext import build_ext
+except:
     have_cython = False
-
-from setuptools.command import sdist
-from setuptools import Extension, setup
-from distutils.core import Distribution
 
 
 name = "Mini-AMF"
@@ -49,129 +42,32 @@ decoder encoder sharedobject lso sol
 """
 
 
-class MyDistribution(Distribution):
-    """
-    This seems to be the only obvious way to add a global option to
-    distutils.
+class AccelFeature(Feature):
+    def __init__(self, have_cython):
+        self.have_cython = have_cython
+        self.extensions = []
 
-    Provide the ability to toggle building the extensions for any called
-    command.
-    """
+        Feature.__init__(
+            self,
+            description='optional C accelerator modules (broken)',
+            standard=False,
+            available=have_cython,
+            ext_modules=self.extensions
+        )
 
-    global_options = Distribution.global_options + [
-        ("disable-ext", None, "Disable building extensions."),
-        ("enable-ext", None, "Enable building extensions.")
-    ]
+    def include_in(self, dist):
+        if not self.have_cython:
+            sys.stderr.write(
+                "ERROR: Cython is required to compile accelerator modules.\n")
+            sys.exit(1)
 
-    def finalize_options(self):
-        Distribution.finalize_options(self)
+        sys.stderr.write(
+            "WARNING: Accelerator modules are broken.\n"
+            "WARNING: You should only use --with-accel "
+            "if you are trying to fix them.\n")
 
-        # The default is not to build extensions, because right
-        # now they are broken.
-        self.disable_ext = True
-
-        # If --enable/--disable-ext are given more than once, the last
-        # one on the command line wins.
-        filtered = []
-        for arg in self.script_args:
-            if arg == "--disable-ext":
-                self.disable_ext = True
-            elif arg == "--enable-ext":
-                self.disable_ext = False
-            else:
-                filtered.append(arg)
-
-        self.script_args = filtered
-
-
-class MyBuildExt(build_ext):
-    """
-    The companion to L{MyDistribution} that checks to see if building the
-    extensions are disabled.
-    """
-
-    def run(self, *args, **kwargs):
-        if self.distribution.disable_ext:
-            return
-
-        build_ext.run(self, *args, **kwargs)
-
-
-class MySDist(sdist.sdist):
-    """
-    We generate the Cython code for a source distribution
-    """
-
-    def cythonise(self):
-        ext = MyBuildExt(self.distribution)
-        ext.initialize_options()
-        ext.finalize_options()
-
-        ext.check_extensions_list(ext.extensions)
-
-        for e in ext.extensions:
-            e.sources = ext.cython_sources(e.sources, e)
-
-    def run(self):
-        if not have_cython:
-            print("ERROR - Cython is required to build source distributions")
-
-            raise SystemExit(1)
-
-        self.cythonise()
-
-        return sdist.sdist.run(self)
-
-
-def make_extension(mod_name, **extra_options):
-    """
-    Tries is best to return an Extension instance based on the mod_name
-    """
-    base_name = os.path.join(mod_name.replace(".", os.path.sep))
-
-    if have_cython:
-        for ext in [".pyx", ".py"]:
-            source = base_name + ext
-
-            if os.path.exists(source):
-                return Extension(mod_name, [source], **extra_options)
-
-        print("WARNING: Could not find Cython source for %r" % (mod_name,))
-    else:
-        source = base_name + ".c"
-
-        if os.path.exists(source):
-            return Extension(mod_name, [source], **extra_options)
-
-        print("WARNING: Could not build extension for %r, no source found" % (
-            mod_name,))
-
-
-def get_extensions():
-    """
-    Return a list of Extension instances that can be compiled.
-    """
-    extensions = []
-
-    for p in recursive_glob(".", "*.pyx"):
-        mod_name = os.path.splitext(p)[0].replace(os.path.sep, ".")
-
-        e = make_extension(mod_name)
-
-        if e:
-            extensions.append(e)
-
-    return extensions
-
-
-def recursive_glob(path, pattern):
-    matches = []
-
-    for root, dirnames, filenames in os.walk(path):
-        for filename in fnmatch.filter(filenames, pattern):
-            matches.append(os.path.normpath(os.path.join(root, filename)))
-
-    return matches
+        self.extensions.extend(cythonize("miniamf/_accel/*.pyx"))
+        Feature.include_in(self, dist)
 
 
 def setup_package():
@@ -192,23 +88,15 @@ def setup_package():
         author_email=author_email,
         keywords=keywords.strip(),
         license=license,
-        packages=["miniamf"],
-        ext_modules=get_extensions(),
+        packages=['miniamf', 'miniamf._accel', 'miniamf.adapters', 'miniamf.util'],
         install_requires=["six", "defusedxml"],
+        features={"accel": AccelFeature(have_cython)},
         test_suite="tests",
-        zip_safe=False,
+        zip_safe=True,
         extras_require={},
         classifiers=[
             l for l in (ll.strip() for ll in classifiers.splitlines()) if l
         ],
-        distclass=MyDistribution,
-        cmdclass={
-            "build_ext": MyBuildExt,
-            "sdist": MySDist
-        },
-        package_data={
-            "miniamf._accel": ["*.pxd"]
-        }
     )
 
 
