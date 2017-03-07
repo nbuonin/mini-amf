@@ -28,8 +28,10 @@ following command::
 Older releases
 ==============
 
-Older releases are archived on
-https://pypi.python.org/packages/source/M/Mini-AMF/.
+Older releases are `archived on PyPI`_.
+
+.. _archived on PyPI: https://pypi.python.org/pypi/Mini-AMF
+
 
 .. The following is a horrible kludge but it is better than having to
    remember to update this file for every release.
@@ -37,7 +39,7 @@ https://pypi.python.org/packages/source/M/Mini-AMF/.
 
 .. |t-pre| raw:: html
 
-   <a href="https://pypi.python.org/packages/source/M/Mini-AMF/Mini-AMF-
+   <a href="https://files.pythonhosted.org/packages/source/M/Mini-AMF/Mini-AMF-
 
 .. |t-mid| raw:: html
 
