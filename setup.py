@@ -153,7 +153,6 @@ def setup_package():
         extras_require={
             "docs": [
                 "sphinx >= 1.5",
-                "sphinxcontrib-fulltoc"
             ]
         },
         classifiers=[
