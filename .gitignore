@@ -19,3 +19,4 @@ file_model
 .noseids
 cover
 htmlcov
+.tox/

@@ -88,7 +88,9 @@ def setup_package():
         author_email=author_email,
         keywords=keywords.strip(),
         license=license,
-        packages=['miniamf', 'miniamf._accel', 'miniamf.adapters', 'miniamf.util'],
+        packages=[
+            'miniamf', 'miniamf._accel', 'miniamf.adapters', 'miniamf.util'
+        ],
         install_requires=["six", "defusedxml"],
         features={"accel": AccelFeature(have_cython)},
         test_suite="tests",
