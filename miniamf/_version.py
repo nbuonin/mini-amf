@@ -6,4 +6,4 @@ from __future__ import absolute_import
 from .versions import Version
 
 
-version = Version(*(0, 9, 1, '-dev'))
+version = Version(*(0, 9, 1))
