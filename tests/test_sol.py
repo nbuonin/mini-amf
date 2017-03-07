@@ -11,7 +11,6 @@ Tests for Local Shared Object (LSO) Implementation.
 
 from __future__ import absolute_import
 
-import os.path
 from six import BytesIO
 import tempfile
 import unittest
