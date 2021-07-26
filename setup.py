@@ -4,7 +4,7 @@
 # See LICENSE.txt for details.
 
 import os.path
-from setuptools import Feature, setup
+from setuptools import setup
 import sys
 
 try:
@@ -40,34 +40,6 @@ keywords = """
 amf amf0 amf3 actionscript air flash flashplayer bytearray recordset
 decoder encoder sharedobject lso sol
 """
-
-
-class AccelFeature(Feature):
-    def __init__(self, have_cython):
-        self.have_cython = have_cython
-        self.extensions = []
-
-        Feature.__init__(
-            self,
-            description="optional C accelerator modules (broken)",
-            standard=False,
-            available=have_cython,
-            ext_modules=self.extensions
-        )
-
-    def include_in(self, dist):
-        if not self.have_cython:
-            sys.stderr.write(
-                "ERROR: Cython is required to compile accelerator modules.\n")
-            sys.exit(1)
-
-        sys.stderr.write(
-            "WARNING: Accelerator modules are broken.\n"
-            "WARNING: You should only use --with-accel "
-            "if you are trying to fix them.\n")
-
-        self.extensions.extend(cythonize("miniamf/_accel/*.pyx"))
-        Feature.include_in(self, dist)
 
 
 def get_version():
@@ -147,7 +119,6 @@ def setup_package():
             "miniamf", "miniamf._accel", "miniamf.adapters", "miniamf.util"
         ],
         install_requires=["six", "defusedxml"],
-        features={"accel": AccelFeature(have_cython)},
         test_suite="tests",
         zip_safe=True,
         extras_require={
